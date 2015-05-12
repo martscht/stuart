@@ -28,9 +28,8 @@ redo <- function(x=NULL) {
 debug(run.Mplus)
 
 
-
 mplus.begin <- proc.time()
-item.selection <- mmas(fairplayer, fs, 1, 4, pbest=.1, software='Mplus')
+item.selection <- mmas(fairplayer, fs, 1, 4, ants=3, colonies=1, pbest=.1, software='Mplus')
 mplus.end <- proc.time()
 
 lavaan.begin <- proc.time()
@@ -46,4 +45,5 @@ fs <- list(SI1=names(fairplayer)[2:11],
 
 repme <- list(SI=c('SI1','SI2'))
 
-longitudinal <- bruteforce(fairplayer, fs, 1, 4, repeated.measures=repme, software='Mplus')
+longitudinal <- bruteforce(fairplayer, fs, 1, 3, repeated.measures=repme, software='Mplus')
+
