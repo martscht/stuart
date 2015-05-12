@@ -105,13 +105,13 @@ function(
   #Feedbacking number of combinations
   combs <- do.call('compute.combinations', prepared[names(prepared)%in%names(formals(compute.combinations))])
 
-  cat('\n There are',combs,'combinations that need to be tested.\n')
+  message(paste('There are',combs,'combinations that need to be tested.'))
 
   #ask for override if the estimation is not feasible
   if (combs>request.override) {
     override <- NA
     while(is.na(override)) {
-      cat('\n Warning: Due to the number of possible combinations estimation may take very long or not be possible at all. Do you wish to continue?\n
+      cat('\nWarning: Due to the number of possible combinations estimation may take very long or not be possible at all. Do you wish to continue?\n
  Enter y to continue or n to abort.\t'
       )
       override <- scan('',what='character',nmax=1,quiet=TRUE)

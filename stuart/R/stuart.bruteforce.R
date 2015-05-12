@@ -24,7 +24,7 @@ function(
   log <- NULL
 
   #Give Feedback about combinations
-  cat('\n Generating all possible combinations.\n')
+  message('Generating all possible combinations.')
 
   combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
 
@@ -32,8 +32,8 @@ function(
   combi <- combinations$combi
 
   #creating user feedback
-  cat('\n Running STUART with Brute-Force.\n\n')
-  progress <- txtProgressBar(width=30,style=3)
+  message('Running STUART with Brute-Force.\n')
+  progress <- txtProgressBar(style=3)
   setTxtProgressBar(progress,0)
   count.gb <- 0
 
@@ -108,7 +108,7 @@ function(
   selected.gb <- bf.results[[run.gb]]$selected
 
   close(progress)
-  cat('\n\n Search ended. \n\n')
+  message('\nSearch ended.')
 
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,repeated.measures)

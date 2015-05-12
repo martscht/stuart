@@ -58,8 +58,8 @@ function(
   log <- NULL
 
   #creating user feedback
-  cat('\n Running STUART with MMAS.\n\n')
-  progress <- txtProgressBar(0,colonies,width=30,style=3)
+  message('Running STUART with MMAS.\n')
+  progress <- txtProgressBar(0,colonies,style=3)
   count.gb <- 0
 
   repeat { #over colonies
@@ -133,12 +133,11 @@ function(
       phe.min <- (phe.max*(1-pbest^(1/deci)))/(avg*pbest^(1/deci))
 
       if (phe.min >= phe.max) {
-        cat('\n')
         stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest.\n',call.=FALSE)
       }
 
       #new solution user feedback
-      cat('   Global best no.',count.gb,'found. Colony counter reset.\n')
+      message(paste('Global best no.',count.gb,'found. Colony counter reset.'))
 
       #restart the count
       colony <- 1
@@ -177,7 +176,7 @@ function(
 
   #feedback
   close(progress)
-  cat('\n\n Search ended. ',end.reason,'\n\n')      
+  message(paste('\nSearch ended.',end.reason))      
 
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))
