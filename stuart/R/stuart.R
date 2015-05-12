@@ -1,0 +1,57 @@
+### Roxygen-inzable documentation
+#' 
+#' STUART: Subtests Using ACO Rummaging Techniques
+#' 
+#' The STUART-Package automates the generation of subtests from
+#' a given set of items within the confines of confirmatory factor analysis.
+#' 
+#' @section Version History:
+#'
+#' \subsection{0.1.0}{
+#'   \itemize{
+#'     \item{Added function \code{\link{mmas}}.}
+#'     \item{Added function \code{\link{heuristics}}.}
+#'     \item{Added example dataset \code{\link{fairplayer}}.}
+#'     \item{Added \code{\link{lavaan}}-support (no other estimation software yet).}
+#'     \item{Added \code{\link{parallel}}-support: Parallel estimation on Unix-y machines.}
+#'   }
+#' }
+#' 
+#' \subsection{0.2.0}{
+#'     \itemize{
+#'       \item{Added function \code{\link{bruteforce}}.}
+#'       \item{Added function \code{\link{combinations}}.}
+#'     }        
+#' \describe{
+#'   \item{0.2.1}{
+#'     \itemize{
+#'       \item{Fixed a bug with the portrayal of the progress in \code{\link{mmas}}.}
+#'     }
+#'   }
+#'   \item{0.2.2}{
+#'     \itemize{
+#'       \item{Quick-fixed a bug with passing non-converged models from \code{run.lavaan}.}
+#'       \item{Changed \code{fitness.func} to include cases in which fit could not be computed.}
+#'       \item{Changed \code{run.lavaan} to output composite reliability and latent correlations in addition to fit criteria.}
+#'    }
+#'   }
+#'   \item{0.2.3}{
+#'     \itemize{
+#'       \item{Fixed problems when all ants of the first colony return \code{phe=0}.}
+#'       \item{Added suppression of standard error computation in \code{run.lavaan} except for final model.}
+#'       \item{Added \code{\link{parallel}}-support for Windows machines.}
+#'     }
+#'   }
+#' }
+#' }
+#' 
+#' \subsection{0.3.0}{
+#'   \itemize{
+#'     \item{Changed documentation scheme. Now based on \code{roxygen2}.}
+#'     \item{Added \code{Mplus}-support.}
+#'   }
+#' }
+#'  
+#' @docType package
+#' @name stuart
+NULL

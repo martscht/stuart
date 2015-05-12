@@ -1,0 +1,213 @@
+run.lavaan <-
+function(
+  data, auxi, 
+  number.of.items, number.of.subtests,
+  selected, selected.items,
+  long.equal, item.long.equal,
+  factor.structure, repeated.measures, grouping,
+  short.factor.structure,
+  invariance, long.invariance, group.invariance,
+  item.invariance, item.long.invariance, item.group.invariance,
+
+  analysis.options=NULL, suppress.model=FALSE,
+
+  output.model=FALSE,
+  ignore.errors=FALSE
+) { #begin function
+
+  #prepare data for model fit
+  model.data <- data[,unlist(selected.items)]
+  model.data$group <- data[,grouping]
+  model.data <- data.frame(model.data,auxi)
+
+  #define empty lavaan input
+  input <- NULL
+
+  if (!suppress.model) {
+    #write the (item) factor structure
+    for (i in 1:length(selected.items)) { #over factors
+      for (j in 1:length(selected.items[[i]])) { #over subtests
+        #shorten the writing by creating tmp-data
+        tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+        tmp.sel <- selected[[tmp.fil]][[j]]
+        tmp.sit <- selected.items[[i]][[j]]
+
+        #write the labels (no grouping)
+        if (is.null(grouping)) {
+          tmp.inv <- lapply(item.long.equal[[i]],function(x) return(x[tmp.sel]))
+        }
+
+        #write the labels (grouping)
+        else {
+          tmp.inv <- list(NA)
+          for (k in 1:length(item.long.equal)) { #over groups
+            tmp.inv[[k]] <- lapply(item.long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
+            tmp.inv[[k]] <- unlist(tmp.inv[[k]])
+          }
+          tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
+          tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
+          tmp.inv <- paste('c(',tmp.inv,')',sep='')
+          tmp.inv <- list(lam=tmp.inv[1:number.of.items[[tmp.fil]][j]],
+            alp=tmp.inv[(number.of.items[[tmp.fil]][j]+1):(number.of.items[[tmp.fil]][j]*2)],
+            eps=tmp.inv[(number.of.items[[tmp.fil]][j]*2+1):(number.of.items[[tmp.fil]][j]*3)])
+        }
+
+        #factor loadings
+        input <- paste(input,'\n',
+          names(selected.items[[i]])[j],'=~',
+          paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
+
+        #residual variances
+        input <- paste(input,
+          paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
+
+        #intercepts
+        input <- paste(input,
+          paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
+      }
+    }
+
+    #write the (subtest) factor structure
+    for (i in 1:length(selected.items)) {
+      if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
+          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+          tmp.sit <- names(selected.items[[i]])
+
+          if (is.null(grouping)) {
+            tmp.inv <- long.equal[[i]]
+          }
+
+          #write the labels (grouping)
+          else {
+            tmp.inv <- list(NA)
+            for (k in 1:length(long.equal)) { #over groups
+              tmp.inv[[k]] <- long.equal[[k]][[i]]
+              tmp.inv[[k]] <- unlist(tmp.inv[[k]])
+            }
+            tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
+            tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
+            tmp.inv <- paste('c(',tmp.inv,')',sep='')
+            tmp.inv <- list(lam=tmp.inv[1:number.of.subtests[[tmp.fil]]],
+              alp=tmp.inv[(number.of.subtests[[tmp.fil]]+1):(number.of.subtests[[tmp.fil]]*2)],
+              eps=tmp.inv[(number.of.subtests[[tmp.fil]]*2+1):(number.of.subtests[[tmp.fil]]*3)])
+          }
+
+          tmp.lin <- long.invariance[[tmp.fil]]
+
+        #factor loadings
+        input <- paste(input,'\n',
+          names(selected.items)[i],'=~',
+          paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
+
+        #residual variances
+        input <- paste(input,
+          paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
+
+        #intercepts
+        #set latent means for all first occasion measures & if weak or less long inv.
+        if (names(selected.items)[i]%in%names(short.factor.structure) | 
+          tmp.lin%in%c('congeneric','weak')) {
+          input <- paste(input,
+            paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          input <- paste(input,
+            paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+        }
+
+        else {
+          input <- paste(input,
+            paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
+          input <- paste(input,
+            paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+        }
+      }
+    }
+  }
+
+  input <- paste(input,analysis.options$model)
+
+  #list of arguments to pass to lavaan
+  if (is.null(analysis.options)) {
+    analysis.options <- list(NULL) 
+  }
+    
+  analysis.options$model <- input
+  analysis.options$data <- model.data
+
+  if (!is.null(grouping)) {
+    analysis.options$group <- 'group'
+  }
+  if (is.null(analysis.options$missing)) {
+    analysis.options$missing <- 'fiml'
+  }
+
+  if (!output.model) {
+    analysis.options$se <- 'none'
+  }
+
+  
+  #retain only the options that are accepted by lavaan
+  analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
+  analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan)))]
+    
+  output <- try(suppressWarnings(do.call('cfa',analysis.options)),silent=TRUE)
+
+  if (class(output)=='try.error') {
+    return(output=list(NA))
+  }
+
+  if (output.model & class(output)=='lavaan') {
+    return(output=output)
+  }
+  
+  if (!output.model & class(output)=='lavaan') {
+
+    if (!ignore.errors) {
+      #check if psi is positive definite
+      posdefin <- NULL
+      for (i in 1:length(inspect(output,'cov.lv'))) {
+        posdefin[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
+      }
+      posdefin <- all(posdefin)
+
+      #return only NA if Psi is Not Positive Definite      
+      if (!posdefin) {
+        return(output=list(NA)) 
+      }
+    }
+
+    tmp <- try(suppressWarnings(inspect(output,'fit')),silent=TRUE)
+    if (class(tmp)[1]=='try-error') {
+      return(output=list(NA))
+    }
+
+    else {
+      # compute Allen's composite reliability (overall)
+      # residuals (1st occasion)
+      theta <- lapply(inspect(output,'theta'),diag)
+      theta <- lapply(theta, function(x) x[names(x)%in%unlist(short.factor.structure)])
+
+      # implied overall variances (1st occasion)
+      sigma <- lapply(inspect(output,'sigma'),diag)
+      sigma <- lapply(sigma, function(x) x[names(x)%in%unlist(short.factor.structure)])
+
+
+      # compute reliabilities within each group
+      rel <- as.list(rep(NA,length(theta)))
+      for (i in 1:length(theta)) {
+        rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
+      }
+      
+      crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
+
+      # Export the latent variable correlation matrix
+      lvcor <- inspect(output,'cor.lv')
+
+      output <- as.list(tmp)
+      output$crel <- crel
+      output$lvcor <- lvcor
+
+      return(output=output)
+    }
+  }
+
+}

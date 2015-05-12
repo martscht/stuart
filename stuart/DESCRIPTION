@@ -1,0 +1,10 @@
+Package: stuart
+Type: Package
+Title: Subtests Using ACO Rummaging Techniques
+Version: 0.3.0
+Date: 2014-08-23
+Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
+  role=c('aut','cre'))
+Description: Construct subtests from a pool of items by using Ant-Colony-Optimization (currently limited to classical MMAS) or Brute-Force
+License: GPL-3
+Suggests: parallel, lavaan
