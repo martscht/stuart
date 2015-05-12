@@ -284,15 +284,24 @@ function(
   #create Mplus input file
   cat(input,file=paste0(filename,'.inp'))
   
-  #run Mplus-Input (full mplus)
+  #run Mplus-Input (on windows)
   if (Sys.info()[1]=='Windows') {
-    system(paste('mplus ',filename,'.inp',sep=''),
+    system(paste0('mplus ',filename,'.inp'),
       wait=TRUE,show.output.on.console=FALSE)
   }
   
-  else {
-    system(paste('mplus ',getwd(),'/',filename,'.inp ',getwd(),'/',filename,'.out',sep=''),
+  #replace spaces in directories
+  working <- gsub(' ','\\ ',getwd())
+  
+  #run Mplus-Input (on linux)
+  if (Sys.info()[1]=='Linux') {
+    system(paste0('mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
       wait=TRUE,ignore.stdout=TRUE)
+  }
+  
+  #run Mplus-Input (on osx)
+  else {
+    system(paste0('/Applications/Mplus/mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'))
   }
   
   #import Mplus output
