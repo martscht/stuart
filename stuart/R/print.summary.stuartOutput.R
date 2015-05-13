@@ -1,6 +1,6 @@
 print.summary.stuartOutput <-
 function(x,...) {
-  cat('\nWarning: This is an alpha-build, so there may be (a lot of) bugs.\n\n')
+  message('Warning: This is an alpha-build, so there may be (a lot of) bugs.\n')
   cat('SUMMARY OF ANALYSIS:\n\n')
   cat('Analysis Type:',x$Type,'\n')
   cat('Estimation Software:',x$Software,'\n')
