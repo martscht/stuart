@@ -1,3 +1,5 @@
+#' @export
+
 plot.stuartOutput <-
 function(x,...) {
   best <- x$Log$pheromone==max(x$Log$pheromone)

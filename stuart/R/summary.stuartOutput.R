@@ -1,3 +1,5 @@
+#' @export
+
 summary.stuartOutput <-
 function(x,...) {
   Time <- as.numeric(x$Timer[3])

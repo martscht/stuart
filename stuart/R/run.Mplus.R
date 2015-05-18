@@ -301,7 +301,8 @@ function(
   
   #run Mplus-Input (on osx)
   else {
-    system(paste0('/Applications/Mplus/mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'))
+    system(paste0('/Applications/Mplus/mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
+      wait=TRUE,ignore.stdout=TRUE)
   }
   
   #import Mplus output

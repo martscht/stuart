@@ -1,3 +1,5 @@
+#' @export
+
 print.summary.stuartOutput <-
 function(x,...) {
   message('Warning: This is an alpha-build, so there may be (a lot of) bugs.\n')

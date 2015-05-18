@@ -3,13 +3,13 @@ function(software,cores,...) { #function begin
 
   #check for Mplus if requested
   if (software=='Mplus') {
-    if (!nzchar(Sys.which('mplus'))) {
+    if (!(nzchar(Sys.which('mplus'))|nzchar(Sys.which('/Applications/Mplus/mplus')))) {
       stop('Mplus is not installed. You could try using lavaan or OpenMx instead.\n',call.=FALSE) }
   }
   
   #check for Mplus Demo if requested
   if (software=='Mplus Demo') {
-    if (!nzchar(Sys.which('mpdemo'))) {
+    if (!(nzchar(Sys.which('mpdemo'))|nzchar(Sys.which('/Applications/Mplus/mpdemo')))) {
       stop('Mplus Demo is not installed. You could try using lavaan or OpenMx instead.\n',call.=FALSE) }
   }
 
