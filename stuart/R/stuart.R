@@ -50,6 +50,14 @@
 #'     \item{Changed documentation scheme. Now based on \code{roxygen2}.}
 #'     \item{Added \code{Mplus}-support.}
 #'   }
+#'   \describe{
+#'     \item{0.3.1}{
+#'       \itemize{
+#'         \item{Fixed OSX bug with Mplus localisation}
+#'         \item{Fixed export of S3methods}
+#'       }
+#'     }
+#' }
 #' }
 #'  
 #' @docType package
