@@ -31,11 +31,11 @@ function(
 
   #write Mplus "Title" section
   input <- paste0('Title: Subtest Construction using STUART \n',
-    analysis.options[grepl('^titl*',names(analysis.options),ignore.case=TRUE)][[1]],'\n')
+    unlist(analysis.options[grepl('^titl*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
   #write Mplus "Data" section
   input <- paste0(input,'Data: file=',filename,'_data.dat; \n',
-    analysis.options[grepl('^data*',names(analysis.options),ignore.case=TRUE)][[1]],'\n')
+    unlist(analysis.options[grepl('^data*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
   #write Mplus "Variable" section
   input <- paste0(input,'Variable: \n\tnames=')
@@ -51,12 +51,12 @@ function(
     input <- paste(input,paste0('grouping = group (',paste(unique(model.data$group),unique(model.data$group),sep='=',collapse=' '),')'),';\n')
   }
   
-  input <- paste0(input,analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][[1]],'\n')
+  input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
   #write Mplus "Analysis" section
   input <- paste0(input,'Analysis: \n\tprocessors=',cores,';\n')
   
-  input <- paste0(input,analysis.options[grepl('^anal*',names(analysis.options),ignore.case=TRUE)][[1]],'\n')
+  input <- paste0(input,unlist(analysis.options[grepl('^anal*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
   #write Mplus "Model" section
   input <- paste0(input,'Model:\n')
@@ -268,17 +268,17 @@ function(
     }
   }
   
-  input <- paste0(input,analysis.options[grepl('^mode*',names(analysis.options),ignore.case=TRUE)][[1]],'\n')
+  input <- paste0(input,unlist(analysis.options[grepl('^mode*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
   #write Mplus "Output" section
   if (!output.model) {
     input <- paste(input,'Output: STDYX NOSERROR\n',
-                   analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][[1]],';\n')
+                   unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
   
   else {
     input <- paste(input,'Output: STDYX \n',
-                   analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][[1]],';\n')    
+                   unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
 
   #create Mplus input file
