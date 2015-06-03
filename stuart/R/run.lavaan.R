@@ -123,8 +123,12 @@ function(
     }
   }
 
-  input <- paste(input,analysis.options$model)
-
+  if (is.data.frame(analysis.options$model)) {
+    if (suppress.model) input <- analysis.options$model
+    else input <- rbind(lavParTable(input),analysis.options$model)
+  }
+  else input <- paste(input,analysis.options$model)
+  
   #list of arguments to pass to lavaan
   if (is.null(analysis.options)) {
     analysis.options <- list(NULL) 
@@ -182,22 +186,26 @@ function(
 
     else {
       # compute Allen's composite reliability (overall)
-      # residuals (1st occasion)
-      theta <- lapply(inspect(output,'theta'),diag)
-      theta <- lapply(theta, function(x) x[names(x)%in%unlist(short.factor.structure)])
-
-      # implied overall variances (1st occasion)
-      sigma <- lapply(inspect(output,'sigma'),diag)
-      sigma <- lapply(sigma, function(x) x[names(x)%in%unlist(short.factor.structure)])
-
-
-      # compute reliabilities within each group
-      rel <- as.list(rep(NA,length(theta)))
-      for (i in 1:length(theta)) {
-        rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
+      if (is.null(grouping)) {
+        theta <- diag(inspect(output,'theta'))
+        sigma <- diag(inspect(output,'sigma'))
+        
+        rel <- 1-(theta/sigma)
+        crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
       }
       
-      crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
+      else {
+        theta <- lapply(inspect(output,'theta'),diag)
+        sigma <- lapply(inspect(output,'sigma'),diag)
+        
+        rel <- as.list(rep(NA,length(theta)))
+        for (i in 1:length(theta)) {
+          rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
+        }
+        crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
+      }
+      
+      
 
       # Export the latent variable correlation matrix
       lvcor <- inspect(output,'cor.lv')
