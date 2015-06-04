@@ -308,6 +308,8 @@ function(
   #import Mplus output
   MplusOut <- readLines(paste0(filename,'.out'))
   
+  if (output.model) return(MplusOut)
+  
   if (!any(grepl('MODEL FIT',MplusOut))) {
     warning('The Mplus input file generated an error.\n',call.=FALSE)
     exclusion <- TRUE
@@ -352,13 +354,11 @@ function(
     tmp <- grep('\\.[0-9]{3}',tmp,value=TRUE)
     tmp <- as.numeric(sapply(strsplit(tmp,'\\s+'),rbind)[3,])
     rel <- suppressWarnings(data.frame(item=unlist(selected.items),rel=tmp))
-    rel <- rel[rel$item%in%unlist(short.factor.structure),]
     rel <- aggregate(rel[,2],list(rel$item),mean)
 
     output$crel <- sum((rel$x/(1-rel$x)))/(1+sum((rel$x/(1-rel$x))))
 
-    if (output.model) return(output=MplusOut)
-    else return(output=output)
+    return(output=output)
   }  
   
 } #end function

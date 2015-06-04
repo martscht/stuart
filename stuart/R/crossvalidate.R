@@ -17,11 +17,17 @@ function(
   selection, new.data, old.data=NULL,
   invariance='congeneric',
   fitness.func=fitness,
+  filename='stuart',
   ...
 ) { #begin function
   
+  if (!invariance%in%c('congeneric','weak','strong','strict','full'))
+    stop('invariance must be congeneric, weak, strong, strict, or full.')
+  
   # check estimation software
   software <- selection$EstimationSoftware
+  
+  if (software=='Mplus' & is.null(old.data)) stop('When using Mplus the old.data is required.')
   
   # set arguments for software-specific runs
   args <- as.list(match.call())[-1]
