@@ -355,12 +355,10 @@ function(
     rel <- rel[rel$item%in%unlist(short.factor.structure),]
     rel <- aggregate(rel[,2],list(rel$item),mean)
 
-    output$crel <- mean(sapply(rel$x, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
+    output$crel <- sum((rel$x/(1-rel$x)))/(1+sum((rel$x/(1-rel$x))))
 
-    # Export the latent variable correlation matrix
-#    lvcor <- inspect(output,'cor.lv')
-    
-    return(output=output)
+    if (output.model) return(output=MplusOut)
+    else return(output=output)
   }  
   
 } #end function
