@@ -10,16 +10,15 @@ function(
   
   # select parameters to be constrained
   equality <- character()
-  if (invariance%in%c('weak','strong','strict','total')) equality <- c(equality,'=~')
-  if (invariance%in%c('strong','strict','total')) equality <- c(equality,'~1')
-  if (invariance%in%c('strict','total')) equality <- c(equality,'~~')
+  if (invariance%in%c('weak','strong','strict')) equality <- c(equality,'=~')
+  if (invariance%in%c('strong','strict')) equality <- c(equality,'~1')
+  if (invariance%in%c('strict')) equality <- c(equality,'~~')
 
   parameters$free[parameters$op%in%equality] <- 0
   parameters$ustart[parameters$op%in%equality] <- parameters$old[parameters$op%in%equality]
 
-  if (invariance!='total') {
-    parameters$free[parameters$op%in%equality&parameters$label==''] <- parameters$unco[parameters$op%in%equality&parameters$label=='']
-  }
+  parameters$free[parameters$op%in%equality&parameters$label==''] <- 
+    parameters$unco[parameters$op%in%equality&parameters$label=='']
   
   args <- list(data=new.data,selected.items=selection$Subtests,
     grouping=NULL,auxi=new.data[,NULL],suppress.model=TRUE,
