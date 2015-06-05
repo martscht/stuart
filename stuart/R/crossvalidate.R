@@ -1,7 +1,7 @@
 ### Roxygen-izable Documentation ----
 #' Cross-Validate a Measurement Model
 #' 
-#' Can be used to cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
+#' Cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
 #' 
 #' @author Martin Schultze
 #' 
@@ -13,7 +13,7 @@
 #' @param old.data A \code{data.frame} of the calibration sample. This is only necessary when using Mplus.
 #' @param invariance The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.
 #' @param fitness.func A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
-#' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Dafaults to "stuart".
+#' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".
 #' 
 #' @concept ACO subtests
 #' 
