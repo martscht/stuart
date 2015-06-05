@@ -289,18 +289,19 @@ function(
     system(paste0('mplus ',filename,'.inp'),
       wait=TRUE,show.output.on.console=FALSE)
   }
-  
-  #replace spaces in directories
-  working <- gsub(' ','\\ ',getwd())
-  
   #run Mplus-Input (on linux)
   if (Sys.info()[1]=='Linux') {
+    #replace spaces in directories
+    working <- gsub(' ','\\ ',getwd())
+    
     system(paste0('mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
       wait=TRUE,ignore.stdout=TRUE)
   }
-  
   #run Mplus-Input (on osx)
-  else {
+  if (Sys.info()[1]=='Darwin') {
+    #replace spaces in directories
+    working <- gsub(' ','\\ ',getwd())
+    
     system(paste0('/Applications/Mplus/mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
       wait=TRUE,ignore.stdout=TRUE)
   }
