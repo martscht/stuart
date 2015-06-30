@@ -4,7 +4,7 @@
 \alias{bruteforce}
 \title{Subtest construction using a brute-force approach}
 \usage{
-bruteforce(data, factor.structure, number.of.subtests = 2,
+bruteforce(data, factor.structure, number.of.subtests = 1,
   items.per.subtest = NULL, invariance = "parallel",
   item.invariance = "congeneric", repeated.measures = NULL,
   long.invariance = "strict", item.long.invariance = "strict",

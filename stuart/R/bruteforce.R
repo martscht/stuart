@@ -67,7 +67,7 @@
 ### Function definition ----
 bruteforce <-
 function(
-  data, factor.structure, number.of.subtests=2, items.per.subtest=NULL, #subtest settings
+  data, factor.structure, number.of.subtests=1, items.per.subtest=NULL, #subtest settings
 
   invariance='parallel', item.invariance='congeneric',                  #cross invariance
 

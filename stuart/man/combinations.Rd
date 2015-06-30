@@ -4,7 +4,7 @@
 \alias{combinations}
 \title{Compute the number of possible subtest combinations}
 \usage{
-combinations(data, factor.structure, number.of.subtests = 2,
+combinations(data, factor.structure, number.of.subtests = 1,
   items.per.subtest = NULL, repeated.measures = NULL, ...)
 }
 \arguments{

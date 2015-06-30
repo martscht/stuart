@@ -38,7 +38,7 @@
 ### Function definition ----
 combinations <-
 function(
-  data, factor.structure, number.of.subtests=2, items.per.subtest=NULL, #subtest settings
+  data, factor.structure, number.of.subtests=1, items.per.subtest=NULL, #subtest settings
   repeated.measures=NULL, 
   ...
 ) {#function begin
