@@ -4,7 +4,7 @@
 \alias{heuristics}
 \title{Generating heuristics for the use in STUART subtest construction}
 \usage{
-heuristics(data, factor.structure, number.of.subtests = 2,
+heuristics(data, factor.structure, number.of.subtests = 1,
   items.per.subtest = NULL, repeated.measures = NULL, grouping = NULL,
   deposit.on = "nodes", ...)
 }

@@ -50,7 +50,7 @@
 ### Function definition ----
 heuristics <-
 function(
-  data, factor.structure, number.of.subtests=2, items.per.subtest=NULL,
+  data, factor.structure, number.of.subtests=1, items.per.subtest=NULL,
   repeated.measures=NULL, grouping=NULL,  
   deposit.on='nodes', 
   ...
