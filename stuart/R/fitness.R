@@ -12,7 +12,7 @@ function(
     pheromone <- with(solution.fit, 1/(1+exp(4-10*(crel))) +
               .5*(1 - (1/(1+exp(5-100*rmsea)))) +
               .5*(1 - (1/(1+exp(5-100*srmr))))) 
-    return(list(pheromone=pheromone,chisq=solution.fit$chisq,df=solution.fit$df,p=solution.fit$pvalue,rsmea=solution.fit$rmsea,srmr=solution.fit$srmr,crel=solution.fit$crel))
+    return(list(pheromone=pheromone,chisq=solution.fit$chisq,df=solution.fit$df,p=solution.fit$pvalue,rmsea=solution.fit$rmsea,srmr=solution.fit$srmr,crel=solution.fit$crel))
   }
 
 }
