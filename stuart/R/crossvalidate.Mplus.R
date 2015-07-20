@@ -3,7 +3,7 @@ crossvalidate.Mplus <-
 function(
   selection,
   new.data, old.data,
-  invariance, filename, ...
+  invariance, filename, file.remove, ...
 ) { # begin function
   
   model <- selection$FinalModel
@@ -40,6 +40,11 @@ function(
   args$output.model <- FALSE
 
   output <- do.call('run.Mplus',args)  
+  
+  if (file.remove) {
+    file.remove(paste0(filename,'_calibration',c('.inp','.out')))
+    file.remove(paste0(filename,'_validation',c('.inp','.out')))
+  }
   
   return(output)
   

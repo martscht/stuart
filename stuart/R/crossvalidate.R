@@ -14,6 +14,7 @@
 #' @param invariance The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.
 #' @param fitness.func A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".
+#' @param file.remove A logical indicating whether to remove the generated Mplus input and output files. Ignored if lavaan is used.
 #' 
 ### Outputs ----
 #' @return Returns a \code{data.frame} with 2 observations of 7 variables. The first observation is the fitness of the final model for the calibration sample. The second observation is the fitness of the model for the validation sample.
@@ -47,6 +48,7 @@ function(
   invariance='congeneric',
   fitness.func=fitness,
   filename='stuart',
+  file.remove=TRUE,
   ...
 ) { #begin function
   

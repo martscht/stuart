@@ -2,7 +2,7 @@ data.prep <-
 function(
   data, factor.structure,                                               #simple prerequisites
   
-  number.of.subtests=2, items.per.subtest=NULL, invariance='parallel',  #subtest relations
+  number.of.subtests=1, items.per.subtest=NULL, invariance='parallel',  #subtest relations
   repeated.measures=NULL, long.invariance='strict',                     #longitudinal relations
   grouping=NULL, group.invariance='strict',                             #grouping relations
 
