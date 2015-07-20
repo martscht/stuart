@@ -24,3 +24,14 @@ repme <- list(em=c('em1','em2'))
 tmp <- mmas(fairplayer_mtmm,fs,1,3,repeated.measures=repme,software='Mplus')
 summary(tmp)
 crossvalidate(tmp,fairplayer_mtmm,fairplayer_mtmm)
+
+# set up: one construct, two methods
+fs <- list(emS=names(fairplayer_mtmm)[5:12],
+  emT=names(fairplayer_mtmm)[29:36])
+
+mtmm <- list(em=c('emS','emT'))
+
+debug(mmas);debug(data.prep)
+
+tmp <- mmas(fairplayer_mtmm,fs,2,3,repeated.measures=mtmm,ants=5,colonies=256,software='Mplus',pbest=.1)
+summary(tmp)

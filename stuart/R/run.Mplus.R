@@ -353,7 +353,7 @@ function(
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
     tmp <- gsub('\\s+',' ',tmp)
     tmp <- grep('\\.[0-9]{3}',tmp,value=TRUE)
-    tmp <- as.numeric(sapply(strsplit(tmp,'\\s+'),rbind)[3,])
+    tmp <- as.numeric(sapply(strsplit(tmp,'\\s+'),rbind)[3,1:length(unlist(selected.items))])
     rel <- suppressWarnings(data.frame(item=unlist(selected.items),rel=tmp))
     rel <- aggregate(rel[,2],list(rel$item),mean)
 

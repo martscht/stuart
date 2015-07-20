@@ -44,6 +44,7 @@ function(
   if (file.remove) {
     file.remove(paste0(filename,'_calibration',c('.inp','.out')))
     file.remove(paste0(filename,'_validation',c('.inp','.out')))
+    file.remove(paste0(filename,c('_calibration','_validation'),'_data.dat'))
   }
   
   return(output)

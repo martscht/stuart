@@ -45,7 +45,7 @@ function(
 
   #compute upper and lower limits
   phe.max <- phe.gb/(1-evaporation)
-  phe.min <- (phe.max*(1-pbest^(1/deci)))/(avg*pbest^(1/deci))
+  phe.min <- (phe.max*(1-pbest^(1/deci)))/((avg-1)*pbest^(1/deci))
 
   #initialize pheromones
   pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on)
@@ -130,10 +130,10 @@ function(
 
       #compute upper and lower limits
       phe.max <- phe.gb/(1-evaporation)
-      phe.min <- (phe.max*(1-pbest^(1/deci)))/(avg*pbest^(1/deci))
+      phe.min <- (phe.max*(1-pbest^(1/deci)))/((avg-1)*pbest^(1/deci))
 
       if (phe.min >= phe.max) {
-        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest.\n',call.=FALSE)
+        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions was viable.\n',call.=FALSE)
       }
 
       #new solution user feedback
@@ -187,7 +187,7 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance)
+    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min)
   return(results)
 
 }
