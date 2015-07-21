@@ -33,5 +33,6 @@ mtmm <- list(em=c('emS','emT'))
 
 debug(mmas);debug(data.prep)
 
-tmp <- mmas(fairplayer_mtmm,fs,2,3,repeated.measures=mtmm,ants=5,colonies=256,software='Mplus',pbest=.1)
+tmp <- mmas(fairplayer_mtmm,fs,2,3,repeated.measures=mtmm,software='Mplus',pbest=.1,ants=10,colonies=3)
 summary(tmp)
+
