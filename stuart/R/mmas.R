@@ -135,7 +135,7 @@ function(
   final.model <- do.call(paste('run',software,sep='.'),args)
 
   #generating output
-  output <- list(Call=match.call()[1])  
+  output <- list(Call=match.call())  
   output$EstimationSoftware <- software
   output$Parameters <- c(solution$parameters)
   output$Timer <- proc.time() - timer

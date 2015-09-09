@@ -13,8 +13,10 @@ function(
   model <- paste(model[model.begin:model.end],collapse='\n')
   out <- 'svalues'
   
+  grouping <- selection$Call$grouping
+  
   args <- list(data=old.data,selected.items=selection$Subtests,
-    grouping=NULL,auxi=old.data[,NULL],suppress.model=TRUE,
+    grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
     output.model=TRUE,
     filename=paste0(filename,'_calibration'),cores=NULL,
     analysis.options=list(model=model,output=out))
@@ -22,6 +24,36 @@ function(
   calib <- do.call('run.Mplus',args)  
   
   model <- calib[(grep('USED AS STARTING VALUES',calib)+1):(grep('^\\s+Beginning Time',calib)-1)]
+  
+  if (!is.null(grouping)) {
+    tmp <- c(1,
+      sapply(unique(old.data[,grouping]), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
+      length(model))
+    group.models <- list()
+    for (i in 2:(length(tmp)-1)) {
+      group.models[[i-1]] <- model[tmp[i]:(tmp[i+1]-1)]
+    }
+    overall.model <-  model[tmp[1]:(tmp[2]-1)]
+    
+    if (!grouping %in% names(new.data) | 
+        !all(unique(new.data[,grouping])%in%unique(old.data[,grouping]))) {
+      warning('The validation sample contained a value on the grouping variable not contained in the calibration sample.',
+              'Parameters of the first group of the calibration sample will be used.')
+      model <-  paste(group.models[[1]][-1],collapse='\n')
+      grouping <- NULL
+    } else {
+      if (length(unique(new.data[,grouping]))==1) {
+        model <- paste(sapply(group.models[[unique(new.data[,grouping])]][-1],paste,collapse='\n'),collapse='\n')
+        grouping <- NULL
+      } else {
+        model <- paste(paste(overall.model,collapse='\n'),
+          sapply(group.models[unique(new.data[,grouping])],paste,collapse='\n'),collapse='\n')
+      }
+    }
+  } else {
+    grouping  <- NULL
+  }
+  
   
   # select parameters to be constrained
   equality <- character()
@@ -38,8 +70,9 @@ function(
   args$auxi <- new.data[,NULL]
   args$analysis.options <- list(model=paste(model,collapse='\n'))
   args$output.model <- FALSE
+  args['grouping'] <- list(grouping)
 
-  output <- do.call('run.Mplus',args)  
+  output <- do.call('run.Mplus',args)
   
   if (file.remove) {
     file.remove(paste0(filename,'_calibration',c('.inp','.out')))

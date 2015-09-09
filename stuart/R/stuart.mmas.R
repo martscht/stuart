@@ -137,7 +137,7 @@ function(
       }
 
       #new solution user feedback
-      message(paste('Global best no.',count.gb,'found. Colony counter reset.'))
+      message(paste('\nGlobal best no.',count.gb,'found. Colony counter reset.'))
 
       #restart the count
       colony <- 1
