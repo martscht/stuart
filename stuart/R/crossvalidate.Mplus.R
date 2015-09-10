@@ -25,6 +25,16 @@ function(
   
   model <- calib[(grep('USED AS STARTING VALUES',calib)+1):(grep('^\\s+Beginning Time',calib)-1)]
   
+  # select parameters to be constrained
+  equality <- character()
+  if (invariance%in%c('weak','strong','strict')) equality <- c(equality,'(lam[0-9]+)')
+  if (invariance%in%c('strong','strict')) equality <- c(equality,'(alp[0-9]+)')
+  if (invariance%in%c('strict')) equality <- c(equality,'(eps[0-9]+)')
+  
+  filter <- grepl(paste(equality,collapse='|'),model)
+  
+  if (length(equality)>0 | invariance=='full') model[filter] <- gsub('\\*','@',model[filter])
+  
   if (!is.null(grouping)) {
     tmp <- c(1,
       sapply(unique(old.data[,grouping]), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
@@ -53,17 +63,6 @@ function(
   } else {
     grouping  <- NULL
   }
-  
-  
-  # select parameters to be constrained
-  equality <- character()
-  if (invariance%in%c('weak','strong','strict')) equality <- c(equality,'(lam[0-9]+)')
-  if (invariance%in%c('strong','strict')) equality <- c(equality,'(alp[0-9]+)')
-  if (invariance%in%c('strict')) equality <- c(equality,'(eps[0-9]+)')
-  
-  filter <- grepl(paste(equality,collapse='|'),model)
-  
-  if (length(equality)>0 | invariance=='full') model[filter] <- gsub('\\*','@',model[filter])
   
   args$filename <- paste0(filename,'_validation')
   args$data <- new.data
