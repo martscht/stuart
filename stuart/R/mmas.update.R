@@ -6,7 +6,8 @@ function(
 
       tmp <- list(NA)
       for (i in 1:length(pheromones)) {
-        tmp[[i]] <- phe*solution[[i]]
+        sym.solution <- solution[[i]]+t(solution[[i]])
+        tmp[[i]] <- phe*sym.solution
         tmp[[i]] <- evaporation*pheromones[[i]] + tmp[[i]]
         for (j in 1:nrow(tmp[[i]])) {
           for (k in 1:ncol(tmp[[i]])) {

@@ -3,12 +3,9 @@ function(
   short.factor.structure, number.of.items
 ) { #begin function
 
-  combinations <- NULL
-  for (i in 1:length(short.factor.structure)) {
-    combinations[i] <- factorial(length(short.factor.structure[[i]])) / factorial(length(short.factor.structure[[i]])-sum(number.of.items[[i]]))
-  }
-  combinations <- prod(combinations)
-
+  comb <- matrix(c(sapply(short.factor.structure,length),unlist(number.of.items)),ncol=2)
+  combinations <- prod(choose(comb[,1],comb[,2]))
+  
   return(combinations)
 
 }
