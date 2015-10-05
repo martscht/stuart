@@ -150,7 +150,8 @@ function(
 
         
     #updated pheromones
-    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation,get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
+    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation,deposit.on,
+      get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
 
     #check for convergence
     tmp.min <- sapply(pheromones, function(x) sum(phe.min-tolerance < x & x < phe.min+tolerance))

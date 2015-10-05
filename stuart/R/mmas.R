@@ -121,6 +121,7 @@ function(
   #combine arguments
   args <- c(prepared,args[!names(args)%in%names(prepared)])
 
+  #call the core function
   solution <- do.call('stuart.mmas',args)
 
   args$data <- data

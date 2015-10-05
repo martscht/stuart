@@ -152,8 +152,9 @@ function(
   #retain only the options that are accepted by lavaan
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
   analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan)))]
-    
-  output <- try(suppressWarnings(do.call('cfa',analysis.options)),silent=TRUE)
+  
+  tmp.cfa <- get('cfa',asNamespace('lavaan'))  
+  output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
 
   if (class(output)=='try.error') {
     return(output=list(NA))
