@@ -139,15 +139,15 @@ function(
   final.model <- do.call(paste('run',software,sep='.'),args)
 
   #generating output
-  output <- list(Call=match.call()[1])  
-  output$EstimationSoftware <- software
-  output$Parameters <- c(solution$parameters)
-  output$Timer <- proc.time() - timer
-  output$Log <- solution$log
-  output$Solution <- NULL
-  output$Pheromones <- NULL
-  output$Subtests <- solution$selected.items
-  output$FinalModel <- final.model
+  output <- list(call=match.call()[1])  
+  output$software <- software
+  output$parameters <- c(solution$parameters)
+  output$timer <- proc.time() - timer
+  output$log <- solution$log
+  output$solution <- NULL
+  output$pheromones <- NULL
+  output$subtests <- solution$selected.items
+  output$final <- final.model
 
   class(output) <- 'stuartOutput'
   return(output)
