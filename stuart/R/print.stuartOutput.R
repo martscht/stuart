@@ -2,5 +2,5 @@
 
 print.stuartOutput <-
 function(x,...) {
-  print(x$Subtests)
+  print(x$subtests)
 }

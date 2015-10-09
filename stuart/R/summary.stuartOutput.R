@@ -2,14 +2,14 @@
 
 summary.stuartOutput <-
 function(x,...) {
-  Time <- as.numeric(x$Timer[3])
-  Models <- nrow(x$Log)
-  Replications <- sum(x$Log$pheromone==max(x$Log$pheromone))
-  Results <- x$Log[x$Log$pheromone==cummax(x$Log$pheromone),]
+  Time <- as.numeric(x$timer[3])
+  Models <- nrow(x$log)
+  Replications <- sum(x$log$pheromone==max(x$log$pheromone))
+  Results <- x$log[x$log$pheromone==cummax(x$log$pheromone),]
   Results <- Results[!duplicated(Results[,3:ncol(Results)]),]
 
-  Out <- list(Subtests=x$Subtests,Results=Results,Time=Time,Models=nrow(x$Log),
-              Replications=Replications,Type=paste(x$Call),Software=x$EstimationSoftware)
+  Out <- list(Subtests=x$subtests,Results=Results,Time=Time,Models=Models,
+              Replications=Replications,Type=paste(x$call),Software=x$software)
   class(Out) <- 'summary.stuartOutput'
   return(Out)
 }
