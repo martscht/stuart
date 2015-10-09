@@ -3,8 +3,8 @@
 plot.stuartOutput <-
 function(x,remove.errors=TRUE,...) {
   
-  phe <- x$Log$pheromone
-  run <- x$Log$run
+  phe <- x$log$pheromone
+  run <- x$log$run
   
   if (remove.errors) {
     run <- run[phe!=0]
@@ -12,10 +12,19 @@ function(x,remove.errors=TRUE,...) {
   }
   
   best <- phe==max(phe)
+  args <- as.list(match.call()[-1])
+  args$x <- run
+  args$y <- phe 
+  args$xlab <- 'Run'
+  args$ylab <- 'Pheromone'
+  args$col <- as.numeric(best)+1
+  if (is.null(args$pch)) args$pch <- 16
 
-  plot(phe~run,col=rgb(.06,.31,.55,.2),pch=16,
-       xlab='Run',ylab='Pheromone')
-  points(phe[best]~run[best],col=rgb(.55,.41,.08),pch=16)
-  legend('bottomright',c('Alternative','Final Solution'),pch=16,col=c(rgb(.06,.31,.55),rgb(.55,.41,.08)))
-  lines(lowess(phe~run))
+  do.call(plot,args)
+  
+  args$x <- lowess(phe~run)
+  args$y <- NULL
+  do.call(lines,args)
+  
+  legend('bottomright',c('Alternative','Final Solution'),pch=args$pch,col=unique(args$col))
 }
