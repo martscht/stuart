@@ -47,15 +47,15 @@
 #' 
 ### Outputs ---- 
 #' @return Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
-#' \item{Call }{The called function.}
-#' \item{EstimationSoftware}{The software used to fit the CFA models.}
-#' \item{Parameters}{A list of the ACO parameters used.}
-#' \item{Timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
-#' \item{Log}{A \code{data.frame} containing the optimization history.}
-#' \item{Solution}{A list of matrices with the choices made in the global-best solution.}
-#' \item{Pheromones}{A list of matrices with the pheromones of each choice.}
-#' \item{Subtests}{A list containing the names of the selected items and their respective subtests.}
-#' \item{FinalModel}{The results of the estimation of the global-best solution.}
+#' \item{call }{The called function.}
+#' \item{software}{The software used to fit the CFA models.}
+#' \item{parameters}{A list of the ACO parameters used.}
+#' \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
+#' \item{log}{A \code{data.frame} containing the optimization history.}
+#' \item{solution}{A list of matrices with the choices made in the global-best solution.}
+#' \item{pheromones}{A list of matrices with the pheromones of each choice.}
+#' \item{subtests}{A list containing the names of the selected items and their respective subtests.}
+#' \item{final}{The results of the estimation of the global-best solution.}
 #' 
 #' 
 ### Examples ----
@@ -86,6 +86,8 @@ function(
   invariance='parallel', item.invariance='congeneric',                  #cross invariance
 
   repeated.measures=NULL, long.invariance='strict', item.long.invariance='strict', #long structure
+  
+  mtmm=NULL, mtmm.invariance='congeneric', item.mtmm.invariance='congeneric', #MTMM structure
 
   grouping=NULL, group.invariance='strict', item.group.invariance='strict', #grouping structure
 
@@ -136,15 +138,15 @@ function(
   final.model <- do.call(paste('run',software,sep='.'),args)
 
   #generating output
-  output <- list(Call=match.call())  
-  output$EstimationSoftware <- software
-  output$Parameters <- c(solution$parameters)
-  output$Timer <- proc.time() - timer
-  output$Log <- solution$log
-  output$Solution <- solution$solution.gb
-  output$Pheromones <- solution$pheromones
-  output$Subtests <- solution$selected.items
-  output$FinalModel <- final.model
+  output <- list(call=match.call())  
+  output$software <- software
+  output$parameters <- c(solution$parameters)
+  output$timer <- proc.time() - timer
+  output$log <- solution$log
+  output$solution <- solution$solution.gb
+  output$pheromones <- solution$pheromones
+  output$subtests <- solution$selected.items
+  output$final <- final.model
 
   class(output) <- 'stuartOutput'
   return(output)

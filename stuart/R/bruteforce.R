@@ -36,15 +36,15 @@
 #' 
 ### Outputs ---- 
 #' @return Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
-#' \item{Call }{The called function.}
-#' \item{EstimationSoftware}{The software used to fit the CFA models.}
-#' \item{Parameters}{A list of the ACO parameters used.}
-#' \item{Timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
-#' \item{Log}{A \code{data.frame} containing the estimation history.}
-#' \item{Solution}{\code{NULL}}
-#' \item{Pheromones}{\code{NULL}}
-#' \item{Subtests}{A list containing the names of the selected items and their respective subtests.}
-#' \item{FinalModel}{The results of the estimation of the global-best solution.}
+#' \item{call }{The called function.}
+#' \item{software}{The software used to fit the CFA models.}
+#' \item{parameters}{A list of the ACO parameters used.}
+#' \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
+#' \item{log}{A \code{data.frame} containing the estimation history.}
+#' \item{solution}{\code{NULL}}
+#' \item{pheromones}{\code{NULL}}
+#' \item{subtests}{A list containing the names of the selected items and their respective subtests.}
+#' \item{final}{The results of the estimation of the global-best solution.}
 #' 
 #' 
 ### Examples ----
