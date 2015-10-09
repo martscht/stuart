@@ -4,10 +4,12 @@ function(
   
   number.of.subtests=1, items.per.subtest=NULL, invariance='parallel',  #subtest relations
   repeated.measures=NULL, long.invariance='strict',                     #longitudinal relations
+  mtmm=NULL, mtmm.invariance='congeneric',                              #mtmm relations
   grouping=NULL, group.invariance='strict',                             #grouping relations
 
   item.invariance='congeneric',                                         #invariance between items
   item.long.invariance='strict',                                        #longitudinal item inv.
+  item.mtmm.invariance='congeneric',                                    #mtmm item inv.
   item.group.invariance='strict',                                       #group item invariance
 
   auxiliary=NULL,                                                       #add variables
@@ -29,6 +31,13 @@ function(
     long.invariance <- 'congeneric'
   }
 
+  #create phantom mtmm data, if only one method
+  if (is.null(mtmm)) {
+    mtmm <- as.list(names(factor.structure))
+    names(mtmm) <- names(factor.structure)
+    mtmm.invariance <- 'congeneric'
+  }
+  
   #create a short factor structure
   short.factor.structure <- list(NA)
   for (i in 1:length(repeated.measures)) {
@@ -134,6 +143,28 @@ function(
     item.invariance,item.long.invariance,item.group.invariance,
     grouping)
 
+  
+  #implement mtmm invariances
+  
+#   # exclude all non-reference methods
+#   short.factor.structure[!(names(short.factor.structure)%in%sapply(mtmm,function(x) x[1]))] <- NULL
+#   
+#   #create a vector of longitudial invariance assumptions
+#   if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
+#     stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+#   }
+#   
+#   mtmm.invariance <- as.list(array(mtmm.invariance,length(short.factor.structure)))
+#   
+#   #implement invariances of subtests
+#   mtmm.equal <- invariance.implementation(data,
+#     factor.structure,short.factor.structure,mtmm,
+#     number.of.subtests,
+#     invariance,mtmm.invariance,group.invariance,
+#     grouping,
+#     label.change=TRUE)
+#   
+#   mtmm.item.invariance
 
   output <- list(short.factor.structure,long.equal,item.long.equal,
       number.of.items,data,factor.structure,auxi,number.of.subtests,invariance,
