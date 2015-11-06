@@ -5,7 +5,7 @@ function(
   selected, selected.items,
   long.equal, item.long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure,
+  short.factor.structure, short,
   invariance, long.invariance, group.invariance,
   item.invariance, item.long.invariance, item.group.invariance,
 
@@ -28,7 +28,8 @@ function(
     for (i in 1:length(selected.items)) { #over factors
       for (j in 1:length(selected.items[[i]])) { #over subtests
         #shorten the writing by creating tmp-data
-        tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+        tmp.fil <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
         tmp.sel <- selected[[tmp.fil]][[j]]
         tmp.sit <- selected.items[[i]][[j]]
 
@@ -70,8 +71,8 @@ function(
     #write the (subtest) factor structure
     for (i in 1:length(selected.items)) {
       if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
-          tmp.sit <- names(selected.items[[i]])
+        tmp.fil <- which(unlist(lapply(short,
+      tmp.sit <- names(selected.items[[i]])
 
           if (is.null(grouping)) {
             tmp.inv <- long.equal[[i]]

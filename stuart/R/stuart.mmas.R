@@ -1,14 +1,16 @@
 stuart.mmas <-
 function(
-  short.factor.structure, long.equal, item.long.equal,           #made on toplevel
+  short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
   number.of.items,
   data, factor.structure, auxi,                                  #simple prerequisites
   
   number.of.subtests,  invariance,                               #subtest relations
   repeated.measures, long.invariance,                            #longitudinal relations
+  mtmm, mtmm.invariance,                                         #mtmm relations
   grouping, group.invariance,                                    #grouping relations
 
-  item.invariance, item.long.invariance, item.group.invariance,
+  item.invariance, item.long.invariance, item.mtmm.invariance,
+  item.group.invariance,
 
 
   software, cores,                                               #Software to be used
@@ -69,10 +71,10 @@ function(
       alpha,beta,heuristics,
       number.of.items,number.of.subtests,
       long.equal,item.long.equal,
-      factor.structure,repeated.measures,grouping,
-      short.factor.structure,
-      invariance,long.invariance,group.invariance,
-      item.invariance, item.long.invariance, item.group.invariance,
+      factor.structure,repeated.measures,mtmm,grouping,
+      short.factor.structure,short,
+      invariance,long.invariance,mtmm.invariance,group.invariance,
+      item.invariance,item.long.invariance,item.mtmm.invariance,item.group.invariance,
       analysis.options,suppress.model,
       fitness.func,software,output.model=FALSE,ignore.errors)
 

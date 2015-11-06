@@ -5,10 +5,11 @@ function(
   alpha, beta, heuristics,
   number.of.items,number.of.subtests,
   long.equal, item.long.equal,                                  #invariance labels
-  factor.structure, repeated.measures, grouping,                #basic requirements
-  short.factor.structure,
-  invariance, long.invariance, group.invariance,                #invariance settings
-  item.invariance, item.long.invariance, item.group.invariance, #item invariance settings
+  factor.structure, repeated.measures, mtmm, grouping,          #basic requirements
+  short.factor.structure, short,
+  invariance, long.invariance, mtmm.invariance, group.invariance, #invariance settings
+  item.invariance, item.long.invariance, item.mtmm.invariance,
+  item.group.invariance,                                        #item invariance settings
   analysis.options, suppress.model,                             #additional analysis options
   fitness.func,                                                 #fitness function to call
   software,output.model=FALSE,
@@ -25,7 +26,8 @@ function(
   selected <- constructed$selected
   
   #translate selection to names
-  selected.items <- translate.selection(selected,factor.structure,repeated.measures)
+  tmp <- mget(names(formals(translate.selection)))
+  selected.items <- do.call(translate.selection,tmp)
 
   #specify modeling options
   run.options <- names(formals(paste('run',software,sep='.')))

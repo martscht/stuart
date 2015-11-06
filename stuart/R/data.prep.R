@@ -38,13 +38,33 @@ function(
     mtmm.invariance <- 'congeneric'
   }
   
-  #create a short factor structure
-  short.factor.structure <- list(NA)
-  for (i in 1:length(repeated.measures)) {
-    short.factor.structure[i] <- factor.structure[names(factor.structure)==repeated.measures[[i]][1]]
-    names(short.factor.structure)[i] <- repeated.measures[[i]][1]
-  }
+  #create a longitudinal factor structure
+  long.factor.structure <- factor.structure
+  long.factor.structure[!(names(long.factor.structure)%in%sapply(repeated.measures,function(x) x[1]))] <- NULL
 
+  #create an mtmm factor structure
+  mtmm.factor.structure <- factor.structure
+  mtmm.factor.structure[!(names(mtmm.factor.structure)%in%sapply(mtmm,function(x) x[1]))] <- NULL
+  
+  #create a short factor structure (minimal)
+  short.factor.structure <- factor.structure[intersect(names(long.factor.structure),names(mtmm.factor.structure))]
+
+  #create a list of short allocation
+  short <- as.list(names(short.factor.structure))
+  names(short) <- unlist(short)
+  
+  for (i in 1:length(short.factor.structure)) {
+    counter <- 1
+    repeat {
+      filter <- sapply(repeated.measures,function(x)  x[any(short[[i]]%in%x)])
+      short[[i]] <-union(short[[i]],unlist(filter))
+      filter <- sapply(mtmm,function(x)  x[any(short[[i]]%in%x)])
+      short[[i]] <-union(short[[i]],unlist(filter))
+      if (counter-length(short[[i]])==0) break
+      counter <- length(short[[i]])
+    }
+  }
+  
   #check for correct number of subtests
   if (length(number.of.subtests)!=1 & length(number.of.subtests)!=length(factor.structure)) {
     stop('The length of the vector for the number of items is not compatible with the number of factors.\n',call.=FALSE)
@@ -52,12 +72,14 @@ function(
 
   number.of.subtests <- as.list(array(number.of.subtests,length(short.factor.structure)))
 
+  #### MOVE? ####
   #create a vector of items
   items <- unlist(factor.structure,use.names=FALSE)
   
   #create the subset of auxiliary variables
   auxi <- data[,auxiliary]
   names(auxi) <- auxiliary
+  ####       ####
   
   #create a vector of invariance assumptions
   if (length(invariance)!=1 & length(invariance)!=length(factor.structure)) {
@@ -71,13 +93,23 @@ function(
     stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
 
-  long.invariance <- as.list(array(long.invariance,length(short.factor.structure)))
+  long.invariance <- as.list(array(long.invariance,length(long.factor.structure)))
 
+  #create a vector of mtmm invariance assumptions
+  if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
+    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  }
+  
+  mtmm.invariance <- as.list(array(mtmm.invariance,length(mtmm.factor.structure)))
+  
   #implement invariances of subtests
   long.equal <- invariance.implementation(data,
-    factor.structure,short.factor.structure,repeated.measures,
+    factor.structure,short.factor.structure,short,
+    long.factor.structure,repeated.measures,
+    mtmm.factor.structure,mtmm,
     number.of.subtests,
-    invariance,long.invariance,group.invariance,
+    invariance,long.invariance,mtmm.invariance,
+    group.invariance,
     grouping,
     label.change=TRUE)
 
@@ -134,43 +166,30 @@ function(
     stop('The number of longitudinal item invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
 
-  item.long.invariance <- as.list(array(item.long.invariance,length(short.factor.structure)))
+  item.long.invariance <- as.list(array(item.long.invariance,length(long.factor.structure)))
+
+  #create a vector of mtmm  item invariance assumptions
+  if (length(item.mtmm.invariance)!=1 & length(item.mtmm.invariance)!=length(factor.structure)) {
+    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  }
   
+  item.mtmm.invariance <- as.list(array(item.mtmm.invariance,length(mtmm.factor.structure)))
+
   #implement invariances of items
   item.long.equal <- invariance.implementation(data,
-    factor.structure,short.factor.structure,repeated.measures,
+    factor.structure,short.factor.structure,short,
+    long.factor.structure,repeated.measures,
+    mtmm.factor.structure,mtmm,
     lapply(short.factor.structure,length),
-    item.invariance,item.long.invariance,item.group.invariance,
+    item.invariance,item.long.invariance,item.mtmm.invariance,
+    item.group.invariance,
     grouping)
-
   
-  #implement mtmm invariances
-  
-#   # exclude all non-reference methods
-#   short.factor.structure[!(names(short.factor.structure)%in%sapply(mtmm,function(x) x[1]))] <- NULL
-#   
-#   #create a vector of longitudial invariance assumptions
-#   if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
-#     stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
-#   }
-#   
-#   mtmm.invariance <- as.list(array(mtmm.invariance,length(short.factor.structure)))
-#   
-#   #implement invariances of subtests
-#   mtmm.equal <- invariance.implementation(data,
-#     factor.structure,short.factor.structure,mtmm,
-#     number.of.subtests,
-#     invariance,mtmm.invariance,group.invariance,
-#     grouping,
-#     label.change=TRUE)
-#   
-#   mtmm.item.invariance
-
-  output <- list(short.factor.structure,long.equal,item.long.equal,
+  output <- list(short.factor.structure,short,long.equal,item.long.equal,
       number.of.items,data,factor.structure,auxi,number.of.subtests,invariance,
       repeated.measures,long.invariance,grouping,group.invariance,
       item.invariance,item.long.invariance,item.group.invariance)
-  names(output) <- c('short.factor.structure','long.equal','item.long.equal',
+  names(output) <- c('short.factor.structure','short','long.equal','item.long.equal',
       'number.of.items','data','factor.structure','auxi','number.of.subtests','invariance',
       'repeated.measures','long.invariance','grouping','group.invariance',
       'item.invariance','item.long.invariance','item.group.invariance')

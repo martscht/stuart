@@ -1,80 +1,110 @@
 invariance.implementation <-
 function(
   data,                                                         #data
-  factor.structure, short.factor.structure, repeated.measures,  #data structure
-  number.of.some, 
+  factor.structure, short.factor.structure, short,
+  long.factor.structure, repeated.measures,                     #data structure
+  mtmm.factor.structure, mtmm,
+  
+  number.of.some,
 
-  invariance, long.invariance, group.invariance,                #invariances
+  invariance, long.invariance, mtmm.invariance, group.invariance, #invariances
 
   grouping,                                                     #additional data
   label.change=FALSE                                            #replace label names?
 ) { #begin function
 
-  #longitudinal invariance parameters
-  long.equal <- rep(list(list(lam=NA,alp=NA,eps=NA)),length(factor.structure))
-
+  #invariance parameters
+  equal <- rep(list(list(lam=NA,alp=NA,eps=NA)),length(factor.structure))
+  names(equal) <- names(factor.structure)
+  
+  
   for (i in 1:length(factor.structure)) {
     if (is.element(names(factor.structure)[i],names(short.factor.structure))) {
       
       locate <- which(names(short.factor.structure)==names(factor.structure)[i])
-
+      locate.long <- which(unlist(lapply(repeated.measures,
+        function(x) is.element(names(factor.structure)[i],x))))
+      locate.mtmm <- which(unlist(lapply(mtmm,
+        function(x) is.element(names(factor.structure)[i],x))))
+      
+      #generate indices (item, method, occasion)
+      equal[[i]]  <- lapply(equal[[i]],function(x) array(NA,c(number.of.some[[locate]],3)))
+      
+      #item/subtest indices
       if (invariance[[locate]]=='congeneric') {
-      long.equal[[i]]$lam <- paste('lam',i,1:number.of.some[[locate]],sep='') 
-      }
-      else {
-      long.equal[[i]]$lam <- rep(paste('lam',i,sep=''),number.of.some[[locate]]) 
+        equal[[i]]$lam[,1] <- 1:nrow(equal[[i]]$lam)
+      } else {
+        equal[[i]]$lam[,1] <- 1
       }
       
       if (invariance[[locate]]%in%c('equivalent','parallel')) {
-        long.equal[[i]]$alp <- rep(paste('alp',i,sep=''),number.of.some[[locate]]) 
+        equal[[i]]$alp[,1] <- 1
+      } else {            
+        equal[[i]]$alp[,1] <- 1:nrow(equal[[i]]$alp)
       }
-      else {            
-        long.equal[[i]]$alp <- paste('alp',i,1:number.of.some[[locate]],sep='') 
-      }
-
+      
       if (invariance[[locate]]%in%c('ess.parallel','parallel')) {
-        long.equal[[i]]$eps <- rep(paste('eps',i,sep=''),number.of.some[[locate]]) 
+        equal[[i]]$eps[,1] <- 1
+      } else {
+        equal[[i]]$eps[,1] <- 1:nrow(equal[[i]]$eps)
       }
-      else {
-        long.equal[[i]]$eps <- paste('eps',i,1:number.of.some[[locate]],sep='') 
-      }
-    }
+    
+      #method indices
+      equal[[i]]$lam[,2] <- locate.long
+      equal[[i]]$alp[,2] <- locate.long
+      equal[[i]]$eps[,2] <- locate.long
+      
+      #occasion indices
+      equal[[i]]$lam[,3] <- locate.mtmm
+      equal[[i]]$alp[,3] <- locate.mtmm
+      equal[[i]]$eps[,3] <- locate.mtmm
+      
+    } else {
+      
+      locate <- which(unlist(lapply(short,
+        function(x) is.element(names(factor.structure)[i],x))))
+      equal[[i]] <- equal[[names(locate)]]
+      
+      locate.long <- which(unlist(lapply(repeated.measures,
+        function(x) is.element(names(factor.structure)[i],x))))
+      locate.mtmm <- which(unlist(lapply(mtmm,
+        function(x) is.element(names(factor.structure)[i],x))))
 
-    else {
+      if (mtmm.invariance[[locate.mtmm]]!='strict') equal[[i]]$eps[,2] <- locate.mtmm
+      
+      if (mtmm.invariance[[locate.mtmm]]%in%c('weak','congeneric')) equal[[i]]$alp[,2] <- locate.mtmm
+      
+      if (mtmm.invariance[[locate.mtmm]]=='congeneric') equal[[i]]$lam[,2] <- locate.mtmm
 
-      locate <- which(unlist(lapply(repeated.measures,
-        function(x) is.element(names(factor.structure)[i],x)),use.names=FALSE))
-      long.equal[[i]] <- long.equal[[i-1]]
+      if (long.invariance[[locate.long]]!='strict') equal[[i]]$eps[,3] <- locate.long
 
-      if (long.invariance[[locate]]!='strict') {
-        long.equal[[i]]$eps <- paste(long.equal[[i]]$eps,letters[i],sep='')
-      }
-
-      if (long.invariance[[locate]]%in%c('weak','congeneric')) {
-        long.equal[[i]]$alp <- paste(long.equal[[i]]$alp,letters[i],sep='')
-      }
-
-
-      if (long.invariance[[locate]]=='congeneric') {
-        long.equal[[i]]$lam <- paste(long.equal[[i]]$lam,letters[i],sep='')
-      }
-
+      if (long.invariance[[locate.long]]%in%c('weak','congeneric')) equal[[i]]$alp[,3] <- locate.long
+      
+      if (long.invariance[[locate.long]]=='congeneric') equal[[i]]$lam[,3] <- locate.long
+      
     }
   }
-  
+
+  for (i in 1:length(equal)) {
+    for (j in 1:length(equal[[i]])) {
+      equal[[i]][[j]] <- paste0(names(equal[[i]])[j],apply(equal[[i]][[j]],1,paste0,collapse=''))
+    }
+  }
+    
+
   #implementing group invariance
   if (!is.null(grouping)) {
     group <- as.factor(data[,grouping])
-    long.equal <- list(long.equal,long.equal)
+    equal <- list(equal,equal)
 
     for (i in 2:length(levels(group))) {
-      long.equal[[i]] <- long.equal[[1]] }
+      equal[[i]] <- equal[[1]] }
 
     #add variable residuals
     if (group.invariance!='strict') {
       for (i in 2:length(levels(group))) {
         for (j in 1:length(factor.structure)) {
-          long.equal[[i]][[j]]$eps <- paste(long.equal[[i]][[j]]$eps,'g',i,sep='')
+          equal[[i]][[j]]$eps <- paste(equal[[i]][[j]]$eps,'g',i,sep='')
         }
       }
     }
@@ -83,7 +113,7 @@ function(
     if (group.invariance%in%c('weak','congeneric')) {
       for (i in 2:length(levels(group))) {
         for (j in 1:length(factor.structure)) {
-          long.equal[[i]][[j]]$alp <- paste(long.equal[[i]][[j]]$alp,'g',i,sep='')
+          equal[[i]][[j]]$alp <- paste(equal[[i]][[j]]$alp,'g',i,sep='')
         }
       }
     }
@@ -92,20 +122,20 @@ function(
     if (group.invariance=='congeneric') {
       for (i in 2:length(levels(group))) {
         for (j in 1:length(factor.structure)) {
-          long.equal[[i]][[j]]$lam <- paste(long.equal[[i]][[j]]$lam,'g',i,sep='')
+          equal[[i]][[j]]$lam <- paste(equal[[i]][[j]]$lam,'g',i,sep='')
         }
       }
     }
   }
   
   if (label.change) {
-    tmp <- as.relistable(long.equal)
+    tmp <- as.relistable(equal)
     tmp <- unlist(tmp)
     tmp <- gsub('lam','gam',tmp)
     tmp <- gsub('alp','mu',tmp)
     tmp <- gsub('eps','zet',tmp)
-    long.equal <- relist(tmp)
+    equal <- relist(tmp)
   }
 
-  return(long.equal)
+  return(equal)
 }

@@ -1,20 +1,17 @@
 translate.selection <-
 function(
-  selected,
-  factor.structure, repeated.measures
+  selected, 
+  factor.structure, short.factor.structure, short,
+  repeated.measures, mtmm
 ) { #begin function
 
-  selected.items <- list(NA)
+  selected.items <- vector('list',length(factor.structure))
 
   for (i in 1:length(factor.structure)) {
-    selected.items[[i]] <- list(NA)
-    for (j in 1:length(repeated.measures)) {
-      if (is.element(names(factor.structure)[i],repeated.measures[[j]])) {
-        for (k in 1:length(selected[[j]])) {
-          selected.items[[i]][[k]] <- factor.structure[[i]][selected[[j]][[k]]]
-        }
-      }
-    }
+    locate <- which(unlist(lapply(short,
+      function(x) is.element(names(factor.structure)[i],x))))
+
+    selected.items[[i]] <- lapply(selected[[locate]],function(x) factor.structure[[i]][x])
   }
 
   #dole out some names
