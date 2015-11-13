@@ -135,7 +135,7 @@ function(
       phe.min <- (phe.max*(1-pbest^(1/deci)))/((avg-1)*pbest^(1/deci))
 
       if (phe.min >= phe.max) {
-        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions was viable.\n',call.=FALSE)
+        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
       }
 
       #new solution user feedback
@@ -183,7 +183,7 @@ function(
 
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))
-  results$selected.items <- translate.selection(selected.gb,factor.structure,repeated.measures)
+  results$selected.items <- translate.selection(selected.gb,factor.structure,short)
   log <- data.frame(log)
   names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
   results$log <- log

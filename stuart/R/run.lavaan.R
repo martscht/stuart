@@ -72,7 +72,9 @@ function(
     for (i in 1:length(selected.items)) {
       if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
         tmp.fil <- which(unlist(lapply(short,
-      tmp.sit <- names(selected.items[[i]])
+          function(x) is.element(names(factor.structure)[i],x))))
+        
+        tmp.sit <- names(selected.items[[i]])
 
           if (is.null(grouping)) {
             tmp.inv <- long.equal[[i]]
@@ -158,6 +160,7 @@ function(
   output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
 
   if (class(output)=='try.error') {
+    warning('The lavaan input generated an error.',call.=FALSE)
     return(output=list(NA))
   }
 
@@ -170,11 +173,15 @@ function(
     if (!ignore.errors) {
       #check if psi is positive definite
       posdefin <- NULL
-      for (i in 1:length(inspect(output,'cov.lv'))) {
-        posdefin[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
+      if (!is.null(grouping)) {
+        for (i in 1:length(inspect(output,'cov.lv'))) {
+          posdefin[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
+        }
+        posdefin <- all(posdefin)
+      } else {
+        posdefin <- all(eigen(inspect(output,'cov.lv'))$values>0) 
       }
-      posdefin <- all(posdefin)
-
+      
       #return only NA if Psi is Not Positive Definite      
       if (!posdefin) {
         return(output=list(NA)) 
@@ -194,9 +201,7 @@ function(
         
         rel <- 1-(theta/sigma)
         crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
-      }
-      
-      else {
+      } else {
         theta <- lapply(inspect(output,'theta'),diag)
         sigma <- lapply(inspect(output,'sigma'),diag)
         
@@ -207,8 +212,6 @@ function(
         crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
       }
       
-      
-
       # Export the latent variable correlation matrix
       lvcor <- inspect(output,'cor.lv')
 

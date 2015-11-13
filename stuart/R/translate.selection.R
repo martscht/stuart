@@ -1,8 +1,7 @@
 translate.selection <-
 function(
   selected, 
-  factor.structure, short.factor.structure, short,
-  repeated.measures, mtmm
+  factor.structure, short
 ) { #begin function
 
   selected.items <- vector('list',length(factor.structure))

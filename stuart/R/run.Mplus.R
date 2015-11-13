@@ -5,7 +5,7 @@ function(
   selected, selected.items,
   long.equal, item.long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure,
+  short.factor.structure, short,
   invariance, long.invariance, group.invariance,
   item.invariance, item.long.invariance, item.group.invariance,
   
@@ -48,7 +48,7 @@ function(
   input <- paste0(input,paste(unlist(selected.items),collapse=c('\n\t\t')),';\n')
   
   if (!is.null(grouping)) {
-    input <- paste(input,paste0('grouping = group (',paste(unique(model.data$group),unique(model.data$group),sep='=',collapse=' '),')'),';\n')
+    input <- paste(input,paste0('grouping = group (',paste(na.omit(unique(model.data$group)),na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
   }
   
   input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
@@ -70,7 +70,8 @@ function(
       for (i in 1:length(selected.items)) { #over factors
         for (j in 1:length(selected.items[[i]])) { #over subtests
           #shorten the writing by creating tmp-data
-          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+          tmp.fil <- which(unlist(lapply(short,
+            function(x) is.element(names(factor.structure)[i],x))))
           tmp.sel <- selected[[tmp.fil]][[j]]
           tmp.sit <- selected.items[[i]][[j]]
           
@@ -94,12 +95,11 @@ function(
       
       #write the (subtest) factor structure
       for (i in 1:length(selected.items)) {
-        if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+        tmp.fil <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
+        if (number.of.subtests[tmp.fil]>1) {
           tmp.sit <- names(selected.items[[i]])
-          
           tmp.inv <- long.equal[[i]]
-                    
           tmp.lin <- long.invariance[[tmp.fil]]
           
           #factor loadings
@@ -113,20 +113,19 @@ function(
           
           #intercepts
           #set latent means for all first occasion measures & if weak or less long inv.
-          if (names(selected.items)[i]%in%names(short.factor.structure) | 
-                tmp.lin%in%c('congeneric','weak')) {
-            input <- paste(input,
-                           paste0('[',tmp.sit,'@0];',collapse='\n'),sep='\n')
-            input <- paste(input,
-                           paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-          }
-          
-          else {
-            input <- paste(input,
-                           paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-            input <- paste(input,
-                           paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-          }
+          input <- paste(input,
+                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
+        
+        }
+      }
+
+      #set latent means in longitudinal models
+      for (i in 1:length(repeated.measures)) {
+        if (long.invariance[[i]]%in%c('strong','strict')) {
+          input <- paste(input,
+            paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
+          input <- paste(input,
+            paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
         }
       }
     }
@@ -138,7 +137,8 @@ function(
         for (j in 1:length(selected.items[[i]])) { #over subtests
           
           #shorten the writing by creating tmp-data
-          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+          tmp.fil <- which(unlist(lapply(short,
+            function(x) is.element(names(factor.structure)[i],x))))
           tmp.sel <- selected[[tmp.fil]][[j]]
           tmp.sit <- selected.items[[i]][[j]]
           
@@ -159,13 +159,12 @@ function(
           
       #write the (subtest) factor structure
       for (i in 1:length(selected.items)) {
-        if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-          tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+        tmp.fil <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
+        if (number.of.subtests[tmp.fil]>1) {
           tmp.sit <- names(selected.items[[i]])
-          
-          tmp.inv <- long.equal[[i]]          
-          tmp.lin <- long.invariance[[tmp.fil]]
-          
+          tmp.inv <- long.equal[[i]]
+
           #factor loadings
           input <- paste(input,'\n',
                          names(selected.items)[i],'by',
@@ -176,24 +175,11 @@ function(
                          paste0(tmp.sit,';',collapse='\n'),sep='\n')
           
           #intercepts
-          #set latent means for all first occasion measures & if weak or less long inv.
-          if (names(selected.items)[i]%in%names(short.factor.structure) | 
-                tmp.lin%in%c('congeneric','weak')) {
-            input <- paste(input,
-                           paste0('[',tmp.sit,'@0];',collapse='\n'),sep='\n')
-            input <- paste(input,
-                           paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-          }
-          
-          else {
-            input <- paste(input,
-                           paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-            input <- paste(input,
-                           paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-          }
+          input <- paste(input,
+                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
         }
       }
-      
+    
       #group specific models
       for (k in 1:length(item.long.equal)) { #over groups
 
@@ -205,7 +191,8 @@ function(
         for (i in 1:length(selected.items)) { #over factors
           for (j in 1:length(selected.items[[i]])) { #over subtests
             #shorten the writing by creating tmp-data
-            tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+            tmp.fil <- which(unlist(lapply(short,
+              function(x) is.element(names(factor.structure)[i],x))))
             tmp.sel <- selected[[tmp.fil]][[j]]
             tmp.sit <- selected.items[[i]][[j]]
 
@@ -230,10 +217,10 @@ function(
         
         #write the (subtest) factor structure
         for (i in 1:length(selected.items)) {
-          if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-            tmp.fil <- which(sapply(repeated.measures,is.element,el=names(selected.items)[i]))
+          tmp.fil <- which(unlist(lapply(short,
+            function(x) is.element(names(factor.structure)[i],x))))
+          if (number.of.subtests[tmp.fil]>1) {
             tmp.sit <- names(selected.items[[i]])
-            
             tmp.inv <- long.equal[[k]][[i]]
             tmp.lin <- long.invariance[[tmp.fil]]
             
@@ -247,23 +234,26 @@ function(
                            paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
             
             #intercepts
-            #set latent means for all first occasion measures & if weak or less long inv.
-            if (names(selected.items)[i]%in%names(short.factor.structure) | 
-                  tmp.lin%in%c('congeneric','weak')) {
-              input <- paste(input,
-                             paste0('[',tmp.sit,'@0];',collapse='\n'),sep='\n')
-              input <- paste(input,
-                             paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-            }
-            
-            else {
-              input <- paste(input,
-                             paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-              input <- paste(input,
-                             paste0('[',names(selected.items)[i],'@0];',collapse='\n'),'',sep='\n')
-            }
+            input <- paste(input,
+                           paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
           }
         }
+        
+        #set latent means
+        for (i in 1:length(repeated.measures)) {
+          if (long.invariance[[i]]%in%c('strong','strict') & k==1) {
+            input <- paste(input,
+              paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
+              input <- paste(input,
+                paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
+          }
+          if (long.invariance[[i]]%in%c('strong','strict') & k!=1) {
+            input <- paste(input,
+              paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'*];',collapse='\n'),sep='\n')
+            input <- paste(input,
+              paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
+          }
+        } 
       }          
     }
   }
@@ -312,7 +302,11 @@ function(
   if (output.model) return(MplusOut)
   
   if (!any(grepl('MODEL FIT',MplusOut))) {
-    warning('The Mplus input file generated an error.\n',call.=FALSE)
+    if (any(grepl('NO CONVERGENCE.',MplusOut))) {
+      warning('The model did not converge.',call.=FALSE)
+    } else {
+      warning('The Mplus input file generated an error.',call.=FALSE)
+    }
     exclusion <- TRUE
   }
   
