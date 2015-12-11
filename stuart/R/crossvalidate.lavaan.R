@@ -1,25 +1,23 @@
 ### Function definition ----
 crossvalidate.lavaan <- 
 function(
-  selection, new.data, invariance, ...
+  selection, old.data, new.data, invariance, ...
 ) { #begin function
   
   # retrieve old results
-  parameters <- parTable(selection$FinalModel)
-  parameters <- parameters[parameters$group!=0,]
-  parameters$old <- parameterEstimates(selection$FinalModel)$est
-  
-  
-  if (!is.null(selection$Call$grouping)) {
-    if (!selection$Call$grouping %in% names(new.data) | 
-        !all(unique(new.data[,selection$Call$grouping])%in%unique(parameters$group))) {
+  parameters <- parTable(selection$final)
+
+  if (!is.null(selection$call$grouping)) {
+    if (!selection$call$grouping %in% names(new.data) | 
+        !all(unique(new.data[,selection$call$grouping])%in%unique(old.data[,selection$call$grouping]))) {
       warning('The validation sample contained a value on the grouping variable not contained in the calibration sample.',
         'Parameters of the first group of the calibration sample will be used.')
-      parameters <- parameters[parameters$group==1,]
+      parameters <- parameters[parameters$group%in%c(0,1),]
       grouping <- NULL
     } else {
-      parameters <- parameters[parameters$group%in%unique(new.data[,selection$Call$grouping]),]
-      grouping <- selection$Call$grouping
+      shrd <- which(unique(na.omit(new.data[,selection$call$grouping]))%in%unique(na.omit(old.data[,selection$call$grouping])))
+      parameters <- parameters[parameters$group%in%c(shrd,0),]
+      grouping <- selection$call$grouping
       if (length(unique(new.data[,grouping]))==1) {
         grouping <- NULL
         parameters$group <- NULL
@@ -35,17 +33,18 @@ function(
   if (invariance%in%c('strong','strict','full')) equality <- c(equality,'~1')
   if (invariance%in%c('strict','full')) equality <- c(equality,'~~')
 
+  parameters$unco <- parameters$free
   parameters$free[parameters$op%in%equality] <- 0
-  parameters$ustart[parameters$op%in%equality] <- parameters$old[parameters$op%in%equality]
+  parameters$ustart[parameters$op%in%equality] <- parameters$est[parameters$op%in%equality]
 
   if (invariance!='full') {
     parameters$free[parameters$op%in%equality&parameters$label==''] <- 
       parameters$unco[parameters$op%in%equality&parameters$label=='']    
   }
   
-  args <- list(data=new.data,selected.items=selection$Subtests,
+  args <- list(data=new.data,selected.items=selection$subtests,
     grouping=grouping,auxi=new.data[,NULL],suppress.model=TRUE,
-    analysis.options=list(model=parameters))
+    analysis.options=list(model=parameters),ignore.errors=TRUE)
   
   output <- do.call('run.lavaan',args)
   

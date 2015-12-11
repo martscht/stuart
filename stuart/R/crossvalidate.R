@@ -9,8 +9,8 @@
 #' 
 ### Inputs ----
 #' @param selection An object of class \code{stuartOutput}.
+#' @param old.data A \code{data.frame} of the calibration sample.
 #' @param new.data A \code{data.frame} of the validation sample.
-#' @param old.data A \code{data.frame} of the calibration sample. This is only necessary when using Mplus.
 #' @param invariance The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.
 #' @param fitness.func A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".
@@ -44,7 +44,7 @@
 ### Function definition ----
 crossvalidate <- 
 function(
-  selection, new.data, old.data=NULL,
+  selection, old.data, new.data,
   invariance='congeneric',
   fitness.func=fitness,
   filename='stuart',
@@ -56,7 +56,7 @@ function(
     stop('invariance must be congeneric, weak, strong, strict, or full.')
   
   # check estimation software
-  software <- selection$EstimationSoftware
+  software <- selection$software
   
   if (software=='Mplus' & is.null(old.data)) stop('When using Mplus the old.data is required.')
   
@@ -69,7 +69,7 @@ function(
   validated <- do.call(paste('crossvalidate',software,sep='.'),args)    
   
   output <- do.call(fitness.func,list(validated))
-  output <- rbind(selection$Log[which.max(selection$Log$pheromone),names(selection$Log)%in%names(output)],array(data=unlist(output)))
+  output <- rbind(selection$log[which.max(selection$log$pheromone),names(selection$log)%in%names(output)],array(data=unlist(output)))
   rownames(output) <- c('calibration','validation')
   return(output)
   
