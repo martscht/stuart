@@ -6,16 +6,16 @@ function(
   invariance, filename, file.remove, ...
 ) { # begin function
   
-  model <- selection$FinalModel
+  model <- selection$final
   model.begin <- grep('^\\s+Model:',model)
   model.end <- grep('^\\s+Output:',model) - 2
   
   model <- paste(model[model.begin:model.end],collapse='\n')
   out <- 'svalues'
   
-  grouping <- selection$Call$grouping
+  grouping <- selection$call$grouping
   
-  args <- list(data=old.data,selected.items=selection$Subtests,
+  args <- list(data=old.data,selected.items=selection$subtests,
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
     output.model=TRUE,
     filename=paste0(filename,'_calibration'),cores=NULL,
@@ -37,12 +37,13 @@ function(
   
   if (!is.null(grouping)) {
     tmp <- c(1,
-      sapply(unique(old.data[,grouping]), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
+      sapply(sort(na.omit(unique(old.data[,grouping]))), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
       length(model))
     group.models <- list()
     for (i in 2:(length(tmp)-1)) {
       group.models[[i-1]] <- model[tmp[i]:(tmp[i+1]-1)]
     }
+    names(group.models) <- sort(na.omit(unique(old.data[,grouping])))
     overall.model <-  model[tmp[1]:(tmp[2]-1)]
     
     if (!grouping %in% names(new.data) | 
@@ -56,8 +57,8 @@ function(
         model <- paste(sapply(group.models[[unique(new.data[,grouping])]][-1],paste,collapse='\n'),collapse='\n')
         grouping <- NULL
       } else {
-        model <- paste(paste(overall.model,collapse='\n'),
-          sapply(group.models[unique(new.data[,grouping])],paste,collapse='\n'),collapse='\n')
+        model <- paste(c(paste(overall.model,collapse='\n'),
+          sapply(group.models[names(group.models)%in%sort(na.omit(unique(new.data[,grouping])))],paste,collapse='\n')),collapse='\n')
       }
     }
   } else {
@@ -70,6 +71,7 @@ function(
   args$analysis.options <- list(model=paste(model,collapse='\n'))
   args$output.model <- FALSE
   args['grouping'] <- list(grouping)
+  args$ignore.errors <- TRUE
 
   output <- do.call('run.Mplus',args)
   
