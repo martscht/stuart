@@ -73,6 +73,8 @@ function(
 
   repeated.measures=NULL, long.invariance='strict', item.long.invariance='strict', #long structure
 
+  mtmm=NULL, mtmm.invariance='congeneric', item.mtmm.invariance='congeneric', #MTMM structure
+  
   grouping=NULL, group.invariance='strict', item.group.invariance='strict', #grouping structure
 
   auxiliary=NULL,

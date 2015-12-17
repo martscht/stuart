@@ -4,16 +4,16 @@ function(run,
   data, auxi,                                                   #data and selection coding
   number.of.items,number.of.subtests,
   long.equal, item.long.equal,                                  #invariance labels
-  factor.structure, repeated.measures, grouping,                #basic requirements
-  short.factor.structure,
-  invariance, long.invariance, group.invariance,                #invariance settings
-  item.invariance, item.long.invariance, item.group.invariance, #item invariance settings
+  factor.structure, repeated.measures, mtmm, grouping,          #basic requirements
+  short.factor.structure, short,
+  invariance, long.invariance, mtmm.invariance, group.invariance, #invariance settings
+  item.invariance, item.long.invariance, item.mtmm.invariance,
+  item.group.invariance,                                        #item invariance settings
   analysis.options, suppress.model,                             #additional analysis options
   fitness.func,                                                 #fitness function to call
   software,output.model=FALSE,
   ignore.errors=FALSE,
-  cores,
-  filename,
+  filename,cores,
   ...
 ) {#function begin
 
@@ -29,7 +29,7 @@ function(run,
       selected[[j]][[k]] <- as.numeric(combi[[j]][filter[run,j],ll:ul])
     }
   }
-  selected.items <- translate.selection(selected,factor.structure,repeated.measures)
+  selected.items <- translate.selection(selected,factor.structure,short)
   
   #specify modeling options
   output.model=FALSE

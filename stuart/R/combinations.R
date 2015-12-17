@@ -39,7 +39,7 @@
 combinations <-
 function(
   data, factor.structure, number.of.subtests=1, items.per.subtest=NULL, #subtest settings
-  repeated.measures=NULL, 
+  repeated.measures=NULL, mtmm=NULL,
   ...
 ) {#function begin
 
