@@ -50,14 +50,14 @@ function(
       }
     
       #method indices
-      equal[[i]]$lam[,2] <- locate.long
-      equal[[i]]$alp[,2] <- locate.long
-      equal[[i]]$eps[,2] <- locate.long
+      equal[[i]]$lam[,2] <- locate.mtmm
+      equal[[i]]$alp[,2] <- locate.mtmm
+      equal[[i]]$eps[,2] <- locate.mtmm
       
       #occasion indices
-      equal[[i]]$lam[,3] <- locate.mtmm
-      equal[[i]]$alp[,3] <- locate.mtmm
-      equal[[i]]$eps[,3] <- locate.mtmm
+      equal[[i]]$lam[,3] <- locate.long
+      equal[[i]]$alp[,3] <- locate.long
+      equal[[i]]$eps[,3] <- locate.long
       
     } else {
       
