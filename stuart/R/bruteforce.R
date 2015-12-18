@@ -92,6 +92,11 @@ function(
   ...
 ) {#function begin
 
+  #sanity checks
+  if (any(duplicated(names(factor.structure)))) {
+    stop('You have provided duplicates in the name of factor.structure.')
+  }
+  
   timer <- proc.time()
 
   #combine arguments
