@@ -5,9 +5,9 @@ function(
   selected, selected.items,
   long.equal, item.long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure, short,
-  invariance, long.invariance, group.invariance,
-  item.invariance, item.long.invariance, item.group.invariance,
+  short.factor.structure, short, mtmm,
+  invariance, long.invariance, mtmm.invariance, group.invariance,
+  item.invariance, item.long.invariance, item.mtmm.invariance, item.group.invariance,
   
   analysis.options=NULL, suppress.model=FALSE,
   

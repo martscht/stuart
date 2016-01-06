@@ -5,9 +5,9 @@ function(
   selected, selected.items,
   long.equal, item.long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure, short,
-  invariance, long.invariance, group.invariance,
-  item.invariance, item.long.invariance, item.group.invariance,
+  short.factor.structure, short, mtmm,
+  invariance, long.invariance, mtmm.invariance, group.invariance,
+  item.invariance, item.long.invariance, item.mtmm.invariance, item.group.invariance,
 
   analysis.options=NULL, suppress.model=FALSE,
 
@@ -65,7 +65,25 @@ function(
         #intercepts
         input <- paste(input,
           paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
+        
       }
+      
+      #supress correlations between traits and methods (for CTC(M-1) structure)
+#       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+#         tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+#         tmp <- outer(names(selected.items[[i]]),sapply(tmp,function(x) names(selected.items[[x]])),
+#           paste,sep=' ~~ 0*')
+#         tmp <- paste(tmp,collapse='\n')
+#         input <- paste(input,tmp,sep='\n')
+#       }
+      
+      #estimate latent regressions (MTMM)
+#       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+#         tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+#         regs <- expand.grid(names(selected.items[[i]]),sapply(tmp,function(x) names(selected.items[[x]])))
+#         tmp <- paste(tmp,collapse='\n')
+#         input <- paste(input,tmp,sep='\n')
+#       }
     }
 
     #write the (subtest) factor structure
