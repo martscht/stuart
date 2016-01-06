@@ -44,7 +44,7 @@
 #' summary(subtests)
 #' subtests$Pheromones}
 #'  
-#'  @export
+#' @export
 
 
 ### Function definition ----

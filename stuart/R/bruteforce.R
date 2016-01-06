@@ -61,7 +61,7 @@
 #' longitudinal <- bruteforce(fairplayer, fs, 1, 4, repeated.measures=repme)
 #' summary(longitudinal)
 #' }
-#'  @export
+#' @export
 
 
 ### Function definition ----

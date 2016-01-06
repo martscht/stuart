@@ -32,7 +32,7 @@
 #' 
 #' combinations(fairplayer, fs, 1, 4)
 #'  
-#'  @export
+#' @export
 
 
 ### Function definition ----

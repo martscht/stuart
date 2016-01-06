@@ -75,7 +75,7 @@
 #' summary(item.selection$FinalModel)
 #' }  
 #'  
-#'  @export
+#' @export
 
 
 ### Function definition ----
