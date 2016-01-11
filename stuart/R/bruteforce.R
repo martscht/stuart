@@ -13,8 +13,8 @@
 ### Inputs ----
 #' @param data A data.frame containing all relevant data.
 #' @param factor.structure  A list linking factors to items. The names of the list elements correspond to the factor names. Each list element must contain a character-vector of item names that are indicators of this factor.
-#' @param number.of.subtests  A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.
 #' @param items.per.subtest A list containing the number of items per subtest. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all subtests. If \code{NULL} all items are evenly distributed among the subtests.
+#' @param number.of.subtests  A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.
 #' @param invariance A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between subtests pertaining to the same construct. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the last being the default.
 #' @param item.invariance A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between items pertaining to the same subtest. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the first being the default.
 #' @param repeated.measures A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.
@@ -67,7 +67,7 @@
 ### Function definition ----
 bruteforce <-
 function(
-  data, factor.structure, number.of.subtests=1, items.per.subtest=NULL, #subtest settings
+  data, factor.structure, items.per.subtest=NULL, number.of.subtests=1, #subtest settings
 
   invariance='parallel', item.invariance='congeneric',                  #cross invariance
 
