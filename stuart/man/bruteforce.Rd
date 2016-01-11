@@ -4,8 +4,8 @@
 \alias{bruteforce}
 \title{Subtest construction using a brute-force approach}
 \usage{
-bruteforce(data, factor.structure, number.of.subtests = 1,
-  items.per.subtest = NULL, invariance = "parallel",
+bruteforce(data, factor.structure, items.per.subtest = NULL,
+  number.of.subtests = 1, invariance = "parallel",
   item.invariance = "congeneric", repeated.measures = NULL,
   long.invariance = "strict", item.long.invariance = "strict",
   mtmm = NULL, mtmm.invariance = "congeneric",
@@ -21,9 +21,9 @@ bruteforce(data, factor.structure, number.of.subtests = 1,
 
 \item{factor.structure}{A list linking factors to items. The names of the list elements correspond to the factor names. Each list element must contain a character-vector of item names that are indicators of this factor.}
 
-\item{number.of.subtests}{A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.}
-
 \item{items.per.subtest}{A list containing the number of items per subtest. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all subtests. If \code{NULL} all items are evenly distributed among the subtests.}
+
+\item{number.of.subtests}{A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.}
 
 \item{invariance}{A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between subtests pertaining to the same construct. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the last being the default.}
 

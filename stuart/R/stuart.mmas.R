@@ -168,7 +168,7 @@ function(
       end.reason <- 'Algorithm converged.'
       break
     }
-    if (colony > colonies) {
+    if (colony >= colonies) {
       end.reason <- 'Maximum number of colonies exceeded.'
       break
     }
