@@ -70,7 +70,7 @@
 #' fs <- list(SI=names(fairplayer)[2:11],
 #'   EM=names(fairplayer)[32:39])
 #' \donttest{
-#' item.selection <- mmas(fairplayer, fs, 1, 4, pbest=.1)
+#' item.selection <- mmas(fairplayer, fs, 4, pbest=.1)
 #' summary(item.selection)
 #' summary(item.selection$FinalModel)
 #' }  

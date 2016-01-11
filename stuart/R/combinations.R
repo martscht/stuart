@@ -30,7 +30,7 @@
 #' fs <- list(SI=names(fairplayer)[2:11],
 #'   EM=names(fairplayer)[32:39])
 #' 
-#' combinations(fairplayer, fs, 1, 4)
+#' combinations(fairplayer, fs, 4)
 #'  
 #' @export
 

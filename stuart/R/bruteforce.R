@@ -58,7 +58,7 @@
 #' 
 #' repme <- list(SI=c('SI1','SI2'))
 #' \donttest{
-#' longitudinal <- bruteforce(fairplayer, fs, 1, 4, repeated.measures=repme)
+#' longitudinal <- bruteforce(fairplayer, fs, 4, repeated.measures=repme)
 #' summary(longitudinal)
 #' }
 #' @export

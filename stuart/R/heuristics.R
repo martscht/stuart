@@ -39,7 +39,7 @@
 #' heu
 #'
 #' \donttest{
-#' subtests <- mmas(fairplayer, fs, 2, 3, heuristics=heu, pbest=.25)
+#' subtests <- mmas(fairplayer, fs, 3, 2, heuristics=heu, pbest=.25)
 #' 
 #' summary(subtests)
 #' subtests$Pheromones}
