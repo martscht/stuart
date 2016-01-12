@@ -218,7 +218,9 @@ function(
         sigma <- diag(inspect(output,'sigma'))
         
         rel <- 1-(theta/sigma)
+        rel[theta<0] <- 0
         crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
+
       } else {
         theta <- lapply(inspect(output,'theta'),diag)
         sigma <- lapply(inspect(output,'sigma'),diag)
@@ -226,6 +228,7 @@ function(
         rel <- as.list(rep(NA,length(theta)))
         for (i in 1:length(theta)) {
           rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
+          rel[[i]][theta[[i]]<0] <- 0
         }
         crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
       }
