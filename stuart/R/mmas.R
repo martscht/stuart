@@ -34,6 +34,7 @@
 #' @param evaporation The evaporation coefficient. 
 #' @param alpha The nonlinearity coefficient of the pheromone-trail's contribution to determining selection probabilities. Defaults to 1 (linear).
 #' @param beta The nonlinearity coefficient of the heuristics' contribution to determining selection probabilities. Defaults to 1 (linear).
+#' @param pheromones A list of pheromones as created by \code{\link{mmas}}. This can be used to continue previous runs of this function.
 #' @param heuristics An object of the class \code{stuartHeuristic} as provided by \code{\link{heuristics}} which contains heuristic information to be used in determining selection probabilities. If \code{NULL} (the default) selection probabilities are determined solely by the pheromones.
 #' @param deposit Which deposit rule to use. Can be either 'ib' (the default) for an iteration-best deposit rule, or 'gb' for a global-best deposit rule.
 #' @param deposit.on Which parameterization to use when depositing pheromones. Can be either 'nodes' (the default) for depositing pheromones on selected nodes or 'arcs' for depositing on selection arcs.
@@ -98,7 +99,7 @@ function(
   fitness.func=fitness, ignore.errors=FALSE,                            #fitness specs
 
   ants=16, colonies=256, evaporation=.95,                               #general ACO specs
-  alpha=1, beta=1, heuristics=NULL,                                     #general ACO specs
+  alpha=1, beta=1, pheromones=NULL, heuristics=NULL,                    #general ACO specs
   deposit='ib', deposit.on='nodes', pbest=.005, tolerance=.001,         #MMAS specs
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs

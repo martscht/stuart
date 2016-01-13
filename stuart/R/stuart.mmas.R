@@ -19,7 +19,7 @@ function(
   
   ants=16, colonies=256, evaporation=.95,                        #general ACO parameters
   deposit='ib', pbest=.005, deposit.on='nodes',                  #MMAS parameters
-  alpha=1, beta=1, heuristics=NULL,
+  alpha=1, beta=1, pheromones=NULL, heuristics=NULL,
   tolerance=.001,                                                #tolerance for convergence
 
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
@@ -50,7 +50,7 @@ function(
   phe.min <- (phe.max*(1-pbest^(1/deci)))/((avg-1)*pbest^(1/deci))
 
   #initialize pheromones
-  pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on)
+  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^1/1e+100)
