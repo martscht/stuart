@@ -16,9 +16,10 @@ function(
     for (i in 1:length(short.factor.structure)) {
       tmp <- rep(list(1:length(short.factor.structure[[i]])),sum(number.of.items[[i]]))
       combi[[i]] <- sapply(tmp,sample,n,replace=TRUE)
+      combi[[i]] <- combi[[i]][apply(combi[[i]],1,function(x) !any(duplicated(x))),]
       while (nrow(combi[[i]])<n) {
-        combi[[i]] <- combi[[i]][apply(combi[[i]],1,function(x) !any(duplicated(x))),]
         combi[[i]] <- rbind(combi[[i]],sapply(tmp,sample,n-nrow(combi[[i]]),replace=TRUE))
+        combi[[i]] <- combi[[i]][apply(combi[[i]],1,function(x) !any(duplicated(x))),]
       }
     }
   }

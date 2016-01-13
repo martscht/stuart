@@ -26,17 +26,18 @@ function(
   ### Loops ###
   log <- NULL
   
-  #creating user feedback
-  message('Running STUART for random samples.\n')
-  progress <- txtProgressBar(style=3)
-  setTxtProgressBar(progress,0)
-  count.gb <- 0
-  
   #generate random sample of combinations
+  message('Generating random samples of combinations.')
   full <- FALSE
   combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
   filter <- combinations$filter
   combi <- combinations$combi
+  
+  #creating user feedback
+  message('Running STUART with random samples.\n')
+  progress <- txtProgressBar(style=3)
+  setTxtProgressBar(progress,0)
+  count.gb <- 0
   
   bf.args <- list(filter,combi,
     data,auxi,
