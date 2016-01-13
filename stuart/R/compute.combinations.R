@@ -4,7 +4,7 @@ function(
 ) { #begin function
 
   comb <- matrix(c(sapply(short.factor.structure,length),unlist(number.of.items)),ncol=2)
-  combinations <- prod(prod(comb[,1]:1)/(prod((comb[,1]-comb[,2]):1)))
+  combinations <- prod(factorial(comb[,1])/(factorial((comb[,1]-comb[,2]))))
   
   return(combinations)
 

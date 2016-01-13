@@ -28,6 +28,9 @@ function(
   #Give Feedback about combinations
   message('Generating all possible combinations.')
 
+  # Generate Combinations
+  full <- TRUE
+  n <- NULL
   combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
 
   filter <- combinations$filter
