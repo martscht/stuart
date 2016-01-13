@@ -190,18 +190,23 @@ function(
 
     if (!ignore.errors) {
       #check if psi is positive definite
-      posdefin <- NULL
+      pd_psi <- NULL
+      pd_the <- NULL
+      
       if (!is.null(grouping)) {
         for (i in 1:length(inspect(output,'cov.lv'))) {
-          posdefin[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
+          pd_psi[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
+          pd_the[i] <- all(diag(inspect(output,'theta')[[i]])>=0)
         }
-        posdefin <- all(posdefin)
+        pd_psi <- all(pd_psi)
+        pd_the <- all(pd_the)
       } else {
-        posdefin <- all(eigen(inspect(output,'cov.lv'))$values>0) 
+        pd_psi <- all(eigen(inspect(output,'cov.lv'))$values>0)
+        pd_the <- all(diag(inspect(output,'theta'))>=0)
       }
       
-      #return only NA if Psi is Not Positive Definite      
-      if (!posdefin) {
+      #return only NA if Psi or Theta are Not Positive Definite      
+      if (!pd_psi | !pd_the) {
         return(output=list(NA)) 
       }
     }
@@ -209,9 +214,8 @@ function(
     tmp <- try(suppressWarnings(inspect(output,'fit')),silent=TRUE)
     if (class(tmp)[1]=='try-error') {
       return(output=list(NA))
-    }
-
-    else {
+      warning('The lavaan estimation generated an error, most likely non-convergence.')
+    } else {
       # compute Allen's composite reliability (overall)
       if (is.null(grouping)) {
         theta <- diag(inspect(output,'theta'))
