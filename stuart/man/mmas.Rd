@@ -14,9 +14,10 @@ mmas(data, factor.structure, items.per.subtest = NULL,
   auxiliary = NULL, software = "lavaan", cores = NULL,
   fitness.func = fitness, ignore.errors = FALSE, ants = 16,
   colonies = 256, evaporation = 0.95, alpha = 1, beta = 1,
-  heuristics = NULL, deposit = "ib", deposit.on = "nodes",
-  pbest = 0.005, tolerance = 0.001, analysis.options = NULL,
-  suppress.model = FALSE, filename = "stuart", ...)
+  pheromones = NULL, heuristics = NULL, deposit = "ib",
+  deposit.on = "nodes", pbest = 0.005, tolerance = 0.001,
+  analysis.options = NULL, suppress.model = FALSE, filename = "stuart",
+  ...)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -36,6 +37,12 @@ mmas(data, factor.structure, items.per.subtest = NULL,
 \item{long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated subtests. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
 
 \item{item.long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
+
+\item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
+
+\item{mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM subtests. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
+
+\item{item.mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
 
 \item{grouping}{The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.}
 
@@ -62,6 +69,8 @@ mmas(data, factor.structure, items.per.subtest = NULL,
 \item{alpha}{The nonlinearity coefficient of the pheromone-trail's contribution to determining selection probabilities. Defaults to 1 (linear).}
 
 \item{beta}{The nonlinearity coefficient of the heuristics' contribution to determining selection probabilities. Defaults to 1 (linear).}
+
+\item{pheromones}{A list of pheromones as created by \code{\link{mmas}}. This can be used to continue previous runs of this function.}
 
 \item{heuristics}{An object of the class \code{stuartHeuristic} as provided by \code{\link{heuristics}} which contains heuristic information to be used in determining selection probabilities. If \code{NULL} (the default) selection probabilities are determined solely by the pheromones.}
 
