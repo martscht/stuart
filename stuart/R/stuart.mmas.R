@@ -61,7 +61,7 @@ function(
 
   #creating user feedback
   message('Running STUART with MMAS.\n')
-  progress <- txtProgressBar(0,colonies,style=3)
+  progress <- txtProgressBar(0,max(c(colonies,1)),style=3)
   count.gb <- 0
 
   repeat { #over colonies
@@ -168,7 +168,7 @@ function(
       end.reason <- 'Algorithm converged.'
       break
     }
-    if (colony >= colonies) {
+    if (colony > colonies) {
       end.reason <- 'Maximum number of colonies exceeded.'
       break
     }
