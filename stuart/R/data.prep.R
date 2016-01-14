@@ -44,10 +44,15 @@ function(
 
   #create an mtmm factor structure
   mtmm.factor.structure <- factor.structure
-  mtmm.factor.structure[!(names(mtmm.factor.structure)%in%sapply(mtmm,function(x) x[1]))] <- NULL
+  if (mtmm.invariance!='none'&item.mtmm.invariance!='none') {
+    mtmm.factor.structure[!(names(mtmm.factor.structure)%in%sapply(mtmm,function(x) x[1]))] <- NULL
+    
+    #create a short factor structure (minimal)
+    short.factor.structure <- factor.structure[intersect(names(long.factor.structure),names(mtmm.factor.structure))]
+  } else {
+    short.factor.structure <- long.factor.structure
+  }
   
-  #create a short factor structure (minimal)
-  short.factor.structure <- factor.structure[intersect(names(long.factor.structure),names(mtmm.factor.structure))]
 
   #create a list of short allocation
   short <- as.list(names(short.factor.structure))
@@ -58,8 +63,10 @@ function(
     repeat {
       filter <- sapply(repeated.measures,function(x)  x[any(short[[i]]%in%x)])
       short[[i]] <-union(short[[i]],unlist(filter))
-      filter <- sapply(mtmm,function(x)  x[any(short[[i]]%in%x)])
-      short[[i]] <-union(short[[i]],unlist(filter))
+      if (mtmm.invariance!='none'&item.mtmm.invariance!='none') {
+        filter <- sapply(mtmm,function(x)  x[any(short[[i]]%in%x)])
+        short[[i]] <-union(short[[i]],unlist(filter))
+      }
       if (counter-length(short[[i]])==0) break
       counter <- length(short[[i]])
     }
