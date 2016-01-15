@@ -76,14 +76,21 @@ function(
 #         tmp <- paste(tmp,collapse='\n')
 #         input <- paste(input,tmp,sep='\n')
 #       }
-      
+
       #estimate latent regressions (MTMM)
-#       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
-#         tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
-#         regs <- expand.grid(names(selected.items[[i]]),sapply(tmp,function(x) names(selected.items[[x]])))
-#         tmp <- paste(tmp,collapse='\n')
-#         input <- paste(input,tmp,sep='\n')
-#       }
+      if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+        tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+        regs <- expand.grid(sapply(tmp,function(x) names(selected.items[[x]])),names(selected.items[[i]]))
+        regs <- sapply(regs,as.character)
+        
+        if (is.null(nrow(regs))) {
+          tmp <- paste(regs,collapse='~')
+        } else {
+          tmp <- paste(apply(regs,1,paste,collapse='~'),collapse='\n')
+        }
+        
+        input <- paste(input,tmp,sep='\n')
+      }
     }
 
     #write the (subtest) factor structure
