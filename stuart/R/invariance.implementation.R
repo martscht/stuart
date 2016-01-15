@@ -19,13 +19,15 @@ function(
   
   
   for (i in 1:length(factor.structure)) {
+    locate <- which(unlist(lapply(short,
+      function(x) is.element(names(factor.structure)[i],x))))
+    
+    locate.long <- which(unlist(lapply(repeated.measures,
+      function(x) is.element(names(factor.structure)[i],x))))
+    locate.mtmm <- which(unlist(lapply(mtmm,
+      function(x) is.element(names(factor.structure)[i],x))))
+    
     if (is.element(names(factor.structure)[i],names(short.factor.structure))) {
-      
-      locate <- which(names(short.factor.structure)==names(factor.structure)[i])
-      locate.long <- which(unlist(lapply(repeated.measures,
-        function(x) is.element(names(factor.structure)[i],x))))
-      locate.mtmm <- which(unlist(lapply(mtmm,
-        function(x) is.element(names(factor.structure)[i],x))))
       
       #generate indices (item, method, occasion)
       equal[[i]]  <- lapply(equal[[i]],function(x) array(NA,c(number.of.some[[locate]],3)))
@@ -60,27 +62,24 @@ function(
       equal[[i]]$eps[,3] <- locate.long
       
     } else {
-      
-      locate <- which(unlist(lapply(short,
-        function(x) is.element(names(factor.structure)[i],x))))
       equal[[i]] <- equal[[names(locate)]]
       
-      locate.long <- which(unlist(lapply(repeated.measures,
-        function(x) is.element(names(factor.structure)[i],x))))
-      locate.mtmm <- which(unlist(lapply(mtmm,
-        function(x) is.element(names(factor.structure)[i],x))))
-
-      if (mtmm.invariance[[locate.mtmm]]!='strict') equal[[i]]$eps[,2] <- locate.mtmm
+      locate.long2 <- which(repeated.measures[[which(unlist(lapply(repeated.measures,
+        function(x) is.element(names(factor.structure)[i],x))))]]==names(factor.structure)[[i]])
+      locate.mtmm2 <- which(mtmm[[which(unlist(lapply(mtmm,
+        function(x) is.element(names(factor.structure)[i],x))))]]==names(factor.structure)[[i]])
       
-      if (mtmm.invariance[[locate.mtmm]]%in%c('weak','congeneric')) equal[[i]]$alp[,2] <- locate.mtmm
+      if (mtmm.invariance[[locate.mtmm]]!='strict') equal[[i]]$eps[,2] <- locate.mtmm2
       
-      if (mtmm.invariance[[locate.mtmm]]=='congeneric') equal[[i]]$lam[,2] <- locate.mtmm
-
-      if (long.invariance[[locate.long]]!='strict') equal[[i]]$eps[,3] <- locate.long
-
-      if (long.invariance[[locate.long]]%in%c('weak','congeneric')) equal[[i]]$alp[,3] <- locate.long
+      if (mtmm.invariance[[locate.mtmm]]%in%c('weak','congeneric')) equal[[i]]$alp[,2] <- locate.mtmm2
       
-      if (long.invariance[[locate.long]]=='congeneric') equal[[i]]$lam[,3] <- locate.long
+      if (mtmm.invariance[[locate.mtmm]]=='congeneric') equal[[i]]$lam[,2] <- locate.mtmm2
+
+      if (long.invariance[[locate.long]]!='strict') equal[[i]]$eps[,3] <- locate.long2
+
+      if (long.invariance[[locate.long]]%in%c('weak','congeneric')) equal[[i]]$alp[,3] <- locate.long2
+      
+      if (long.invariance[[locate.long]]=='congeneric') equal[[i]]$lam[,3] <- locate.long2
       
     }
   }
