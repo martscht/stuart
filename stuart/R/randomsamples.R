@@ -85,6 +85,11 @@ randomsamples <-
     if (any(duplicated(names(factor.structure)))) {
       stop('You have provided duplicates in the name of factor.structure.')
     }
+
+        #multiple subtests warning
+    if (any(unlist(number.of.subtests)>1)) {
+      warning('The implementation of multiple subtests is currently experimental and may lead to expected results.')
+    }
     
     timer <- proc.time()
     
