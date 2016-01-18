@@ -37,8 +37,11 @@ function(run,
   solution.fit <- do.call(paste('run',software,sep='.'),as.list(mget(run.options)))
 
   #compute pheromone
-  solution.phe <- do.call(fitness.func,list(solution.fit))
-
+  fitness.options <- as.list(formals(fitness.func))
+  fitness.options$solution.fit <- solution.fit
+  if (!is.null(mtmm)) fitness.options$criteria <- c(as.character(fitness.options$criteria)[-1],'con')
+  solution.phe <- do.call(fitness.func,fitness.options)
+  
   return(list(selected=selected,solution.phe=solution.phe))
 
 }

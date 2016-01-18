@@ -218,8 +218,8 @@ function(
       }
     }
 
-    tmp <- try(suppressWarnings(inspect(output,'fit')),silent=TRUE)
-    if (class(tmp)[1]=='try-error') {
+    fit <- try(suppressWarnings(inspect(output,'fit')),silent=TRUE)
+    if (class(fit)[1]=='try-error') {
       return(output=list(NA))
       warning('The lavaan estimation generated an error, most likely non-convergence.')
     } else {
@@ -231,7 +231,10 @@ function(
         rel <- 1-(theta/sigma)
         rel[theta<0] <- 0
         crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
-
+        
+        tmp <- inspect(output,'rsquare')
+        con <- mean(tmp[!names(tmp)%in%names(model.data)])
+          
       } else {
         theta <- lapply(inspect(output,'theta'),diag)
         sigma <- lapply(inspect(output,'sigma'),diag)
@@ -240,16 +243,20 @@ function(
         for (i in 1:length(theta)) {
           rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
           rel[[i]][theta[[i]]<0] <- 0
+          tmp <- inspect(output,'rsquare')
+          con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
         }
         crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
       }
       
+      
       # Export the latent variable correlation matrix
       lvcor <- inspect(output,'cor.lv')
 
-      output <- as.list(tmp)
+      output <- as.list(fit)
       output$crel <- crel
       output$lvcor <- lvcor
+      if (!is.null(mtmm)) output$con <- con
 
       return(output=output)
     }

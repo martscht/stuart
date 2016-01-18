@@ -170,6 +170,20 @@ function(
           input <- paste(input,
                          paste0('[',tmp.sit,'];',collapse='\n'),'',sep='\n')
         }
+        #estimate latent regressions (MTMM)
+        if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+          tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+          regs <- expand.grid(sapply(tmp,function(x) names(selected.items[[x]])),names(selected.items[[i]]))
+          regs <- sapply(regs,as.character)
+          
+          if (is.null(nrow(regs))) {
+            tmp <- paste0(paste(regs,collapse=' on '),';\n')
+          } else {
+            tmp <- paste0(paste(apply(regs,1,paste,collapse=' on '),collapse=';\n'),';\n')
+          }
+          
+          input <- paste(input,tmp,sep='\n')
+        }
       }
           
       #write the (subtest) factor structure
@@ -360,7 +374,18 @@ function(
     
     # compute Allen's composite reliability (overall, 1st occasion)
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
-    if (any(grepl('Latent',tmp))) tmp <- tmp[1:grep('Latent',tmp)[1]]
+    if (any(grepl('Latent',tmp))) {
+      con <- tmp[grep('Latent',tmp)[1]:length(tmp)]
+      con <- gsub('\\s+',' ',con)
+      con <- grep('\\.[0-9]{3}',con,value=TRUE)
+      con <- con[!grepl('Undefined',con)]
+      con <- as.numeric(sapply(strsplit(con,'\\s+'),rbind)[3,1:length(con)])
+      con <- mean(con)
+      
+      output$con <- con
+      
+      tmp <- tmp[1:grep('Latent',tmp)[1]]
+    }
     tmp <- gsub('\\s+',' ',tmp)
     tmp <- grep('\\.[0-9]{3}',tmp,value=TRUE)
     tmp <- tmp[!grepl('Undefined',tmp)]
