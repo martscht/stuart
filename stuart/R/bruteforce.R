@@ -90,9 +90,7 @@ function(
 
   request.override=10000,
   
-  filename='bruteforce',
-  
-  ...
+  filename='bruteforce'
 ) {#function begin
 
   #sanity checks

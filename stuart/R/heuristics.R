@@ -52,8 +52,7 @@ heuristics <-
 function(
   data, factor.structure, items.per.subtest=NULL, number.of.subtests=1,
   repeated.measures=NULL, grouping=NULL,  
-  deposit.on='nodes', 
-  ...
+  deposit.on='nodes'
 ) { #begin function
 
   #combine arguments

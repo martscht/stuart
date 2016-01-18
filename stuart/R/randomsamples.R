@@ -76,9 +76,7 @@ randomsamples <-
     
     request.override=10000,
     
-    filename='randomsample', n=1000, 
-    
-    ...
+    filename='randomsample', n=1000
   ) {#function begin
    
     #sanity checks

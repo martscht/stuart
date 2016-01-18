@@ -107,9 +107,7 @@ function(
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
   
-  filename='stuart',                                                    #stem of filenames for Mplus
-  
-  ...
+  filename='stuart'                                                     #stem of filenames for Mplus
 ) { #begin function
 
   #sanity check

@@ -48,8 +48,7 @@ function(
   invariance='congeneric',
   fitness.func=fitness,
   filename='stuart',
-  file.remove=TRUE,
-  ...
+  file.remove=TRUE
 ) { #begin function
   
   if (!invariance%in%c('congeneric','weak','strong','strict','full'))
