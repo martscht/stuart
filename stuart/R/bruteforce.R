@@ -93,9 +93,20 @@ function(
   filename='bruteforce'
 ) {#function begin
 
-  #sanity checks
-  if (any(duplicated(names(factor.structure)))) {
-    stop('You have provided duplicates in the name of factor.structure.')
+  #combine arguments
+  args <- as.list(match.call())[-1]
+  args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
+  
+  #sanity check
+  do.call('sanitycheck',mget(names(args)))
+  
+  if (any(!unlist(repeated.measures)%in%names(factor.structure))) {
+    stop(paste('One or more factors appearing in repeated.measures is not present the factor.structure:',
+      unlist(repeated.measures)[!unlist(repeated.measures)%in%names(factor.structure)]))
+  }
+  if (any(!unlist(mtmm)%in%names(factor.structure))) {
+    stop(paste('One or more factors appearing in mtmm is not present the factor.structure:',
+      unlist(mtmm)[!unlist(mtmm)%in%names(factor.structure)]))
   }
   
   #multiple subtests warning
@@ -104,10 +115,6 @@ function(
   }
   
   timer <- proc.time()
-
-  #combine arguments
-  args <- as.list(match.call())[-1]
-  args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
 
   #check for software
   args$cores <- software.check(software,cores)

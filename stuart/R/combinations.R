@@ -47,7 +47,10 @@ function(
   args <- as.list(match.call())[-1]
   args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
   args <- c(args,formals(data.prep)[!names(formals(data.prep))%in%c(names(args),'...')])
-
+  
+  #sanity check
+  do.call('sanitycheck',mget(names(args)))
+  
   #data preparation
   prepared <- do.call('data.prep',args)
 

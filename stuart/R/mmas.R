@@ -110,10 +110,12 @@ function(
   filename='stuart'                                                     #stem of filenames for Mplus
 ) { #begin function
 
+  #combine arguments
+  args <- as.list(match.call())[-1]
+  args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
+  
   #sanity check
-  if (any(duplicated(names(factor.structure)))) {
-    stop('You have provided duplicates in the name of factor.structure.')
-  }
+  do.call('sanitycheck',mget(names(args)))
   
   #multiple subtests warning
   if (any(unlist(number.of.subtests)>1)) {
@@ -121,10 +123,6 @@ function(
   }
   
   timer <- proc.time()
-
-  #combine arguments
-  args <- as.list(match.call())[-1]
-  args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
 
   #check for software
   args$cores <- software.check(software,cores)

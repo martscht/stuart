@@ -78,22 +78,20 @@ randomsamples <-
     
     filename='randomsample', n=1000
   ) {#function begin
-   
+    
+    #combine arguments
+    args <- as.list(match.call())[-1]
+    args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
+    
     #sanity checks
-    if (any(duplicated(names(factor.structure)))) {
-      stop('You have provided duplicates in the name of factor.structure.')
-    }
-
-        #multiple subtests warning
+    do.call('sanitycheck',mget(names(args)))
+    
+    #multiple subtests warning
     if (any(unlist(number.of.subtests)>1)) {
       warning('The implementation of multiple subtests is currently experimental and may lead to expected results.')
     }
     
     timer <- proc.time()
-    
-    #combine arguments
-    args <- as.list(match.call())[-1]
-    args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
     
     #check for software
     args$cores <- software.check(software,cores)

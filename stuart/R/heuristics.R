@@ -59,6 +59,9 @@ function(
   args <- as.list(match.call())[-1]
   args <- c(args,formals()[!names(formals())%in%names(args)])
 
+  #sanity check
+  do.call('sanitycheck',mget(names(args)))
+  
   prepared <- do.call('data.prep',args)
 
   #combine arguments
