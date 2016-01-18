@@ -8,7 +8,7 @@ function(
   
   model <- selection$final
   model.begin <- grep('^\\s+Model:',model)
-  model.end <- grep('^\\s+Output:',model) - 2
+  model.end <- grep('^\\s+Output:',model) - 1
   
   model <- paste(model[model.begin:model.end],collapse='\n')
   out <- 'svalues'
