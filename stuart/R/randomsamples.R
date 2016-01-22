@@ -84,7 +84,7 @@ randomsamples <-
     args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
     
     #sanity checks
-    do.call('sanitycheck',mget(names(args)))
+    do.call('sanitycheck',mget(names(formals(sanitycheck))))
     
     #multiple subtests warning
     if (any(unlist(number.of.subtests)>1)) {

@@ -1,4 +1,4 @@
-sanitycheck <- function(factor.structure,repeated.measures,mtmm,...) {
+sanitycheck <- function(factor.structure,repeated.measures,mtmm) {
   #sanity check
   if (any(duplicated(names(factor.structure)))) {
     stop('You have provided duplicates in the name of factor.structure.',call.=FALSE)

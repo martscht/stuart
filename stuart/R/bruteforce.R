@@ -98,7 +98,7 @@ function(
   args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
   
   #sanity check
-  do.call('sanitycheck',mget(names(args)))
+  do.call('sanitycheck',mget(names(formals(sanitycheck))))
   
   if (any(!unlist(repeated.measures)%in%names(factor.structure))) {
     stop(paste('One or more factors appearing in repeated.measures is not present the factor.structure:',

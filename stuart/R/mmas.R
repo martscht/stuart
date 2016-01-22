@@ -115,7 +115,7 @@ function(
   args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
   
   #sanity check
-  do.call('sanitycheck',mget(names(args)))
+  do.call('sanitycheck',mget(names(formals(sanitycheck))))
   
   #multiple subtests warning
   if (any(unlist(number.of.subtests)>1)) {

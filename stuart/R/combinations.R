@@ -49,7 +49,7 @@ function(
   args <- c(args,formals(data.prep)[!names(formals(data.prep))%in%c(names(args),'...')])
   
   #sanity check
-  do.call('sanitycheck',mget(names(args)))
+  do.call('sanitycheck',mget(names(formals(sanitycheck))))
   
   #data preparation
   prepared <- do.call('data.prep',args)
