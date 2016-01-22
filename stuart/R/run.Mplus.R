@@ -291,12 +291,12 @@ function(
   
   #write Mplus "Output" section
   if (!output.model) {
-    input <- paste(input,'Output: STDYX NOSERROR\n',
+    input <- paste(input,'Output: STDYX Tech4 NOSERROR\n',
                    unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
   
   else {
-    input <- paste(input,'Output: STDYX \n',
+    input <- paste(input,'Output: STDYX Tech4 \n',
                    unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
 
@@ -371,6 +371,35 @@ function(
       tmp <- MplusOut[grep(locator[i],MplusOut)+offset[i]]
       output[name[i]] <- as.numeric(substr(tmp,nchar(tmp)-9,nchar(tmp)))
     }
+    
+    #extract latent correlations
+    with_begin <- grep('^ +ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
+    with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
+    with <- cbind(with_begin,with_end)
+    
+    lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-3)])
+    tmp <- lapply(seq_len(ncol(lvcor)),function(x) lvcor[,x])
+    tmp <- lapply(tmp,paste,collapse=' ')
+    tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
+    tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
+    tmp <- lapply(tmp,function(x) gsub('^ ','',x))
+    matrices <- list()
+    for (i in 1:ncol(lvcor)) {
+      matrices[[i]] <- matrix(1,ncol=length(lvcor[,i]),nrow=length(lvcor[,i]))
+      matrices[[i]][lower.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' '))) 
+      matrices[[i]][upper.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' ')))
+    }
+    
+    tmp <- lapply(seq_len(ncol(lvcor)),function(x) lvcor[,x])
+    tmp <- lapply(tmp,paste,collapse=' ')
+    tmp <- lapply(tmp,function(x) gsub('[0-9.]','',x))
+    tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
+    tmp <- lapply(tmp,function(x) gsub('^ ','',x))
+
+    for (i in 1:ncol(lvcor)) {
+      dimnames(matrices[[i]]) <- list(unlist(strsplit(tmp[[i]],' ')),unlist(strsplit(tmp[[i]],' ')))
+    }
+    output$lvcor <- matrices
     
     # compute Allen's composite reliability (overall, 1st occasion)
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
