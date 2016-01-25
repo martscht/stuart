@@ -23,7 +23,7 @@ function(
   
   calib <- do.call('run.Mplus',args)  
   
-  model <- calib[(grep('USED AS STARTING VALUES',calib)+1):(grep('^\\s+Beginning Time',calib)-1)]
+  model <- calib[(grep('USED AS STARTING VALUES',calib)+1):(grep('^TECHNICAL',calib)[1]-1)]
   
   # select parameters to be constrained
   equality <- character()

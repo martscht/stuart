@@ -5,14 +5,14 @@ function(
 
   output <- list()
 
-  if (all(is.na(solution.fit))) {
+  if (!all(criteria%in%names(solution.fit))) {
     output[[1]] <- 0
     for (i in 1:length(criteria)) {
       output[[i+1]] <- NA
     }
     names(output) <- c('pheromone',unlist(criteria))
   }
-
+  
   else {
     pheromone <- with(solution.fit, 1/(1+exp(4-10*(crel))) +
               .5*(1 - (1/(1+exp(5-100*rmsea)))) +

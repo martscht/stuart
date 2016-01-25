@@ -134,13 +134,13 @@ function(
         }
       }
 
-      #set latent means in longitudinal models
+      #set latent means
       for (i in 1:length(repeated.measures)) {
         if (long.invariance[[i]]%in%c('strong','strict')) {
           input <- paste(input,
             paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
           input <- paste(input,
-            paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
+            paste0('[',sapply(selected.items[repeated.measures[[i]]],names)[-1],'*];',collapse='\n'),sep='\n')  
         }
       }
     }
@@ -270,20 +270,19 @@ function(
         
         #set latent means
         for (i in 1:length(repeated.measures)) {
-          if (long.invariance[[i]]%in%c('strong','strict') & k==1) {
-            input <- paste(input,
-              paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
+          if (long.invariance[[i]]%in%c('strong','strict')) {
+            if (k == 1) {
               input <- paste(input,
-                paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
+            } else {
+              input <- paste(input,
+                paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'*];',collapse='\n'),sep='\n')              
+            }
+          input <- paste(input,
+            paste0('[',sapply(selected.items[repeated.measures[[i]]],names)[-1],'*];',collapse='\n'),sep='\n')
           }
-          if (long.invariance[[i]]%in%c('strong','strict') & k!=1) {
-            input <- paste(input,
-              paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'*];',collapse='\n'),sep='\n')
-            input <- paste(input,
-              paste0('[',names(selected.items[[repeated.measures[[i]][2:length(repeated.measures[[i]])]]]),'*];',collapse='\n'),sep='\n')
-          }
-        } 
-      }          
+        }
+      }    
     }
   }
   
@@ -337,27 +336,26 @@ function(
       warning('The Mplus input file generated an error.',call.=FALSE)
     }
     exclusion <- TRUE
+  } else {
+    #exclude non-positive and non-converged models
+    #edit this for new Mplus versions!
+    if (ignore.errors) {
+      exclusion <- (any(grepl('NO CONVERGENCE',MplusOut))| 
+          any(grepl('CHECK YOUR MODEL',MplusOut)))
+    }
+    
+    else {
+      exclusion <- (any(grepl('POSITIVE',MplusOut))|
+          any(grepl('NO CONVERGENCE',MplusOut))| 
+          any(grepl('CHECK YOUR MODEL',MplusOut)))
+    }
   }
   
-  #exclude non-positive and non-converged models
-  #edit this for new Mplus versions!
-  if (ignore.errors) {
-    exclusion <- (any(grepl('NO CONVERGENCE',MplusOut))| 
-        any(grepl('CHECK YOUR MODEL',MplusOut)))
-  }
-  
-  else {
-    exclusion <- (any(grepl('POSITIVE',MplusOut))|
-        any(grepl('NO CONVERGENCE',MplusOut))| 
-        any(grepl('CHECK YOUR MODEL',MplusOut)))
-  }
   
   #return list of NA if errors occurred
   if (exclusion) {
     return(output=list(NA))
-  }
-  
-  else {
+  } else {
     #extract the fit statistics reported by Mplus
     output <- list()
     
@@ -376,28 +374,27 @@ function(
     with_begin <- grep('^ +ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
     with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
     with <- cbind(with_begin,with_end)
+    with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
     
     lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-3)])
+    size <- which(lvcor=='')[1]-1
     tmp <- lapply(seq_len(ncol(lvcor)),function(x) lvcor[,x])
+    if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('_+',y),function(x) (x-3):x)])
     tmp <- lapply(tmp,paste,collapse=' ')
     tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
+    tmp <- lapply(tmp,function(x) gsub(' [0-9+] ',' ',x))
     tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
     tmp <- lapply(tmp,function(x) gsub('^ ','',x))
     matrices <- list()
-    for (i in 1:ncol(lvcor)) {
-      matrices[[i]] <- matrix(1,ncol=length(lvcor[,i]),nrow=length(lvcor[,i]))
+    
+    for (i in 1:length(tmp)) {
+      matrices[[i]] <- matrix(1,ncol=size,nrow=size)
       matrices[[i]][lower.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' '))) 
       matrices[[i]][upper.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' ')))
     }
     
-    tmp <- lapply(seq_len(ncol(lvcor)),function(x) lvcor[,x])
-    tmp <- lapply(tmp,paste,collapse=' ')
-    tmp <- lapply(tmp,function(x) gsub('[0-9.]','',x))
-    tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
-    tmp <- lapply(tmp,function(x) gsub('^ ','',x))
-
     for (i in 1:ncol(lvcor)) {
-      dimnames(matrices[[i]]) <- list(unlist(strsplit(tmp[[i]],' ')),unlist(strsplit(tmp[[i]],' ')))
+      dimnames(matrices[[i]]) <- list(sapply(selected.items,names),sapply(selected.items,names))
     }
     output$lvcor <- matrices
     

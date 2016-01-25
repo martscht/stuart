@@ -5,7 +5,7 @@ sanitycheck <- function(factor.structure,repeated.measures,mtmm) {
   }
   if (any(!unlist(repeated.measures)%in%names(factor.structure))) {
     stop(paste('One or more factors appearing in repeated.measures is not present the factor.structure:',
-      unlist(repeated.measures)[!unlist(repeated.measures)%in%names(factor.structure)]),call.=FALSE)
+      paste(unlist(repeated.measures)[!unlist(repeated.measures)%in%names(factor.structure)],collapse=', ')),call.=FALSE)
   }
   if (any(!unlist(mtmm)%in%names(factor.structure))) {
     stop(paste('One or more factors appearing in mtmm is not present the factor.structure:',
