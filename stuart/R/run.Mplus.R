@@ -376,9 +376,9 @@ function(
     with <- data.frame(with_begin,with_end)
     with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
     
-    lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-3)])
-    size <- which(lvcor=='')[1]-1
-    tmp <- lapply(seq_len(ncol(lvcor)),function(x) lvcor[,x])
+    lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
+    size <- ifelse(any(lvcor==''),which(lvcor=='')[1]-1,1)
+    tmp <- lapply(seq_len(max(ncol(lvcor),1)),function(x) lvcor[,x])
     if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('_+',y),function(x) (x-3):x)])
     tmp <- lapply(tmp,paste,collapse=' ')
     tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
