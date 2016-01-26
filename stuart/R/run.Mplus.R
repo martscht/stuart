@@ -373,7 +373,7 @@ function(
     #extract latent correlations
     with_begin <- grep('^ +ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
     with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
-    with <- cbind(with_begin,with_end)
+    with <- data.frame(with_begin,with_end)
     with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
     
     lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-3)])
@@ -389,8 +389,8 @@ function(
     
     for (i in 1:length(tmp)) {
       matrices[[i]] <- matrix(1,ncol=size,nrow=size)
-      matrices[[i]][lower.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' '))) 
       matrices[[i]][upper.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' ')))
+      matrices[[i]][lower.tri(matrices[[i]])] <- t(matrices[[i]])[lower.tri(matrices[[i]])]
     }
     
     for (i in 1:ncol(lvcor)) {
