@@ -46,7 +46,7 @@ crossvalidate <-
 function(
   selection, old.data, new.data,
   invariance='congeneric',
-  fitness.func=fitness,
+  fitness.func=NULL,
   filename='stuart',
   file.remove=TRUE
 ) { #begin function
@@ -66,8 +66,12 @@ function(
   
   # run validation
   validated <- do.call(paste('crossvalidate',software,sep='.'),args)    
+  fitness.options <- as.list(formals(fitness))
+  fitness.options$solution.fit <- validated
+  fitness.options$fitness.func <- fitness.func
+  if ('con'%in%names(selection$log)) fitness.options$criteria <- c(as.character(fitness.options$criteria)[-1],'con')
   
-  output <- do.call(fitness.func,list(validated))
+  output <- do.call(fitness,fitness.options)
   output <- rbind(selection$log[which.max(selection$log$pheromone),names(selection$log)%in%names(output)],array(data=unlist(output)))
   rownames(output) <- c('calibration','validation')
   return(output)

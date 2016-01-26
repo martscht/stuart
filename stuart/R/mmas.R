@@ -99,7 +99,7 @@ function(
 
   software='lavaan', cores=NULL,                                        #run settings
 
-  fitness.func=fitness, ignore.errors=FALSE,                            #fitness specs
+  fitness.func=NULL, ignore.errors=FALSE,                               #fitness specs
 
   ants=16, colonies=256, evaporation=.95,                               #general ACO specs
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,                    #general ACO specs

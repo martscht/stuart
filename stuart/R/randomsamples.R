@@ -70,7 +70,7 @@ randomsamples <-
     
     software='lavaan', cores=NULL,                                        #run settings
     
-    fitness.func=fitness, ignore.errors=FALSE,                            #fitness specs
+    fitness.func=NULL, ignore.errors=FALSE,                               #fitness specs
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     

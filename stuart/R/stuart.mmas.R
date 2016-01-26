@@ -15,7 +15,7 @@ function(
 
   software, cores,                                               #Software to be used
 
-  fitness.func=fitness, ignore.errors=FALSE,                     #fitness function
+  fitness.func=NULL, ignore.errors=FALSE,                        #fitness function
   
   ants=16, colonies=256, evaporation=.95,                        #general ACO parameters
   deposit='ib', pbest=.005, deposit.on='nodes',                  #MMAS parameters
