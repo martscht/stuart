@@ -5,7 +5,7 @@
 \title{Cross-Validate a Measurement Model}
 \usage{
 crossvalidate(selection, old.data, new.data, invariance = "congeneric",
-  fitness.func = fitness, filename = "stuart", file.remove = TRUE, ...)
+  fitness.func = NULL, filename = "stuart", file.remove = TRUE)
 }
 \arguments{
 \item{selection}{An object of class \code{stuartOutput}.}

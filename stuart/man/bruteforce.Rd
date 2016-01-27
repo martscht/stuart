@@ -12,9 +12,9 @@ bruteforce(data, factor.structure, items.per.subtest = NULL,
   item.mtmm.invariance = "congeneric", grouping = NULL,
   group.invariance = "strict", item.group.invariance = "strict",
   auxiliary = NULL, software = "lavaan", cores = NULL,
-  fitness.func = fitness, ignore.errors = FALSE, analysis.options = NULL,
+  fitness.func = NULL, ignore.errors = FALSE, analysis.options = NULL,
   suppress.model = FALSE, request.override = 10000,
-  filename = "bruteforce", ...)
+  filename = "bruteforce")
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -53,7 +53,7 @@ bruteforce(data, factor.structure, items.per.subtest = NULL,
 
 \item{cores}{The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.}
 
-\item{fitness.func}{A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.}
+\item{fitness.func}{A function that converts the results of model estimation into a pheromone. See \code{\link{mmas}} for details.}
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
 

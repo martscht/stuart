@@ -6,7 +6,7 @@
 \usage{
 heuristics(data, factor.structure, items.per.subtest = NULL,
   number.of.subtests = 1, repeated.measures = NULL, grouping = NULL,
-  deposit.on = "nodes", ...)
+  deposit.on = "nodes")
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
