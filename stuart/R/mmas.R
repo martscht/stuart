@@ -3,6 +3,11 @@
 #' 
 #' Construct subtests from a given pool of items using the classical Max-Min Ant-System (Stützle, 1998). Allows for multiple constructs, occasions, and groups.
 #' 
+### Details ----
+#' The pheromone function provided via \code{fitness.func} is used to assess the quality of the solutions. These functions can contain any combination of the fit indices provided by the estimation software. When using Mplus these fit indices are 'rmsea', 'srmr', 'cfi', 'tli', 'chisq' (with 'df' and 'pvalue'), 'aic', 'bic', and 'abic'. With lavaan any fit index provided by \code{\link{inspect}} can be used. Additionally 'crel' provides an aggregate of composite reliabilites, 'con' provides an aggregate consistency estimate for MTMM analyses, and 'lvcor' provides a list of the latent variable correlation matrices. Per default a pheromone function using 'crel', 'rmsea', and 'srmr' is used. Please be aware that the \code{fitness.func} must be a function with the required fit indices as (correctly named) arguments.
+#' 
+#' The scheduling of parameters is possible for the arguments \code{ants}, \code{colonies}, \code{evaporation}, \code{pbest}, \code{alpha}, \code{beta}, and \code{tolerance}. For all of these parameter scheduling is done when an array with two columns is provided. The first column of the array contains the timer, i.e. when to switch between parameter settings, the second column contains the values. The argument \code{schedule} can be used to switch between an absolute schedule pertaining to the total number of runs (the number of colonies investigated independent of colony counter resets) and a relative schedule pertaining to the number of colonies investigated since the last counter reset - the latter can be achieved with \code{schedule='colony'}.
+#' 
 #' @author Martin Schultze
 #' 
 #' @seealso \code{\link{bruteforce}} \code{\link{heuristics}}
@@ -30,19 +35,20 @@
 #' @param auxiliary The names of auxiliary variables in \code{data}. These can be used in additional modeling steps that may be provided in \code{analysis.options$model}.
 #' @param software The name of the estimation software. Can currently be 'lavaan' (the default) or 'Mplus'. Each option requires the software to be installed.
 #' @param cores The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.
-#' @param fitness.func A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
+#' @param fitness.func A function that converts the results of model estimation into a pheromone. See 'details' for... details.
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
-#' @param ants The number of ants per colony to be estimated.
-#' @param colonies The maximum number of colonies estimated since finding the latest global-best solution before aborting the process.
-#' @param evaporation The evaporation coefficient. 
-#' @param alpha The nonlinearity coefficient of the pheromone-trail's contribution to determining selection probabilities. Defaults to 1 (linear).
-#' @param beta The nonlinearity coefficient of the heuristics' contribution to determining selection probabilities. Defaults to 1 (linear).
+#' @param ants The number of ants per colony to be estimated. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param colonies The maximum number of colonies estimated since finding the latest global-best solution before aborting the process. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param evaporation The evaporation coefficient. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param alpha The nonlinearity coefficient of the pheromone-trail's contribution to determining selection probabilities. Defaults to 1 (linear). Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param beta The nonlinearity coefficient of the heuristics' contribution to determining selection probabilities. Defaults to 1 (linear). Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
 #' @param pheromones A list of pheromones as created by \code{\link{mmas}}. This can be used to continue previous runs of this function.
 #' @param heuristics An object of the class \code{stuartHeuristic} as provided by \code{\link{heuristics}} which contains heuristic information to be used in determining selection probabilities. If \code{NULL} (the default) selection probabilities are determined solely by the pheromones.
 #' @param deposit Which deposit rule to use. Can be either 'ib' (the default) for an iteration-best deposit rule, or 'gb' for a global-best deposit rule.
 #' @param deposit.on Which parameterization to use when depositing pheromones. Can be either 'nodes' (the default) for depositing pheromones on selected nodes or 'arcs' for depositing on selection arcs.
-#' @param pbest The desired overall probability of constructing the global-best solution when the algorithm converges. 
-#' @param tolerance The tolerance of imprecision when comparing the pheromones to the upper and lower limits.
+#' @param pbest The desired overall probability of constructing the global-best solution when the algorithm convergels.  Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param tolerance The tolerance of imprecision when comparing the pheromones to the upper and lower limits. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
+#' @param schedule The counter which the scheduling of parameters pertains to. Can be either 'run' (the default), for a continuous schedule, or 'colony', for a schedule that is restarted every time a new global best is found.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
@@ -104,6 +110,7 @@ function(
   ants=16, colonies=256, evaporation=.95,                               #general ACO specs
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,                    #general ACO specs
   deposit='ib', deposit.on='nodes', pbest=.005, tolerance=.001,         #MMAS specs
+  schedule='run',
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
   
