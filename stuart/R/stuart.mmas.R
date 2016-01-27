@@ -190,7 +190,7 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min)
+    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func)
   return(results)
 
 }

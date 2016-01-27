@@ -56,6 +56,8 @@ function(
   
   # check estimation software
   software <- selection$software
+  # check fitness function
+  if (is.null(fitness.func)) fitness.func <- selection$parameters$fitness.func
   
   if (software=='Mplus' & is.null(old.data)) stop('When using Mplus the old.data is required.')
   

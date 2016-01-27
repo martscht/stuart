@@ -12,6 +12,7 @@ function(
       tmp <- tmp[colSums(apply(tmp,1,duplicated))==0,]
       combi[[i]] <- tmp
     }
+    filter <- expand.grid(lapply(lapply(combi,nrow),function(x) return(1:x)))
   } else {
     for (i in 1:length(short.factor.structure)) {
       tmp <- rep(list(1:length(short.factor.structure[[i]])),sum(number.of.items[[i]]))
@@ -22,9 +23,8 @@ function(
         combi[[i]] <- combi[[i]][apply(combi[[i]],1,function(x) !any(duplicated(x))),]
       }
     }
+    filter <- as.data.frame(matrix(1:n,nrow=n,ncol=length(short.factor.structure)))
   }
-
-  filter <- expand.grid(lapply(lapply(combi,nrow),function(x) return(1:x)))
 
   return(list(combi=combi,filter=filter))
 

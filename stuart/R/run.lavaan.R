@@ -5,7 +5,7 @@ function(
   selected, selected.items,
   long.equal, item.long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure, short, mtmm,
+  short.factor.structure, short, mtmm=NULL,
   invariance, long.invariance, mtmm.invariance, group.invariance,
   item.invariance, item.long.invariance, item.mtmm.invariance, item.group.invariance,
 
@@ -256,7 +256,7 @@ function(
       output <- as.list(fit)
       output$crel <- crel
       output$lvcor <- lvcor
-      if (!is.null(mtmm)) output$con <- con
+      if (!is.na(con)) output$con <- con
 
       return(output=output)
     }
