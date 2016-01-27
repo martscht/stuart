@@ -109,7 +109,7 @@ function(
 
   ants=16, colonies=256, evaporation=.95,                               #general ACO specs
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,                    #general ACO specs
-  deposit='ib', deposit.on='nodes', pbest=.005, tolerance=.001,         #MMAS specs
+  deposit='ib', deposit.on='nodes', pbest=.005, tolerance=.5,           #MMAS specs
   schedule='run',
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
