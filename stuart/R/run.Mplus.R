@@ -135,12 +135,15 @@ function(
       }
 
       #set latent means
-      for (i in 1:length(repeated.measures)) {
-        if (long.invariance[[i]]%in%c('strong','strict')) {
-          input <- paste(input,
-            paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
-          input <- paste(input,
-            paste0('[',sapply(selected.items[repeated.measures[[i]]],names)[-1],'*];',collapse='\n'),sep='\n')  
+      for (i in 1:length(factor.structure)) {
+        if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
+          if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])) {
+            input <- paste(input,
+              paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
+          }
         }
       }
     }
@@ -269,17 +272,17 @@ function(
         }
         
         #set latent means
-        for (i in 1:length(repeated.measures)) {
-          if (long.invariance[[i]]%in%c('strong','strict')) {
-            if (k == 1) {
+        #set latent means
+        for (i in 1:length(factor.structure)) {
+          if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
+            if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])&
+                k==1) {
               input <- paste(input,
-                paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'@0];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
             } else {
               input <- paste(input,
-                paste0('[',names(selected.items[[repeated.measures[[i]][1]]]),'*];',collapse='\n'),sep='\n')              
+                paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
             }
-          input <- paste(input,
-            paste0('[',sapply(selected.items[repeated.measures[[i]]],names)[-1],'*];',collapse='\n'),sep='\n')
           }
         }
       }    

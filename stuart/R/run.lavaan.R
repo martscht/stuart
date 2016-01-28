@@ -95,12 +95,13 @@ function(
 
     #write the (subtest) factor structure
     for (i in 1:length(selected.items)) {
+      tmp.fil <- which(unlist(lapply(short,
+        function(x) is.element(names(factor.structure)[i],x))))
+      
+      tmp.sit <- names(selected.items[[i]])
+      tmp.lin <- long.invariance[[tmp.fil]]
+      
       if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-        tmp.fil <- which(unlist(lapply(short,
-          function(x) is.element(names(factor.structure)[i],x))))
-        
-        tmp.sit <- names(selected.items[[i]])
-
           if (is.null(grouping)) {
             tmp.inv <- long.equal[[i]]
           }
@@ -119,8 +120,6 @@ function(
               alp=tmp.inv[(number.of.subtests[[tmp.fil]]+1):(number.of.subtests[[tmp.fil]]*2)],
               eps=tmp.inv[(number.of.subtests[[tmp.fil]]*2+1):(number.of.subtests[[tmp.fil]]*3)])
           }
-
-          tmp.lin <- long.invariance[[tmp.fil]]
 
         #factor loadings
         input <- paste(input,'\n',
@@ -146,6 +145,19 @@ function(
             paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
           input <- paste(input,
             paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+        }
+      } else {
+        #intercepts
+        #set latent means for all first occasion measures & if weak or less long inv.
+        if (names(selected.items)[i]%in%names(short.factor.structure) | 
+            tmp.lin%in%c('congeneric','weak')) {
+          input <- paste(input,
+            paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+        }
+        
+        else {
+          input <- paste(input,
+            paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
         }
       }
     }
