@@ -191,7 +191,7 @@ function(
   
   #retain only the options that are accepted by lavaan
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
-  analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan)))]
+  analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
   
   tmp.cfa <- get('cfa',asNamespace('lavaan'))  
   output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
@@ -213,15 +213,15 @@ function(
       pd_the <- NULL
       
       if (!is.null(grouping)) {
-        for (i in 1:length(inspect(output,'cov.lv'))) {
-          pd_psi[i] <- all(eigen(inspect(output,'cov.lv')[[i]])$values>0) 
-          pd_the[i] <- all(diag(inspect(output,'theta')[[i]])>=0)
+        for (i in 1:length(lavaan::inspect(output,'cov.lv'))) {
+          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]])$values>0) 
+          pd_the[i] <- all(diag(lavaan::inspect(output,'theta')[[i]])>=0)
         }
         pd_psi <- all(pd_psi)
         pd_the <- all(pd_the)
       } else {
-        pd_psi <- all(eigen(inspect(output,'cov.lv'))$values>0)
-        pd_the <- all(diag(inspect(output,'theta'))>=0)
+        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'))$values>0)
+        pd_the <- all(diag(lavaan::inspect(output,'theta'))>=0)
       }
       
       #return only NA if Psi or Theta are Not Positive Definite      
@@ -230,32 +230,32 @@ function(
       }
     }
 
-    fit <- try(suppressWarnings(inspect(output,'fit')),silent=TRUE)
+    fit <- try(suppressWarnings(lavaan::inspect(output,'fit')),silent=TRUE)
     if (class(fit)[1]=='try-error') {
       return(output=list(NA))
       warning('The lavaan estimation generated an error, most likely non-convergence.')
     } else {
       # compute Allen's composite reliability (overall)
       if (is.null(grouping)) {
-        theta <- diag(inspect(output,'theta'))
-        sigma <- diag(inspect(output,'sigma'))
+        theta <- diag(lavaan::inspect(output,'theta'))
+        sigma <- diag(lavaan::inspect(output,'sigma'))
         
         rel <- 1-(theta/sigma)
         rel[theta<0] <- 0
         crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
         
-        tmp <- inspect(output,'rsquare')
+        tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(tmp[!names(tmp)%in%names(model.data)])
           
       } else {
-        theta <- lapply(inspect(output,'theta'),diag)
-        sigma <- lapply(inspect(output,'sigma'),diag)
+        theta <- lapply(lavaan::inspect(output,'theta'),diag)
+        sigma <- lapply(lavaan::inspect(output,'sigma'),diag)
         
         rel <- as.list(rep(NA,length(theta)))
         for (i in 1:length(theta)) {
           rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
           rel[[i]][theta[[i]]<0] <- 0
-          tmp <- inspect(output,'rsquare')
+          tmp <- lavaan::inspect(output,'rsquare')
           con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
         }
         crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
@@ -263,7 +263,7 @@ function(
       
       
       # Export the latent variable correlation matrix
-      lvcor <- inspect(output,'cor.lv')
+      lvcor <- lavaan::inspect(output,'cor.lv')
 
       output <- as.list(fit)
       output$crel <- crel

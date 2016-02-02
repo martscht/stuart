@@ -5,7 +5,7 @@ function(
 ) { #begin function
   
   # retrieve old results
-  parameters <- parTable(selection$final)
+  parameters <- lavaan::parTable(selection$final)
 
   if (!is.null(selection$call$grouping)) {
     if (!selection$call$grouping %in% names(new.data) | 
