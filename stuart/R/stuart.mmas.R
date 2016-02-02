@@ -99,22 +99,22 @@ function(
       fitness.func,software,output.model=FALSE,ignore.errors)
 
     #parallel processing for R-internal estimations
-    if (software%in%c('lavaan','OpenMx')) {
+    if (software=='lavaan') {
       if (cores>1) {
         #set up parallel processing on windows
         if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-          cl <- makeCluster(cores)
+          cl <- parallel::makeCluster(cores)
           
           #load estimation software to clusters
-          parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
+          parallel::parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
           
-          ant.results <- parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
-          stopCluster(cl)
+          ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
+          parallel::stopCluster(cl)
         }
         
         #run ants in parallel on unixies
         else {
-          ant.results <- mclapply(1:ants_cur,function(x) do.call(ant.cycle,ant.args), mc.cores=cores)
+          ant.results <- parallel::mclapply(1:ants_cur,function(x) do.call(ant.cycle,ant.args), mc.cores=cores)
         }
       }
 

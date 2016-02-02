@@ -56,26 +56,26 @@ function(
   
 
   #parallel processing for R-internal estimations
-  if (software%in%c('lavaan','OpenMx')) {
+  if (software=='lavaan') {
     if (cores>1) {
       #set up parallel processing on windows
       if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-        cl <- makeCluster(cores)
+        cl <- parallel::makeCluster(cores)
         
         #load estimation software to clusters
-        parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
-        parLapply(cl,1:cores,function(x) library(stuart,quietly=TRUE,verbose=FALSE))
+        parallel::parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
+        parallel::parLapply(cl,1:cores,function(x) library(stuart,quietly=TRUE,verbose=FALSE))
         
-        bf.results <- parLapply(cl,1:nrow(filter),function(run) {
+        bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
           setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
           do.call('bf.cycle',c(run,bf.args))
         })
-        stopCluster(cl)
+        parallel::stopCluster(cl)
       }
       
       #run ants in parallel on unixies
       else {
-        bf.results <- mclapply(1:nrow(filter),
+        bf.results <- parallel::mclapply(1:nrow(filter),
           function(run) {     
             setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
               do.call('bf.cycle',c(run,bf.args))
