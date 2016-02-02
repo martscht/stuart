@@ -1,10 +1,6 @@
 .onAttach <-
 function(libname,pkgname) {
-  packageStartupMessage(' done.\nWarning: This is an alpha-build, so there may be (a lot of) bugs.')
-  }
-.onLoad <-
-function(libname, pkgname) {
-  packageStartupMessage('Loading STUART...',appendLF=FALSE)
+  packageStartupMessage('Warning: This is an alpha-build of stuart, so there may be (a lot of) bugs.')
   }
 .rgedit.lastline2clipboard <-
 function( clipboard.command = "xclip" ) 
