@@ -51,7 +51,7 @@
 heuristics <-
 function(
   data, factor.structure, items.per.subtest=NULL, number.of.subtests=1,
-  repeated.measures=NULL, grouping=NULL,  
+  repeated.measures=NULL, mtmm=NULL, grouping=NULL,  
   deposit.on='nodes'
 ) { #begin function
 
@@ -60,7 +60,7 @@ function(
   args <- c(args,formals()[!names(formals())%in%names(args)])
 
   #sanity check
-  do.call('sanitycheck',mget(names(formals(sanitycheck))))
+  do.call('sanitycheck',args[names(formals(sanitycheck))][!is.na(names(args[names(formals(sanitycheck))]))])
   
   prepared <- do.call('data.prep',args)
 
