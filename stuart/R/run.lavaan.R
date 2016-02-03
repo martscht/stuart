@@ -165,7 +165,7 @@ function(
 
   if (is.data.frame(analysis.options$model)) {
     if (suppress.model) input <- analysis.options$model
-    else input <- rbind(lavParTable(input),analysis.options$model)
+    else input <- rbind(lavaan::lavParTable(input),analysis.options$model)
   }
   else input <- paste(input,analysis.options$model)
   

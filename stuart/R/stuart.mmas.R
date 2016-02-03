@@ -52,7 +52,7 @@ function(
   scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance')
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
-    assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]])
+    assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]],envir=.GlobalEnv)
   }
   if (length(scheduled[filt])>0) {
     scheduled <- scheduled[filt]
