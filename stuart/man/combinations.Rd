@@ -17,6 +17,10 @@ combinations(data, factor.structure, items.per.subtest = NULL,
 \item{number.of.subtests}{A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.}
 
 \item{repeated.measures}{A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.}
+
+\item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
+
+\item{...}{Additional arguments usually passed to \code{\link{mmas}} or \code{\link{bruteforce}}.}
 }
 \value{
 Returns the number of possible subtest constellations.
