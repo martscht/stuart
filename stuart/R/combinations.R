@@ -23,16 +23,6 @@
 #' @return Returns the number of possible subtest constellations.
 #' 
 ### Examples ----
-#' @examples
-#' # Compute the number of possible short-version combinations
-#' # for two constructs with 4 items each
-#' data(fairplayer)
-#' 
-#' fs <- list(SI=names(fairplayer)[2:11],
-#'   EM=names(fairplayer)[32:39])
-#' 
-#' combinations(fairplayer, fs, 4)
-#'  
 #' @export
 
 

@@ -50,20 +50,6 @@
 #' \item{final}{The results of the estimation of the global-best solution.}
 #' 
 #' 
-### Examples ----
-#' @examples
-#' # Obtaining a 4-item short-version with strict
-#' # longitudinal invariance
-#' data(fairplayer)
-#' 
-#' fs <- list(SI1=names(fairplayer)[2:11],
-#'   SI2=names(fairplayer[12:21]))
-#' 
-#' repme <- list(SI=c('SI1','SI2'))
-#' \donttest{
-#' longitudinal <- bruteforce(fairplayer, fs, 4, repeated.measures=repme)
-#' summary(longitudinal)
-#' }
 #' @export
 
 

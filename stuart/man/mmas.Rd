@@ -109,23 +109,6 @@ The pheromone function provided via \code{fitness.func} is used to assess the qu
 
 The scheduling of parameters is possible for the arguments \code{ants}, \code{colonies}, \code{evaporation}, \code{pbest}, \code{alpha}, \code{beta}, and \code{tolerance}. For all of these parameter scheduling is done when an array with two columns is provided. The first column of the array contains the timer, i.e. when to switch between parameter settings, the second column contains the values. The argument \code{schedule} can be used to switch between an absolute schedule pertaining to the total number of runs (the number of colonies investigated independent of colony counter resets) and a relative schedule pertaining to the number of colonies investigated since the last counter reset - the latter can be achieved with \code{schedule='colony'}.
 }
-\examples{
-###WARNING: Running these examples may take a very long time###
-
-# Item selection: choosing 4 items per construct
-# to generate short versions of two scales simultaneously
-data(fairplayer)
-names(fairplayer)
-
-fs <- list(SI=names(fairplayer)[2:11],
-  EM=names(fairplayer)[32:39])
-\donttest{
-item.selection <- mmas(fairplayer, fs, 4, pbest=.1)
-summary(item.selection)
-summary(item.selection$FinalModel)
-}  
- 
-}
 \author{
 Martin Schultze
 }

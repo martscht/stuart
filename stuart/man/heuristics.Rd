@@ -34,26 +34,6 @@ Creates uninformative heuristic matrices for the use in \code{\link{mmas}}.
 \details{
 This function generates a list of matrices which can be used as heuristics for all STUART constructions. This is mainly intended to write the structure of the heuristic matrices to an object, change components in line with theoretically derived heuristics and feed them back into \code{\link{mmas}} via the \code{heuristics} argument. The generated heuristics will contain only 1s and 0s, making it no heuristic information. Selection probabilities can be altered by manipulating the contents of the object created by \code{heuristics}. Setting a value to 0 will result in prohibiting a certain choice to be made. Please note, that it will lead to unpredictable behavior if the diagonal elements of the matrices produced in the arcs parameterization are set to values other than 0.
 }
-\examples{
-# "Fixing" 2 Items to be in specific subtests
-# when using deposit.on='nodes'
-data(fairplayer)
-
-fs <- list(EM=names(fairplayer)[32:39])
-
-heu <- heuristics(fairplayer,fs)
-
-heu$EM[1,1:2] <- c(0,999)
-heu$EM[2,1:2] <- c(999,0)
-heu
-
-\donttest{
-subtests <- mmas(fairplayer, fs, 3, 2, heuristics=heu, pbest=.25)
-
-summary(subtests)
-subtests$Pheromones}
- 
-}
 \author{
 Martin Schultze
 }

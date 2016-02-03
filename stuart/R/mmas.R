@@ -67,24 +67,6 @@
 #' \item{subtests}{A list containing the names of the selected items and their respective subtests.}
 #' \item{final}{The results of the estimation of the global-best solution.}
 #' 
-#' 
-### Examples ----
-#' @examples
-#' ###WARNING: Running these examples may take a very long time###
-#' 
-#' # Item selection: choosing 4 items per construct
-#' # to generate short versions of two scales simultaneously
-#' data(fairplayer)
-#' names(fairplayer)
-#' 
-#' fs <- list(SI=names(fairplayer)[2:11],
-#'   EM=names(fairplayer)[32:39])
-#' \donttest{
-#' item.selection <- mmas(fairplayer, fs, 4, pbest=.1)
-#' summary(item.selection)
-#' summary(item.selection$FinalModel)
-#' }  
-#'  
 #' @export
 
 

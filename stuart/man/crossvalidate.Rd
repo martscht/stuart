@@ -35,18 +35,6 @@ Returns a \code{data.frame} with 2 observations of 7 variables. The first observ
 \description{
 Cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
 }
-\examples{
-data(fairplayer)
-calib <- fairplayer[1:80,]
-valid <- fairplayer[81:135,]
-fs <- list(SI1=paste0('SI',1:10,'t1'),
- EM1=paste0('EM',1:8,'t1'))
-
-\donttest{
-item.selection <- mmas(calib,fs,1,3,ants=1,colonies=1)
-crossvalidate(item.selection,valid)
-}
-}
 \author{
 Martin Schultze
 }

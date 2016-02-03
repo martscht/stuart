@@ -24,27 +24,7 @@
 #' 
 ### Outputs ---- 
 #' @return Returns a list of the same length as the \code{factor.structure} argument provided.
-#' 
-### Examples ----
-#' @examples
-#' # "Fixing" 2 Items to be in specific subtests
-#' # when using deposit.on='nodes'
-#' data(fairplayer)
-#' 
-#' fs <- list(EM=names(fairplayer)[32:39])
-#' 
-#' heu <- heuristics(fairplayer,fs)
-#' 
-#' heu$EM[1,1:2] <- c(0,999)
-#' heu$EM[2,1:2] <- c(999,0)
-#' heu
-#'
-#' \donttest{
-#' subtests <- mmas(fairplayer, fs, 3, 2, heuristics=heu, pbest=.25)
-#' 
-#' summary(subtests)
-#' subtests$Pheromones}
-#'  
+#'   
 #' @export
 
 
