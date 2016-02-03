@@ -11,7 +11,7 @@
 #' 
 #' Addtionally, there are some convenience functions which are more or less useful. The \code{\link{combinations}}-function can be used to determine the number of possible subtests to inform a decision on which selection approach to use. The \code{\link{crossvalidate}}-function can be used to evaluate the quality of a selection in a different (sub-)sample. The \code{\link{heuristics}}-function can be used to extract the formatting of heurstic matrices which can be provided to the \code{\link{mmas}}-function.
 #' 
-#' The package also provides three (partially overlapping) datasets: the \code{\link{sups}} dataset, the \code{\link{fairplayer}} dataset, and the \code{\link{fairplayer_mtmm}} dataset.
+#' The package also provides two datasets: the \code{\link{sups}} dataset and the \code{\link{fairplayer}} dataset.
 #' 
 #' @docType package
 "_PACKAGE"
