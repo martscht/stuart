@@ -86,15 +86,6 @@ function(
   #sanity check
   do.call('sanitycheck',mget(names(formals(sanitycheck))))
   
-  if (any(!unlist(repeated.measures)%in%names(factor.structure))) {
-    stop(paste('One or more factors appearing in repeated.measures is not present the factor.structure:',
-      unlist(repeated.measures)[!unlist(repeated.measures)%in%names(factor.structure)]))
-  }
-  if (any(!unlist(mtmm)%in%names(factor.structure))) {
-    stop(paste('One or more factors appearing in mtmm is not present the factor.structure:',
-      unlist(mtmm)[!unlist(mtmm)%in%names(factor.structure)]))
-  }
-  
   #multiple subtests warning
   if (any(unlist(number.of.subtests)>1)) {
     warning('The implementation of multiple subtests is currently experimental and may lead to expected results.')
