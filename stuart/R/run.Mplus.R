@@ -375,25 +375,50 @@ function(
     
     #extract latent correlations
     with_begin <- grep('^ +ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
-    with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
-    with <- data.frame(with_begin,with_end)
-    with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
+    if (as.numeric(gsub('[a-zA-Z ()]','',MplusOut[1]))>7) {
+      with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
+      with <- data.frame(with_begin,with_end)
+      with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
+    } else {
+      with_end <- grep('^ +ESTIMATES DERIVED FROM THE MODEL',MplusOut)[-1]
+      with_end <- c(with_end,grep('^ +Beginning Time:',MplusOut))
+      with <- matrix(c(with_begin[1],with_end[1]),ncol=2,nrow=length(with_end),byrow=TRUE)
+      if (length(with_end)>1) {
+        for (i in 2:length(with_end)) {
+          with[i,] <- c(with_begin[which(with_begin>with_end[i-1])][1],with_end[i])
+        } 
+      }
+    }
     
     lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
     size <- ifelse(any(lvcor==''),which(lvcor=='')[1]-1,1)
     tmp <- lapply(seq_len(max(ncol(lvcor),1)),function(x) lvcor[,x])
     if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('_+',y),function(x) (x-3):x)])
-    tmp <- lapply(tmp,paste,collapse=' ')
+    #tmp <- lapply(tmp,paste,collapse=' ')
     tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
     tmp <- lapply(tmp,function(x) gsub(' [0-9+] ',' ',x))
     tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
     tmp <- lapply(tmp,function(x) gsub('^ ','',x))
+    tmp <- lapply(tmp,function(x) x[x!=''])
+
+    tmp <- lapply(tmp,strsplit,' ')
+    comA <- NULL
+    comB <- NULL
+    for (i in 0:(size%/%5)) {
+      comA <- c(comA,(((i*5)+1):size))
+      comB <- c(comB,rep(i,length((((i*5)+1):size)))*5+1)
+    }
+    
     matrices <- list()
     
     for (i in 1:length(tmp)) {
+      tmp[[i]] <- lapply(tmp[[i]],as.numeric)
       matrices[[i]] <- matrix(1,ncol=size,nrow=size)
-      matrices[[i]][upper.tri(matrices[[i]],diag=TRUE)] <- as.numeric(unlist(strsplit(tmp[[i]],' ')))
-      matrices[[i]][lower.tri(matrices[[i]])] <- t(matrices[[i]])[lower.tri(matrices[[i]])]
+      for (j in 1:length(tmp[[i]])) {
+        tmp2 <- tmp[[i]][[j]]
+        matrices[[i]][comA[j],comB[j]:(comB[j]+(length(tmp2)-1))] <- tmp[[i]][[j]]
+      }
+      matrices[[i]][upper.tri(matrices[[i]])] <- t(matrices[[i]])[upper.tri(matrices[[i]])]
     }
     
     for (i in 1:ncol(lvcor)) {
