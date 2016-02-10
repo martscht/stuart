@@ -66,7 +66,7 @@ function(
   
   grouping=NULL, group.invariance='strict', item.group.invariance='strict', #grouping structure
 
-  auxiliary=NULL,
+  auxiliary=NULL, use.order=FALSE,
 
   software='lavaan', cores=NULL,                                        #run settings
 
@@ -100,7 +100,7 @@ function(
   prepared <- do.call('data.prep',args)
 
   #Feedbacking number of combinations
-  combs <- do.call('compute.combinations', prepared[names(prepared)%in%names(formals(compute.combinations))])
+  combs <- do.call('compute.combinations', c(prepared[names(prepared)%in%names(formals(compute.combinations))],use.order))
 
   message(paste('There are',combs,'combinations that need to be tested.'))
 

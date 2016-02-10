@@ -2,7 +2,7 @@ stuart.randomsamples <-
 function(
   short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
   number.of.items,
-  data, factor.structure, auxi,                                  #simple prerequisites
+  data, factor.structure, auxi, use.order,                      #simple prerequisites
   
   number.of.subtests,  invariance,                               #subtest relations
   repeated.measures, long.invariance,                            #longitudinal relations
@@ -39,18 +39,8 @@ function(
   setTxtProgressBar(progress,0)
   count.gb <- 0
   
-  bf.args <- list(filter,combi,
-    data,auxi,
-    number.of.items,number.of.subtests,
-    long.equal,item.long.equal,
-    factor.structure,repeated.measures,mtmm,grouping,
-    short.factor.structure,short,
-    invariance,long.invariance,mtmm.invariance,group.invariance,
-    item.invariance, item.long.invariance, item.mtmm.invariance,
-    item.group.invariance,
-    analysis.options,suppress.model,
-    fitness.func,software,output.model=FALSE,ignore.errors,cores)
-  
+  output.model <- FALSE
+  bf.args <- mget(names(formals(bf.cycle))[-1])
   
   #parallel processing for R-internal estimations
   if (software=='lavaan') {

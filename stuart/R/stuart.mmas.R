@@ -2,7 +2,7 @@ stuart.mmas <-
 function(
   short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
   number.of.items,
-  data, factor.structure, auxi,                                  #simple prerequisites
+  data, factor.structure, auxi, use.order,                       #simple prerequisites
   
   number.of.subtests,  invariance,                               #subtest relations
   repeated.measures, long.invariance,                            #longitudinal relations
@@ -86,18 +86,12 @@ function(
       }
     }
 
-    ant.args <- list(deposit.on,
-      data,auxi,pheromones,
-      alpha=alpha_cur,beta=beta_cur,heuristics,
-      number.of.items,number.of.subtests,
-      long.equal,item.long.equal,
-      factor.structure,repeated.measures,mtmm,grouping,
-      short.factor.structure,short,
-      invariance,long.invariance,mtmm.invariance,group.invariance,
-      item.invariance,item.long.invariance,item.mtmm.invariance,item.group.invariance,
-      analysis.options,suppress.model,
-      fitness.func,software,output.model=FALSE,ignore.errors)
-
+    output.model <- FALSE
+    ant.args <- mget(names(formals(ant.cycle)))
+    if (!is.null(scheduled)) {
+      ant.args[scheduled[scheduled%in%names(ant.args)]] <- mget(paste(scheduled[scheduled%in%names(ant.args)],'cur',sep='_'))
+    }
+    
     #parallel processing for R-internal estimations
     if (software=='lavaan') {
       if (cores>1) {

@@ -83,7 +83,7 @@ function(
 
   grouping=NULL, group.invariance='strict', item.group.invariance='strict', #grouping structure
 
-  auxiliary=NULL,
+  auxiliary=NULL, use.order=FALSE,
 
   software='lavaan', cores=NULL,                                        #run settings
 

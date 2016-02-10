@@ -1,6 +1,7 @@
 construction.nodes <-
 function(
   pheromones, number.of.items, #made in stuart.mmas
+  use.order,
   alpha, beta, heuristics  
 ) { #begin function
 
@@ -31,6 +32,9 @@ function(
     }
   }
 
+  if (!use.order) {
+    selected <- lapply(selected,function(x) lapply(x,sort))
+  }
 
   return(list(selected=selected,solution=solution))
 

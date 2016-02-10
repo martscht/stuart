@@ -1,7 +1,7 @@
 ant.cycle <-
 function(
   deposit.on='arcs',                                            #type of solution construction
-  data, auxi, pheromones,                                       #data and selection coding
+  data, auxi, use.order, pheromones,                            #data and selection coding
   alpha, beta, heuristics,
   number.of.items,number.of.subtests,
   long.equal, item.long.equal,                                  #invariance labels
@@ -14,8 +14,7 @@ function(
   fitness.func,                                                 #fitness function to call
   software,output.model=FALSE,
   ignore.errors=FALSE,
-  filename,cores,
-  ...
+  filename,cores
 ) { #begin function
 
   #construct solution

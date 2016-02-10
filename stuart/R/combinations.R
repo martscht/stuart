@@ -30,8 +30,7 @@
 combinations <-
 function(
   data, factor.structure, items.per.subtest=NULL, number.of.subtests=1, #subtest settings
-  repeated.measures=NULL, mtmm=NULL,
-  ...
+  repeated.measures=NULL, mtmm=NULL, use.order=FALSE
 ) {#function begin
 
   #arguments
@@ -46,7 +45,7 @@ function(
   #data preparation
   prepared <- do.call('data.prep',args)
 
-  combs <- do.call('compute.combinations', prepared[names(prepared)%in%names(formals(compute.combinations))])
+  combs <- do.call('compute.combinations', c(prepared[names(prepared)%in%names(formals(compute.combinations))],use.order))
 
   return(combs)
 }
