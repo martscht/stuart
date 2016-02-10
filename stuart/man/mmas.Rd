@@ -11,12 +11,13 @@ mmas(data, factor.structure, items.per.subtest = NULL,
   mtmm = NULL, mtmm.invariance = "congeneric",
   item.mtmm.invariance = "congeneric", grouping = NULL,
   group.invariance = "strict", item.group.invariance = "strict",
-  auxiliary = NULL, software = "lavaan", cores = NULL,
-  fitness.func = NULL, ignore.errors = FALSE, ants = 16, colonies = 256,
-  evaporation = 0.95, alpha = 1, beta = 1, pheromones = NULL,
-  heuristics = NULL, deposit = "ib", deposit.on = "nodes",
-  pbest = 0.005, tolerance = 0.5, schedule = "run",
-  analysis.options = NULL, suppress.model = FALSE, filename = "stuart")
+  auxiliary = NULL, use.order = FALSE, software = "lavaan",
+  cores = NULL, fitness.func = NULL, ignore.errors = FALSE, ants = 16,
+  colonies = 256, evaporation = 0.95, alpha = 1, beta = 1,
+  pheromones = NULL, heuristics = NULL, deposit = "ib",
+  deposit.on = "nodes", pbest = 0.005, tolerance = 0.5,
+  schedule = "run", analysis.options = NULL, suppress.model = FALSE,
+  filename = "stuart")
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -50,6 +51,8 @@ mmas(data, factor.structure, items.per.subtest = NULL,
 \item{item.group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
 
 \item{auxiliary}{The names of auxiliary variables in \code{data}. These can be used in additional modeling steps that may be provided in \code{analysis.options$model}.}
+
+\item{use.order}{A logical indicating whether or not to take the selection order of the items into account. Defaults to \code{FALSE}.}
 
 \item{software}{The name of the estimation software. Can currently be 'lavaan' (the default) or 'Mplus'. Each option requires the software to be installed.}
 
