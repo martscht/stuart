@@ -88,7 +88,7 @@ function(
 
     output.model <- FALSE
     ant.args <- mget(names(formals(ant.cycle)))
-    if (!is.null(scheduled)) {
+    if (length(scheduled[scheduled%in%names(ant.args)])>0) {
       ant.args[scheduled[scheduled%in%names(ant.args)]] <- mget(paste(scheduled[scheduled%in%names(ant.args)],'cur',sep='_'))
     }
     
