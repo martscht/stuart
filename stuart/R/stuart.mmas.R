@@ -61,7 +61,7 @@ function(
   }
   
   #initialize pheromones
-  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on)
+  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^1/1e+100)
