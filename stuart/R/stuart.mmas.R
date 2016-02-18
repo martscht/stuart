@@ -61,7 +61,7 @@ function(
   }
   
   #initialize pheromones
-  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on)
+  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^1/1e+100)
@@ -88,7 +88,7 @@ function(
 
     output.model <- FALSE
     ant.args <- mget(names(formals(ant.cycle)))
-    if (!is.null(scheduled)) {
+    if (length(scheduled[scheduled%in%names(ant.args)])>0) {
       ant.args[scheduled[scheduled%in%names(ant.args)]] <- mget(paste(scheduled[scheduled%in%names(ant.args)],'cur',sep='_'))
     }
     
