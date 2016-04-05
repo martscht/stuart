@@ -18,7 +18,7 @@ function(
   
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
   
-  filename, n=1000,
+  filename, n=1000, percentile=100,
   
   ...                                                            #All the other stuff
 ) { #start function
@@ -97,15 +97,16 @@ function(
   log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
   
   #best solution
-  run.gb <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
-  phe.gb <- bf.results[[run.gb]]$solution.phe$pheromone
-  selected.gb <- bf.results[[run.gb]]$selected
+  tmp <- sapply(bf.results, function(x) return(x$solution.phe$pheromone))
+  run.sel <- which(tmp==sort(tmp)[(percentile/100)*length(tmp)])
+  phe.sel <- bf.results[[run.sel]]$solution.phe$pheromone
+  selected.sel <- bf.results[[run.sel]]$selected
   
   close(progress)
   message('\nSearch ended.')
   
-  results <- mget(grep('.gb',ls(),value=TRUE))
-  results$selected.items <- translate.selection(selected.gb,factor.structure,short)
+  results <- mget(grep('.sel',ls(),value=TRUE))
+  results$selected.items <- translate.selection(selected.sel,factor.structure,short)
   log <- data.frame(log)
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log

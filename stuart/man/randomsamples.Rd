@@ -14,7 +14,8 @@ randomsamples(data, factor.structure, items.per.subtest = NULL,
   auxiliary = NULL, use.order = FALSE, software = "lavaan",
   cores = NULL, fitness.func = NULL, ignore.errors = FALSE,
   analysis.options = NULL, suppress.model = FALSE,
-  request.override = 10000, filename = "randomsample", n = 1000)
+  request.override = 10000, filename = "randomsample", n = 1000,
+  percentile = 100)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -68,6 +69,8 @@ randomsamples(data, factor.structure, items.per.subtest = NULL,
 \item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".}
 
 \item{n}{The number of random samples to be drawn.}
+
+\item{percentile}{The percentile of the final solution reported. Defaults to 100 (the best solution found).}
 }
 \value{
 Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.

@@ -37,6 +37,7 @@
 #' @param request.override The maximum number of combinations for which the estimation is performed immediately, without an additional override request.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
 #' @param n The number of random samples to be drawn.
+#' @param percentile The percentile of the final solution reported. Defaults to 100 (the best solution found).
 #' 
 ### Outputs ---- 
 #' @return Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
@@ -77,7 +78,7 @@ randomsamples <-
     
     request.override=10000,
     
-    filename='randomsample', n=1000
+    filename='randomsample', n=1000, percentile=100
   ) {#function begin
     
     #combine arguments
@@ -107,7 +108,7 @@ randomsamples <-
     args$data <- data
     args$output.model <- TRUE
     args$selected.items <- solution$selected.items
-    args$selected <- solution$selected.gb
+    args$selected <- solution$selected.sel
     
     tmp <- formals(paste('run',software,sep='.'))
     args <- args[names(args)%in%names(tmp)]
