@@ -70,7 +70,7 @@ randomsamples(data, factor.structure, items.per.subtest = NULL,
 
 \item{n}{The number of random samples to be drawn.}
 
-\item{percentile}{The percentile of the final solution reported. Defaults to 100 (the best solution found).}
+\item{percentile}{The percentile of the final solution reported among the viable solutions. Defaults to 100 (the best solution found).}
 }
 \value{
 Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
