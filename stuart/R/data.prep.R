@@ -38,6 +38,13 @@ function(
     mtmm.invariance <- 'congeneric'
   }
   
+  # if there is only subtest, set subtest equalities to item equalities
+  if (number.of.subtests==1) {
+    long.invariance <- item.long.invariance
+    mtmm.invariance <- item.mtmm.invariance
+    group.invariance <- item.group.invariance
+  }
+  
   #create a longitudinal factor structure
   long.factor.structure <- factor.structure
   long.factor.structure[!(names(long.factor.structure)%in%sapply(repeated.measures,function(x) x[1]))] <- NULL
