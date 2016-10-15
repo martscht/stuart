@@ -37,13 +37,13 @@ function(
   
   if (!is.null(grouping)) {
     tmp <- c(1,
-      sapply(sort(na.omit(unique(old.data[,grouping]))), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
+      sapply(sort(stats::na.omit(unique(old.data[,grouping]))), function(x) grep(paste0('MODEL\\s+',x,':'),model)),
       length(model))
     group.models <- list()
     for (i in 2:(length(tmp)-1)) {
       group.models[[i-1]] <- model[tmp[i]:(tmp[i+1]-1)]
     }
-    names(group.models) <- sort(na.omit(unique(old.data[,grouping])))
+    names(group.models) <- sort(stats::na.omit(unique(old.data[,grouping])))
     overall.model <-  model[tmp[1]:(tmp[2]-1)]
     
     if (!grouping %in% names(new.data) | 
@@ -58,7 +58,7 @@ function(
         grouping <- NULL
       } else {
         model <- paste(c(paste(overall.model,collapse='\n'),
-          sapply(group.models[names(group.models)%in%sort(na.omit(unique(new.data[,grouping])))],paste,collapse='\n')),collapse='\n')
+          sapply(group.models[names(group.models)%in%sort(stats::na.omit(unique(new.data[,grouping])))],paste,collapse='\n')),collapse='\n')
       }
     }
   } else {

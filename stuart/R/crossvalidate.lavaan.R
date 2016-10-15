@@ -15,7 +15,7 @@ function(
       parameters <- parameters[parameters$group%in%c(0,1),]
       grouping <- NULL
     } else {
-      shrd <- which(unique(na.omit(new.data[,selection$call$grouping]))%in%unique(na.omit(old.data[,selection$call$grouping])))
+      shrd <- which(unique(stats::na.omit(new.data[,selection$call$grouping]))%in%unique(stats::na.omit(old.data[,selection$call$grouping])))
       parameters <- parameters[parameters$group%in%c(shrd,0),]
       grouping <- selection$call$grouping
       if (length(unique(new.data[,grouping]))==1) {

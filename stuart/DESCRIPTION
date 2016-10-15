@@ -8,6 +8,8 @@ Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
 Description: Construct subtests from a pool of items by using Ant-Colony-
     Optimization or Brute-Force.
 License: GPL-3
+Depends: R (>= 3.0.0)
+Imports: stats
 Suggests:
     parallel,
     lavaan (>= 0.5.18)
