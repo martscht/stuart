@@ -72,7 +72,7 @@ function(
   if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
   if (is.null(heuristics)) {
-    heuristics <- lapply(pheromones,function(x) x^1/1e+100)
+    heuristics <- lapply(pheromones,function(x) x^(1/1e+100))
   }
 
   ### Loops ###
@@ -212,7 +212,8 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func)
+    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
+    heuristics=heuristics)
   return(results)
 
 }
