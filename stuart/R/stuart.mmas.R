@@ -52,14 +52,22 @@ function(
   scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance')
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
-    assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]],envir=.GlobalEnv)
+    assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]])
   }
   if (length(scheduled[filt])>0) {
     scheduled <- scheduled[filt]
+    for (i in 1:length(scheduled)) {
+      tmp <- mget(scheduled[i])[[1]]
+      if (!any(c(0,1)%in%tmp[,1])) {
+        stop(paste('The parameter schedule for',scheduled[i],'does not contain a value for the first colony.'),call.=FALSE)
+      }
+      tmp <- tmp[which.min(tmp[,1]),2]
+      assign(paste0(scheduled[i],'_cur'),tmp)
+    }
   } else {
     scheduled <- NULL
   }
-  
+
   #initialize pheromones
   if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
