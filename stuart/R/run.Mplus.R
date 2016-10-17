@@ -374,9 +374,9 @@ function(
     }
     
     #extract latent correlations
-    with_begin <- grep('^ +ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
+    with_begin <- grep('^ +ESTIMATED COVARIANCE MATRIX FOR THE LATENT VARIABLES',MplusOut)
     if (as.numeric(gsub('[a-zA-Z ()]','',MplusOut[1]))>7) {
-      with_end <- grep('^ +S.E. FOR ESTIMATED CORRELATION MATRIX FOR THE LATENT VARIABLES',MplusOut)
+      with_end <- grep('^ +S.E. FOR ESTIMATED COVARIANCE MATRIX FOR THE LATENT VARIABLES',MplusOut)
       with <- data.frame(with_begin,with_end)
       with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
     } else {
@@ -390,9 +390,9 @@ function(
       }
     }
     
-    lvcor <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
-    size <- ifelse(any(lvcor==''),which(lvcor=='')[1]-1,1)
-    tmp <- lapply(seq_len(max(ncol(lvcor),1)),function(x) lvcor[,x])
+    lvcov <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
+    size <- ifelse(any(lvcov==''),which(lvcov=='')[1]-1,1)
+    tmp <- lapply(seq_len(max(ncol(lvcov),1)),function(x) lvcov[,x])
     if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('_+',y),function(x) (x-3):x)])
     #tmp <- lapply(tmp,paste,collapse=' ')
     tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
@@ -421,10 +421,12 @@ function(
       matrices[[i]][upper.tri(matrices[[i]])] <- t(matrices[[i]])[upper.tri(matrices[[i]])]
     }
     
-    for (i in 1:ncol(lvcor)) {
+    for (i in 1:ncol(lvcov)) {
       dimnames(matrices[[i]]) <- list(sapply(selected.items,names),sapply(selected.items,names))
     }
-    output$lvcor <- matrices
+    
+    output$lvcor <- lapply(matrices,stats::cov2cor)
+    
     
     # compute Allen's composite reliability (overall, 1st occasion)
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]

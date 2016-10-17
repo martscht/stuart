@@ -237,28 +237,46 @@ function(
     } else {
       # compute Allen's composite reliability (overall)
       if (is.null(grouping)) {
-        theta <- diag(lavaan::inspect(output,'theta'))
-        sigma <- diag(lavaan::inspect(output,'sigma'))
+        tmp <- lavaan::inspect(output,'est')
+        theta <- tmp$theta
+        psi <- tmp$psi
+        lambda <- tmp$lambda
+
+        rel <- rep(NA,ncol(lambda))        
+        for (i in 1:ncol(lambda)) {
+          filter <- which(lambda[,i]!=0)
+          rel[i] <- sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))/(sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
+        }
+        reffilter <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)%in%names(short.factor.structure)
+        filter <- rowSums(lambda[,reffilter]!=0)>0
         
-        rel <- 1-(theta/sigma)
-        rel[theta<0] <- 0
-        crel <- sum((rel/(1-rel)))/(1+sum((rel/(1-rel))))
+        crel <- sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))/(sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         
         tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(tmp[!names(tmp)%in%names(model.data)])
           
       } else {
-        theta <- lapply(lavaan::inspect(output,'theta'),diag)
-        sigma <- lapply(lavaan::inspect(output,'sigma'),diag)
+        tmp <- lavaan::inspect(output,'est')
+        theta <- lapply(tmp,function(x) x$theta)
+        psi <- lapply(tmp,function(x) x$psi)
+        lambda <- lapply(tmp,function(x) x$lambda)
         
-        rel <- as.list(rep(NA,length(theta)))
-        for (i in 1:length(theta)) {
-          rel[[i]] <- 1-(theta[[i]]/sigma[[i]])
-          rel[[i]][theta[[i]]<0] <- 0
-          tmp <- lavaan::inspect(output,'rsquare')
-          con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
+        rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
+        crel <- rep(NA,length(lambda))
+        for (i in 1:length(rel)) {
+          for (j in 1:length(rel[[i]])) {
+            filter <- which(lambda[[i]][,j]!=0)
+            rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
+          }
+          reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
+          filter <- rowSums(lambda[[i]][,reffilter]!=0)>0
+          
+          crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
         }
-        crel <- mean(sapply(rel, function(x) sum((x/(1-x)))/(1+sum((x/(1-x))))))
+        crel <- mean(crel)
+        
+        tmp <- lavaan::inspect(output,'rsquare')
+        con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
       }
       
       
@@ -267,6 +285,7 @@ function(
 
       output <- as.list(fit)
       output$crel <- crel
+      output$rel <- rel
       output$lvcor <- lvcor
       if (!is.na(con)) output$con <- con
 
