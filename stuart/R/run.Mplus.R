@@ -465,6 +465,11 @@ function(
         filter <- which(lambda[[i]][,j]!=0)
         rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
       }
+      # workaround for absence of short.factor.structure when crossvalidating
+      if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+        short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
+        names(short.factor.structure) <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)
+      }
       reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
       filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
       

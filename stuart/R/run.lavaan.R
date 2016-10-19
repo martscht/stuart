@@ -231,6 +231,7 @@ function(
     }
 
     fit <- try(suppressWarnings(lavaan::inspect(output,'fit')),silent=TRUE)
+    
     if (class(fit)[1]=='try-error') {
       return(output=list(NA))
       warning('The lavaan estimation generated an error, most likely non-convergence.')
@@ -246,6 +247,11 @@ function(
         for (i in 1:ncol(lambda)) {
           filter <- which(lambda[,i]!=0)
           rel[i] <- sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))/(sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
+        }
+        # workaround for absence of short.factor.structure when crossvalidating
+        if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+          short.factor.structure <- as.list(rep(NA,ncol(lambda)))
+          names(short.factor.structure) <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)
         }
         reffilter <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)%in%names(short.factor.structure)
         filter <- rowSums(lambda[,reffilter,drop=FALSE]!=0)>0
@@ -267,6 +273,11 @@ function(
           for (j in 1:length(rel[[i]])) {
             filter <- which(lambda[[i]][,j]!=0)
             rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
+          }
+          # workaround for absence of short.factor.structure when crossvalidating
+          if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+            short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
+            names(short.factor.structure) <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)
           }
           reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
           filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
