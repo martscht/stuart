@@ -5,17 +5,14 @@
 \title{Subtest construction using the Max-Min-Ant-System}
 \usage{
 mmas(data, factor.structure, items.per.subtest = NULL,
-  number.of.subtests = 1, invariance = "parallel",
   item.invariance = "congeneric", repeated.measures = NULL,
-  long.invariance = "strict", item.long.invariance = "strict",
-  mtmm = NULL, mtmm.invariance = "congeneric",
+  item.long.invariance = "strict", mtmm = NULL,
   item.mtmm.invariance = "congeneric", grouping = NULL,
-  group.invariance = "strict", item.group.invariance = "strict",
-  auxiliary = NULL, use.order = FALSE, software = "lavaan",
-  cores = NULL, fitness.func = NULL, ignore.errors = FALSE, ants = 16,
-  colonies = 256, evaporation = 0.95, alpha = 1, beta = 1,
-  pheromones = NULL, heuristics = NULL, deposit = "ib",
-  deposit.on = "nodes", pbest = 0.005, tolerance = 0.5,
+  item.group.invariance = "strict", auxiliary = NULL, use.order = FALSE,
+  software = "lavaan", cores = NULL, fitness.func = NULL,
+  ignore.errors = FALSE, ants = 16, colonies = 256, evaporation = 0.95,
+  alpha = 1, beta = 1, pheromones = NULL, heuristics = NULL,
+  deposit = "ib", deposit.on = "nodes", pbest = 0.005, tolerance = 0.5,
   schedule = "run", analysis.options = NULL, suppress.model = FALSE,
   filename = "stuart")
 }
@@ -26,27 +23,17 @@ mmas(data, factor.structure, items.per.subtest = NULL,
 
 \item{items.per.subtest}{A list containing the number of items per subtest. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all subtests. If \code{NULL} all items are evenly distributed among the subtests.}
 
-\item{number.of.subtests}{A vector containing the number of subtests per construct. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all constructs. The default is to construct 1 subtest per construct.}
-
-\item{invariance}{A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between subtests pertaining to the same construct. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the last being the default.}
-
 \item{item.invariance}{A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between items pertaining to the same subtest. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the first being the default.}
 
 \item{repeated.measures}{A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.}
-
-\item{long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated subtests. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
 
 \item{item.long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
 
 \item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
 
-\item{mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM subtests. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
-
 \item{item.mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
 
 \item{grouping}{The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.}
-
-\item{group.invariance}{A single value describing the assumed invariance of subtests across groups. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
 
 \item{item.group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
 
