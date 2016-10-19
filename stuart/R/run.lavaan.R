@@ -235,7 +235,7 @@ function(
       return(output=list(NA))
       warning('The lavaan estimation generated an error, most likely non-convergence.')
     } else {
-      # compute Allen's composite reliability (overall)
+      # compute composite reliability (overall)
       if (is.null(grouping)) {
         tmp <- lavaan::inspect(output,'est')
         theta <- tmp$theta
@@ -248,7 +248,7 @@ function(
           rel[i] <- sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))/(sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         }
         reffilter <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)%in%names(short.factor.structure)
-        filter <- rowSums(lambda[,reffilter]!=0)>0
+        filter <- rowSums(lambda[,reffilter,drop=FALSE]!=0)>0
         
         crel <- sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))/(sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         
@@ -269,7 +269,7 @@ function(
             rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
           }
           reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
-          filter <- rowSums(lambda[[i]][,reffilter]!=0)>0
+          filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
           
           crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
         }

@@ -295,6 +295,9 @@ function(
   if (!output.model) {
     input <- paste(input,'Output: STDYX Tech4 NOSERROR\n',
                    unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
+    #write Mplus "savedata" section
+    input <- paste(input,paste0('Savedata: estimates = ',filename,'_est.dat\n'),
+      unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
   
   else {
@@ -302,6 +305,7 @@ function(
                    unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
   }
 
+  
   #create Mplus input file
   cat(input,file=paste0(filename,'.inp'))
   
@@ -409,26 +413,68 @@ function(
       comB <- c(comB,rep(i,length((((i*5)+1):size)))*5+1)
     }
     
-    matrices <- list()
+    psi <- list()
     
     for (i in 1:length(tmp)) {
       tmp[[i]] <- lapply(tmp[[i]],as.numeric)
-      matrices[[i]] <- matrix(1,ncol=size,nrow=size)
+      psi[[i]] <- matrix(1,ncol=size,nrow=size)
       for (j in 1:length(tmp[[i]])) {
         tmp2 <- tmp[[i]][[j]]
-        matrices[[i]][comA[j],comB[j]:(comB[j]+(length(tmp2)-1))] <- tmp[[i]][[j]]
+        psi[[i]][comA[j],comB[j]:(comB[j]+(length(tmp2)-1))] <- tmp[[i]][[j]]
       }
-      matrices[[i]][upper.tri(matrices[[i]])] <- t(matrices[[i]])[upper.tri(matrices[[i]])]
+      psi[[i]][upper.tri(psi[[i]])] <- t(psi[[i]])[upper.tri(psi[[i]])]
     }
     
     for (i in 1:ncol(lvcov)) {
-      dimnames(matrices[[i]]) <- list(sapply(selected.items,names),sapply(selected.items,names))
+      dimnames(psi[[i]]) <- list(sapply(selected.items,names),sapply(selected.items,names))
     }
     
-    output$lvcor <- lapply(matrices,stats::cov2cor)
+    output$lvcor <- lapply(psi,stats::cov2cor)
     
     
-    # compute Allen's composite reliability (overall, 1st occasion)
+    # compute rho estimate of reliability
+    tmp <- scan(paste0('./',filename,'_est.dat'),quiet=TRUE)
+    
+    nitems <- length(unlist(selected.items))
+    nfacto <- length(selected.items)
+    
+    alpha <- list()
+    lambda <- list()
+    theta <- list()
+    i <- 1
+    repeat {
+      alpha[[i]] <- tmp[1:nitems]
+      tmp <- tmp[-seq_along(alpha[[i]])]
+      lambda[[i]] <- matrix(tmp[1:(nitems*nfacto)],ncol=nfacto,nrow=nitems,byrow=TRUE)
+      tmp <- tmp[-seq_along(lambda[[i]])]
+      theta[[i]] <- matrix(NA,ncol=nitems,nrow=nitems)
+      theta[[i]][upper.tri(theta[[i]],diag=TRUE)] <-  tmp[1:(nitems*(nitems+1)/2)]
+      theta[[i]][lower.tri(theta[[i]])] <- t(theta[[i]])[lower.tri(theta[[i]])]
+      tmp <- tmp[-(1:((nitems*(nitems+1)/2)+nfacto+nfacto^2+(nfacto*(nfacto+1)/2)))]
+      
+      dimnames(lambda[[i]]) <- list(unlist(selected.items),sapply(selected.items,names))
+      
+      if (length(tmp)==0) break
+      i <- i + 1
+    }
+    
+    rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
+    crel <- rep(NA,length(lambda))
+    for (i in 1:length(rel)) {
+      for (j in 1:length(rel[[i]])) {
+        filter <- which(lambda[[i]][,j]!=0)
+        rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
+      }
+      reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
+      filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
+      
+      crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
+    }
+    crel <- mean(crel)
+    output$rel <- rel
+    output$crel <- crel
+
+    
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
     if (any(grepl('Latent',tmp))) {
       con <- tmp[grep('Latent',tmp)[1]:length(tmp)]
@@ -442,15 +488,7 @@ function(
       
       tmp <- tmp[1:grep('Latent',tmp)[1]]
     }
-    tmp <- gsub('\\s+',' ',tmp)
-    tmp <- grep('\\.[0-9]{3}',tmp,value=TRUE)
-    tmp <- tmp[!grepl('Undefined',tmp)]
-    rel <- as.numeric(sapply(strsplit(tmp,'\\s+'),rbind)[3,1:length(tmp)])
-    item <- sapply(strsplit(tmp,'\\s+'),rbind)[2,1:length(tmp)]
-    rel <- suppressWarnings(data.frame(item=item,rel=rel))
-    rel <- aggregate(rel[,2],list(rel$item),mean)
-    output$crel <- sum((rel$x/(1-rel$x)))/(1+sum((rel$x/(1-rel$x))))
-  
+
     return(output=output)
   }  
   
