@@ -112,7 +112,7 @@ function(
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
   results$pheromones <- NULL
-  results$parameters <- NULL
+  results$parameters <- list(fitness.func=fitness.func)
   return(results)
   
 }
