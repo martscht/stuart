@@ -107,9 +107,6 @@ function(
         if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
           cl <- parallel::makeCluster(cores)
           
-          #load estimation software to clusters
-          parallel::parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
-          
           ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
           parallel::stopCluster(cl)
         }

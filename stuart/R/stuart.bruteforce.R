@@ -52,10 +52,6 @@ function(
       if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
         cl <- parallel::makeCluster(cores)
         
-        #load estimation software to clusters
-        parallel::parLapply(cl,1:cores,function(x) library(software,character.only=TRUE,quietly=TRUE,verbose=FALSE))
-        parallel::parLapply(cl,1:cores,function(x) library(stuart,quietly=TRUE,verbose=FALSE))
-        
         bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
           setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
           do.call('bf.cycle',c(run,bf.args))
