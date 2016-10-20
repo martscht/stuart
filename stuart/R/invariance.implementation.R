@@ -134,12 +134,12 @@ function(
   }
   
   if (label.change) {
-    tmp <- as.relistable(equal)
+    tmp <- utils::as.relistable(equal)
     tmp <- unlist(tmp)
     tmp <- gsub('lam','gam',tmp)
     tmp <- gsub('alp','mu',tmp)
     tmp <- gsub('eps','zet',tmp)
-    equal <- relist(tmp)
+    equal <- utils::relist(tmp)
   }
 
   return(equal)

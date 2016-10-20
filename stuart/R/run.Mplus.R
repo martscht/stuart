@@ -22,7 +22,7 @@ function(
   model.data <- data.frame(model.data,auxi)
   
   #writing the data file
-  write.table(model.data,paste(filename,'_data.dat',sep=''),
+  utils::write.table(model.data,paste(filename,'_data.dat',sep=''),
     col.names=FALSE,row.names=FALSE,na='-9999',
     sep='\t',dec='.')
   
@@ -48,7 +48,7 @@ function(
   input <- paste0(input,paste(unlist(selected.items),collapse=c('\n\t\t')),';\n')
   
   if (!is.null(grouping)) {
-    input <- paste(input,paste0('grouping = group (',paste(na.omit(unique(model.data$group)),na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
+    input <- paste(input,paste0('grouping = group (',paste(stats::na.omit(unique(model.data$group)),stats::na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
   }
   
   input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')

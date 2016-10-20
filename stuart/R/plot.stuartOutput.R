@@ -20,11 +20,11 @@ function(x,remove.errors=TRUE,...) {
   args$col <- as.numeric(best)+1
   if (is.null(args$pch)) args$pch <- 16
 
-  do.call(plot,args)
+  do.call(graphics::plot,args)
   
-  args$x <- lowess(phe~run)
+  args$x <- stats::lowess(phe~run)
   args$y <- NULL
-  do.call(lines,args)
+  do.call(graphics::lines,args)
   
-  legend('bottomright',c('Alternative','Final Solution'),pch=args$pch,col=unique(args$col))
+  graphics::legend('bottomright',c('Alternative','Final Solution'),pch=args$pch,col=unique(args$col))
 }

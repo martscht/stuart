@@ -38,8 +38,8 @@ function(
 
   #creating user feedback
   message('Running STUART with Brute-Force.\n')
-  progress <- txtProgressBar(style=3)
-  setTxtProgressBar(progress,0)
+  progress <- utils::txtProgressBar(style=3)
+  utils::setTxtProgressBar(progress,0)
   count.gb <- 0
 
   output.model <- FALSE
@@ -53,7 +53,7 @@ function(
         cl <- parallel::makeCluster(cores)
         
         bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
-          setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
+          utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
           do.call('bf.cycle',c(run,bf.args))
         })
         parallel::stopCluster(cl)
@@ -63,7 +63,7 @@ function(
       else {
         bf.results <- parallel::mclapply(1:nrow(filter),
           function(run) {     
-            setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
+            utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
               do.call('bf.cycle',c(run,bf.args))
           },
           mc.cores=cores
@@ -74,7 +74,7 @@ function(
     else {
       bf.results <- lapply(1:nrow(filter),
         function(run) {     
-          setTxtProgressBar(progress, run/nrow(filter));
+          utils::setTxtProgressBar(progress, run/nrow(filter));
           do.call('bf.cycle',c(run,bf.args))
         }
       )
@@ -87,7 +87,7 @@ function(
     bf.args$cores <- cores
     bf.results <- lapply(1:nrow(filter),
       function(run) {     
-        setTxtProgressBar(progress, run/nrow(filter));
+        utils::setTxtProgressBar(progress, run/nrow(filter));
         do.call('bf.cycle',c(run,bf.args))
       }
     )

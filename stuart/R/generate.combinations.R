@@ -17,7 +17,7 @@ function(
       }
     } else {
       for (i in 1:length(short.factor.structure)) {
-        combi[[i]] <- t(combn(length(short.factor.structure[[i]]),number.of.items[[i]]))
+        combi[[i]] <- t(utils::combn(length(short.factor.structure[[i]]),number.of.items[[i]]))
       }  
     }
     filter <- expand.grid(lapply(lapply(combi,nrow),function(x) return(1:x)))

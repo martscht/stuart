@@ -50,6 +50,16 @@ function(
   
   #initialize scheduling 
   scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance')
+  
+  #global assignment to avoid check note
+  ants_cur <- NA
+  colonies_cur <- NA
+  evaporation_cur <- NA
+  pbest_cur <- NA
+  alpha_cur <- NA
+  beta_cur <- NA
+  tolerance_cur <- NA
+  
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
     assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]])
@@ -80,7 +90,7 @@ function(
 
   #creating user feedback
   message('Running STUART with MMAS.\n')
-  progress <- txtProgressBar(0,max(c(colonies,1)),style=3)
+  progress <- utils::txtProgressBar(0,max(c(colonies,1)),style=3)
   count.gb <- 0
 
   repeat { #over colonies
@@ -140,7 +150,7 @@ function(
     selected.ib <- ant.results[[ant.ib]]$selected
 
     #feedback
-    setTxtProgressBar(progress,colony)
+    utils::setTxtProgressBar(progress,colony)
     
     #global.best memory
     if (phe.ib > phe.gb | run == 1) {
@@ -162,7 +172,7 @@ function(
 
       #restart the count
       colony <- 1
-      setTxtProgressBar(progress,0)
+      utils::setTxtProgressBar(progress,0)
     }
 
     else {
