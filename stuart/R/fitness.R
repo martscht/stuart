@@ -34,8 +34,12 @@ function(fitness.func=NULL,
     names(output) <- c('pheromone',unlist(criteria))
   }
   
-  # remove latent correlations from output
+  # remove matrices from output
   output$lvcor <- NULL
+  output$lambda <- NULL
+  output$theta <- NULL
+  output$psi <- NULL
+  output$alpha <- NULL
   
   return(output)
 

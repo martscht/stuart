@@ -242,6 +242,7 @@ function(
         theta <- tmp$theta
         psi <- tmp$psi
         lambda <- tmp$lambda
+        alpha <- tmp$alpha
 
         rel <- rep(NA,ncol(lambda))        
         for (i in 1:ncol(lambda)) {
@@ -266,6 +267,7 @@ function(
         theta <- lapply(tmp,function(x) x$theta)
         psi <- lapply(tmp,function(x) x$psi)
         lambda <- lapply(tmp,function(x) x$lambda)
+        alpha <- lapply(tmp,function(x) x$alpha)
         
         rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
         crel <- rep(NA,length(lambda))
@@ -298,6 +300,10 @@ function(
       output$crel <- crel
       output$rel <- rel
       output$lvcor <- lvcor
+      output$lambda <- lambda
+      output$theta <- theta
+      output$psi <- psi
+      output$alpha <- alpha
       if (!is.na(con)) output$con <- con
 
       return(output=output)

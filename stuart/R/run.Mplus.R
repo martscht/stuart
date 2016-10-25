@@ -478,7 +478,18 @@ function(
     crel <- mean(crel)
     output$rel <- rel
     output$crel <- crel
-
+    if (is.null(grouping)) {
+      output$lambda <- lambda[[1]]
+      output$theta <- theta[[1]]
+      output$psi <- psi[[1]]
+      output$alpha <- alpha[[1]]
+    } else {
+      output$lambda <- lambda
+      output$theta <- theta
+      output$psi <- psi
+      output$alpha <- alpha
+    }
+    
     
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
     if (any(grepl('Latent',tmp))) {
