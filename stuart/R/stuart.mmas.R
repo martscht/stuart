@@ -73,11 +73,12 @@ function(
       }
       tmp <- tmp[which.min(tmp[,1]),2]
       assign(paste0(scheduled[i],'_cur'),tmp)
+      assign(scheduled[i],cbind(mget(scheduled[i])[[1]],FALSE))
     }
   } else {
     scheduled <- NULL
   }
-
+  
   #initialize pheromones
   if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
@@ -99,8 +100,24 @@ function(
     if (!is.null(scheduled)) {
       for (i in 1:length(scheduled)) {
         tmp <- mget(scheduled[i])[[1]]
-        tmp <- tmp[max(which(tmp[,1]<=mget(schedule)[[1]])),2]
+        if (schedule=='run') {
+          tmp <- tmp[max(which(tmp[,1]<=run)),2]
+        } 
+        if (schedule=='colony') {
+          tmp <- tmp[max(which(tmp[,1]<=colony)),2]
+        }
+        if (schedule=='mixed') {
+          if (any(tmp[,3]-(tmp[,1]<=colony)<0)) mix_new <- TRUE
+          if (mix_new) {
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony) 
+          } else {
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=(colony+max(c(tmp[as.logical(tmp[,3]),1],1)-1)))
+          }
+          assign(scheduled[i],tmp)
+          tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
+        }
         assign(paste0(scheduled[i],'_cur'),tmp)
+        message(paste(scheduled[i],'is now',tmp))
       }
     }
 
@@ -167,9 +184,12 @@ function(
         stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
       }
 
+      # in cases of mixed counting, reset mix_new
+      mix_new <- FALSE
+      
       #new solution user feedback
       message(paste('\nGlobal best no.',count.gb,'found. Colony counter reset.'))
-
+      
       #restart the count
       colony <- 1
       utils::setTxtProgressBar(progress,0)
@@ -219,7 +239,7 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
+    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
     heuristics=heuristics)
   return(results)
 
