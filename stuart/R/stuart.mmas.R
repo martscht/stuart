@@ -167,21 +167,13 @@ function(
 
     #feedback
     utils::setTxtProgressBar(progress,colony)
-    
+
     #global.best memory
     if (phe.ib > phe.gb | run == 1) {
       count.gb <- count.gb + 1
       solution.gb <- solution.ib
       phe.gb <- phe.ib
       selected.gb <- selected.ib
-
-      #compute upper and lower limits
-      phe.max <- phe.gb/(1-evaporation_cur)
-      phe.min <- (phe.max*(1-pbest_cur^(1/deci)))/((avg-1)*pbest_cur^(1/deci))
-
-      if (phe.min >= phe.max) {
-        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
-      }
 
       # in cases of mixed counting, reset mix_new
       mix_new <- FALSE
@@ -198,7 +190,14 @@ function(
       colony <- colony + 1
     }
 
-        
+    #compute upper and lower limits
+    phe.max <- phe.gb/(1-evaporation_cur)
+    phe.min <- (phe.max*(1-pbest_cur^(1/deci)))/((avg-1)*pbest_cur^(1/deci))
+
+    if (phe.min >= phe.max) {
+      stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
+    }
+    
     #updated pheromones
     pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,deposit.on,
       get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
