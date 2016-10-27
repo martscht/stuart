@@ -117,7 +117,6 @@ function(
           tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
         }
         assign(paste0(scheduled[i],'_cur'),tmp)
-        message(paste(scheduled[i],'is now',tmp))
       }
     }
 
