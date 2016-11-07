@@ -476,18 +476,19 @@ function(
       crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
     }
     crel <- mean(crel)
-    output$rel <- rel
     output$crel <- crel
     if (is.null(grouping)) {
       output$lambda <- lambda[[1]]
       output$theta <- theta[[1]]
       output$psi <- psi[[1]]
       output$alpha <- alpha[[1]]
+      output$rel <- rel[[1]]
     } else {
       output$lambda <- lambda
       output$theta <- theta
       output$psi <- psi
       output$alpha <- alpha
+      output$rel <- rel
     }
     
     
