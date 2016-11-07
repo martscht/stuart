@@ -96,6 +96,10 @@ function(
   tmp <- data.frame(1:length(bf.results),sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
   tmp <- tmp[tmp[,2]!=0,]
   run.sel <- tmp[tmp[,2]==sort(tmp[,2])[(percentile/100)*nrow(tmp)],1]
+  if (length(run.sel) > 1) {
+    warning('The chosen percentile of the pheromone was achieved by multiple solutions. Only the first is reported.',call.=FALSE)
+    run.sel <- run.sel[1]
+  }
   phe.sel <- bf.results[[run.sel]]$solution.phe$pheromone
   selected.sel <- bf.results[[run.sel]]$selected
   

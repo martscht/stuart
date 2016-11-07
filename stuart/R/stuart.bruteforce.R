@@ -98,6 +98,10 @@ function(
 
   #best solution
   run.gb <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
+  if (length(run.gb) > 1) {
+    warning('The highest pheromone was achieved by multiple solutions. Only the first is reported.',call.=FALSE)
+    run.gb <- run.gb[1]
+  }
   phe.gb <- bf.results[[run.gb]]$solution.phe$pheromone
   selected.gb <- bf.results[[run.gb]]$selected
 
