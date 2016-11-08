@@ -167,7 +167,7 @@ function(
     if (suppress.model) input <- analysis.options$model
     else input <- rbind(lavaan::lavParTable(input),analysis.options$model)
   }
-  else input <- paste(input,analysis.options$model)
+  else input <- paste(input,analysis.options$model,sep='\n')
   
   #list of arguments to pass to lavaan
   if (is.null(analysis.options)) {
