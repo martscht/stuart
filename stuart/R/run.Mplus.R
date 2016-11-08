@@ -398,7 +398,7 @@ function(
     size <- ifelse(any(lvcov==''),which(lvcov=='')[1]-1,1)
     tmp <- lapply(seq_len(max(ncol(lvcov),1)),function(x) lvcov[,x])
     if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('(_)\\1+',y),function(x) (x-3):x)])
-    #tmp <- lapply(tmp,paste,collapse=' ')
+    lvnames <- gsub(' +','',substr(tmp[[1]][1:size],2,9))
     tmp <- lapply(tmp,function(x) gsub('[A-Z_a-z]','',x))
     tmp <- lapply(tmp,function(x) gsub(' [0-9+] ',' ',x))
     tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
