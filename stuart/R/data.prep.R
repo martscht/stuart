@@ -23,12 +23,15 @@ function(
     stop('The variable names you provided do not match the variable names in your dataset.\n',call.=FALSE)
   }
 
-
   #create phantom longitudinal data, if only cross-sectional
   if (is.null(repeated.measures)) {
     repeated.measures <- as.list(names(factor.structure))
     names(repeated.measures) <- names(factor.structure)
     long.invariance <- 'congeneric'
+  } else {
+    tmp <- as.list(c(repeated.measures,setdiff(names(factor.structure),unlist(repeated.measures))))
+    names(tmp) <- c(names(repeated.measures),setdiff(names(factor.structure),unlist(repeated.measures)))
+    repeated.measures <- tmp
   }
 
   #create phantom mtmm data, if only one method
@@ -36,6 +39,10 @@ function(
     mtmm <- as.list(names(factor.structure))
     names(mtmm) <- names(factor.structure)
     mtmm.invariance <- 'congeneric'
+  } else {
+    tmp <- as.list(c(mtmm,setdiff(names(factor.structure),unlist(mtmm))))
+    names(tmp) <- c(names(mtmm),setdiff(names(factor.structure),unlist(mtmm)))
+    mtmm <- tmp
   }
   
   # if there is only subtest, set subtest equalities to item equalities
