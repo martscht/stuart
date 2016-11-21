@@ -196,7 +196,7 @@ function(
   tmp.cfa <- get('cfa',asNamespace('lavaan'))  
   output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
 
-  if (class(output)=='try.error') {
+  if (class(output)=='try-error') {
     warning('The lavaan input generated an error.',call.=FALSE)
     return(output=list(NA))
   }

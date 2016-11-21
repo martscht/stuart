@@ -195,7 +195,7 @@ function(
     phe.min <- (phe.max*(1-pbest_cur^(1/deci)))/((avg-1)*pbest_cur^(1/deci))
 
     if (phe.min >= phe.max) {
-      stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
+      stop('The lower pheromone limit is larger than the upper pheromone limit. This may indicate that none of the initial solutions were viable due to estimation problems.\n',call.=FALSE)
     }
     
     #updated pheromones
