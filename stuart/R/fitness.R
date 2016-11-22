@@ -11,7 +11,7 @@ function(fitness.func=NULL,
       .5*(1 - (1/(1+exp(5-100*srmr))))
     }
   } else {
-    criteria <- union(criteria,names(formals(fitness.func)))
+    criteria <- names(formals(fitness.func))
   }
   
   output <- list()
