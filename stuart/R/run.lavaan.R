@@ -63,8 +63,10 @@ function(
           paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
 
         #intercepts
-        input <- paste(input,
-          paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
+        if (!any(sapply(model.data,function(x) class(x)[1]=='ordered'))) {
+          input <- paste(input,
+            paste(tmp.sit[!tmp.sit%in%categorical],'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
+        }
         
       }
       
