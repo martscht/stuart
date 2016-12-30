@@ -187,14 +187,20 @@ function(
   if (!output.model) {
     analysis.options$se <- 'none'
   }
-
+  
+  #imply sem() presets
+  presets <- list(int.ov.free=TRUE,int.lv.free=FALSE,auto.fix.first=TRUE,std.lv=FALSE,
+    auto.fix.single=TRUE,auto.var=TRUE,auto.cov.lv.x=TRUE,auto.th=TRUE,auto.delta=TRUE,auto.cov.y=TRUE)
+  for (i in names(presets)) {
+    if (!i %in% names(analysis.options)) analysis.options[i] <- presets[i]
+  }
   
   #retain only the options that are accepted by lavaan
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
   analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
   
-  tmp.cfa <- get('cfa',asNamespace('lavaan'))  
-  output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
+  # tmp.cfa <- get('cfa',asNamespace('lavaan'))  
+  output <- try(suppressWarnings(do.call(lavaan::lavaan,analysis.options)),silent=TRUE)
 
   if (class(output)=='try-error') {
     warning('The lavaan input generated an error.',call.=FALSE)
