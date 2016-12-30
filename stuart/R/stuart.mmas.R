@@ -203,9 +203,14 @@ function(
       get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
 
     #check for convergence
-    tmp.min <- sapply(pheromones, function(x) sum(phe.min-tolerance_cur < x & x < phe.min+tolerance_cur))
-    tmp.max <- sapply(pheromones, function(x) sum(phe.max-tolerance_cur < x & x < phe.max+tolerance_cur))
-    tmp.all <- sapply(pheromones, length)
+    if (deposit.on=='arcs') {
+      conv <- lapply(pheromones,function(x) x[lower.tri(x)])
+    } else {
+      conv <- pheromones
+    }
+    tmp.min <- sapply(conv, function(x) sum(phe.min-tolerance_cur < x & x < phe.min+tolerance_cur))
+    tmp.max <- sapply(conv, function(x) sum(phe.max-tolerance_cur < x & x < phe.max+tolerance_cur))
+    tmp.all <- sapply(conv, length)
     tmp <- cbind(tmp.min,tmp.max)
     abort.sequence <- all(rowSums(tmp)==tmp.all) & all(tmp!=0)&run>1
 
