@@ -220,13 +220,13 @@ function(
       
       if (!is.null(grouping)) {
         for (i in 1:length(lavaan::inspect(output,'cov.lv'))) {
-          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]])$values>0) 
+          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]],TRUE,TRUE)$values>0) 
           pd_the[i] <- all(diag(lavaan::inspect(output,'theta')[[i]])>=0)
         }
         pd_psi <- all(pd_psi)
         pd_the <- all(pd_the)
       } else {
-        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'))$values>0)
+        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'),TRUE,TRUE)$values>0)
         pd_the <- all(diag(lavaan::inspect(output,'theta'))>=0)
       }
       
