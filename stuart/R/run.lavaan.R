@@ -136,8 +136,14 @@ function(
           tmp.lin%in%c('congeneric','weak')) {
           input <- paste(input,
             paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
-          input <- paste(input,
-            paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+          
+          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(names(selected.items)[i],'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
+          }
         }
 
         else {
@@ -151,8 +157,13 @@ function(
         #set latent means for all first occasion measures & if weak or less long inv.
         if (names(selected.items)[i]%in%names(short.factor.structure) | 
             tmp.lin%in%c('congeneric','weak')) {
-          input <- paste(input,
-            paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(tmp.sit,'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
+          }
         }
         
         else {

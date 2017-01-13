@@ -118,11 +118,18 @@ function(
 
   #create a vector of mtmm invariance assumptions
   if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
-    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
   
   mtmm.invariance <- as.list(array(mtmm.invariance,length(mtmm.factor.structure)))
-  
+
+  # #create a vector of group invariance assumptions
+  # if (length(group.invariance)!=1 & length(group.invariance)!=length(factor.structure)) {
+  #   stop('The number of group invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  # }
+  # 
+  # group.invariance <- as.list(array(group.invariance,length(mtmm.factor.structure)))
+    
   #implement invariances of subtests
   long.equal <- invariance.implementation(data,
     factor.structure,short.factor.structure,short,
@@ -191,11 +198,18 @@ function(
 
   #create a vector of mtmm  item invariance assumptions
   if (length(item.mtmm.invariance)!=1 & length(item.mtmm.invariance)!=length(factor.structure)) {
-    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
   
   item.mtmm.invariance <- as.list(array(item.mtmm.invariance,length(mtmm.factor.structure)))
 
+  # #create a vector of group item invariance assumptions
+  # if (length(item.group.invariance)!=1 & length(item.group.invariance)!=length(factor.structure)) {
+  #   stop('The number of group invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  # }
+  # 
+  # item.group.invariance <- as.list(array(item.group.invariance,length(mtmm.factor.structure)))
+  
   #implement invariances of items
   item.long.equal <- invariance.implementation(data,
     factor.structure,short.factor.structure,short,
