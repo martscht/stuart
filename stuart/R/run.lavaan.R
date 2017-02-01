@@ -167,8 +167,13 @@ function(
         }
         
         else {
-          input <- paste(input,
-            paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
+          if (names(factor.structure)[i]%in%sapply(mtmm,function(x) x[-1])&item.mtmm.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
+          }
         }
       }
     }
