@@ -84,7 +84,12 @@ function(
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^(1/1e+100))
+  } else {
+    if (attr(heuristics,'deposit.on')!=deposit.on) {
+      stop('The localization of the heuristics does not match your setting for deposit.on',call.=FALSE)
+    }
   }
+
 
   ### Loops ###
   log <- NULL
