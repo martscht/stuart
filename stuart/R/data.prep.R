@@ -172,6 +172,7 @@ function(
   #providing specific numbers of items.per.parcel
   if (is.list(items.per.subtest)) {
     if (length(items.per.subtest)==length(factor.structure)) {
+      items.per.subtest <- items.per.subtest[names(factor.structure)%in%names(short.factor.structure)]
       number.of.items <- list(NA)
       for (i in 1:length(short.factor.structure)) {
         number.of.items[[i]] <- as.numeric(array(items.per.subtest[[i]],number.of.subtests[[i]]))

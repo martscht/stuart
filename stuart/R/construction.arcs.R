@@ -23,24 +23,27 @@ function(
       #update pool to exclude starting location
       pool <- pool[!is.element(pool,selected[[i]][[j]])]
 
-      for (k in 2:number.of.items[[i]][[j]]) {  #for each item
-        #compute selection probabilities
-        tmp.phe <- pheromones[[i]][selected[[i]][[j]][k-1],pool]^alpha
-        tmp.heu <- heuristics[[i]][selected[[i]][[j]][k-1],pool]^beta
-        probs <-  tmp.phe * tmp.heu / sum(tmp.phe*tmp.heu)
-        
-        #select item (complicated due to sample()-convenience feature)
-        if (length(pool)==1) {
-          selected[[i]][[j]][k] <- pool
-        }
-        else {
-          selected[[i]][[j]][k] <- sample(pool,1,FALSE,probs)
-        }
-  
-        #update solution
-        solution[[i]][selected[[i]][[j]][k-1],selected[[i]][[j]][k]] <- TRUE 
-        #update pool to exclude choice
-        pool <- pool[!is.element(pool,selected[[i]][[j]])]
+      #filter the special case of one item
+      if (number.of.items[[i]][[j]]>1) {
+        for (k in 2:number.of.items[[i]][[j]]) {  #for each item
+          #compute selection probabilities
+          tmp.phe <- pheromones[[i]][selected[[i]][[j]][k-1],pool]^alpha
+          tmp.heu <- heuristics[[i]][selected[[i]][[j]][k-1],pool]^beta
+          probs <-  tmp.phe * tmp.heu / sum(tmp.phe*tmp.heu)
+          
+          #select item (complicated due to sample()-convenience feature)
+          if (length(pool)==1) {
+            selected[[i]][[j]][k] <- pool
+          }
+          else {
+            selected[[i]][[j]][k] <- sample(pool,1,FALSE,probs)
+          }
+          
+          #update solution
+          solution[[i]][selected[[i]][[j]][k-1],selected[[i]][[j]][k]] <- TRUE 
+          #update pool to exclude choice
+          pool <- pool[!is.element(pool,selected[[i]][[j]])]
+        }        
       }
     }
   }
