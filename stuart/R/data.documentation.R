@@ -5,7 +5,7 @@
 #' 
 #' @format A data frame with 411 observations on 20 variables. The first variable indicates the person ID, the following 19 all stem from the scale for Supervisor Support
 #' 
-#' @source Janssen, A.B., Schultze, M., & Grötsch, A. (in press). Following the ants: Development of short scales for proactive personality and supervisor support by Ant Colony Optimization. European Journal of Psychological Assessment.
+#' @source Janssen, A.B., Schultze, M., & Grötsch, A. (2015). Following the ants: Development of short scales for proactive personality and supervisor support by Ant Colony Optimization. European Journal of Psychological Assessment.
 #' 
 "sups"
 
