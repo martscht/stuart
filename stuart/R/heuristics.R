@@ -57,6 +57,7 @@ function(
   heuristics <- lapply(heuristics, function(x) x^1/1e+100)
 
   class(heuristics) <- 'stuartHeuristics'
+  attr(heuristics,'deposit.on') <- deposit.on
   return(heuristics)
 
 } #end function

@@ -23,12 +23,15 @@ function(
     stop('The variable names you provided do not match the variable names in your dataset.\n',call.=FALSE)
   }
 
-
   #create phantom longitudinal data, if only cross-sectional
   if (is.null(repeated.measures)) {
     repeated.measures <- as.list(names(factor.structure))
     names(repeated.measures) <- names(factor.structure)
     long.invariance <- 'congeneric'
+  } else {
+    tmp <- as.list(c(repeated.measures,setdiff(names(factor.structure),unlist(repeated.measures))))
+    names(tmp) <- c(names(repeated.measures),setdiff(names(factor.structure),unlist(repeated.measures)))
+    repeated.measures <- tmp
   }
 
   #create phantom mtmm data, if only one method
@@ -36,6 +39,10 @@ function(
     mtmm <- as.list(names(factor.structure))
     names(mtmm) <- names(factor.structure)
     mtmm.invariance <- 'congeneric'
+  } else {
+    tmp <- as.list(c(mtmm,setdiff(names(factor.structure),unlist(mtmm))))
+    names(tmp) <- c(names(mtmm),setdiff(names(factor.structure),unlist(mtmm)))
+    mtmm <- tmp
   }
   
   # if there is only subtest, set subtest equalities to item equalities
@@ -111,11 +118,18 @@ function(
 
   #create a vector of mtmm invariance assumptions
   if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
-    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
   
   mtmm.invariance <- as.list(array(mtmm.invariance,length(mtmm.factor.structure)))
-  
+
+  # #create a vector of group invariance assumptions
+  # if (length(group.invariance)!=1 & length(group.invariance)!=length(factor.structure)) {
+  #   stop('The number of group invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  # }
+  # 
+  # group.invariance <- as.list(array(group.invariance,length(mtmm.factor.structure)))
+    
   #implement invariances of subtests
   long.equal <- invariance.implementation(data,
     factor.structure,short.factor.structure,short,
@@ -158,6 +172,7 @@ function(
   #providing specific numbers of items.per.parcel
   if (is.list(items.per.subtest)) {
     if (length(items.per.subtest)==length(factor.structure)) {
+      items.per.subtest <- items.per.subtest[names(factor.structure)%in%names(short.factor.structure)]
       number.of.items <- list(NA)
       for (i in 1:length(short.factor.structure)) {
         number.of.items[[i]] <- as.numeric(array(items.per.subtest[[i]],number.of.subtests[[i]]))
@@ -184,11 +199,18 @@ function(
 
   #create a vector of mtmm  item invariance assumptions
   if (length(item.mtmm.invariance)!=1 & length(item.mtmm.invariance)!=length(factor.structure)) {
-    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
   }
   
   item.mtmm.invariance <- as.list(array(item.mtmm.invariance,length(mtmm.factor.structure)))
 
+  # #create a vector of group item invariance assumptions
+  # if (length(item.group.invariance)!=1 & length(item.group.invariance)!=length(factor.structure)) {
+  #   stop('The number of group invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+  # }
+  # 
+  # item.group.invariance <- as.list(array(item.group.invariance,length(mtmm.factor.structure)))
+  
   #implement invariances of items
   item.long.equal <- invariance.implementation(data,
     factor.structure,short.factor.structure,short,

@@ -136,8 +136,14 @@ function(
           tmp.lin%in%c('congeneric','weak')) {
           input <- paste(input,
             paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
-          input <- paste(input,
-            paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+          
+          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(names(selected.items)[i],'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
+          }
         }
 
         else {
@@ -151,13 +157,23 @@ function(
         #set latent means for all first occasion measures & if weak or less long inv.
         if (names(selected.items)[i]%in%names(short.factor.structure) | 
             tmp.lin%in%c('congeneric','weak')) {
-          input <- paste(input,
-            paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(tmp.sit,'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
+          }
         }
         
         else {
-          input <- paste(input,
-            paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
+          if (names(factor.structure)[i]%in%sapply(mtmm,function(x) x[-1])&item.mtmm.invariance%in%c('congeneric','weak')) {
+            input <- paste(input,
+              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
+          }
         }
       }
     }
@@ -167,7 +183,7 @@ function(
     if (suppress.model) input <- analysis.options$model
     else input <- rbind(lavaan::lavParTable(input),analysis.options$model)
   }
-  else input <- paste(input,analysis.options$model)
+  else input <- paste(input,analysis.options$model,sep='\n')
   
   #list of arguments to pass to lavaan
   if (is.null(analysis.options)) {
@@ -187,16 +203,22 @@ function(
   if (!output.model) {
     analysis.options$se <- 'none'
   }
-
+  
+  #imply sem() presets
+  presets <- list(int.ov.free=TRUE,int.lv.free=FALSE,auto.fix.first=TRUE,std.lv=FALSE,
+    auto.fix.single=TRUE,auto.var=TRUE,auto.cov.lv.x=TRUE,auto.th=TRUE,auto.delta=TRUE,auto.cov.y=TRUE)
+  for (i in names(presets)) {
+    if (!i %in% names(analysis.options)) analysis.options[i] <- presets[i]
+  }
   
   #retain only the options that are accepted by lavaan
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
   analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
   
-  tmp.cfa <- get('cfa',asNamespace('lavaan'))  
-  output <- try(suppressWarnings(do.call('tmp.cfa',analysis.options)),silent=TRUE)
+  # tmp.cfa <- get('cfa',asNamespace('lavaan'))  
+  output <- try(suppressWarnings(do.call(lavaan::lavaan,analysis.options)),silent=TRUE)
 
-  if (class(output)=='try.error') {
+  if (class(output)=='try-error') {
     warning('The lavaan input generated an error.',call.=FALSE)
     return(output=list(NA))
   }
@@ -214,13 +236,13 @@ function(
       
       if (!is.null(grouping)) {
         for (i in 1:length(lavaan::inspect(output,'cov.lv'))) {
-          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]])$values>0) 
+          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]],TRUE,TRUE)$values>0) 
           pd_the[i] <- all(diag(lavaan::inspect(output,'theta')[[i]])>=0)
         }
         pd_psi <- all(pd_psi)
         pd_the <- all(pd_the)
       } else {
-        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'))$values>0)
+        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'),TRUE,TRUE)$values>0)
         pd_the <- all(diag(lavaan::inspect(output,'theta'))>=0)
       }
       
@@ -242,6 +264,7 @@ function(
         theta <- tmp$theta
         psi <- tmp$psi
         lambda <- tmp$lambda
+        alpha <- tmp$alpha
 
         rel <- rep(NA,ncol(lambda))        
         for (i in 1:ncol(lambda)) {
@@ -266,6 +289,7 @@ function(
         theta <- lapply(tmp,function(x) x$theta)
         psi <- lapply(tmp,function(x) x$psi)
         lambda <- lapply(tmp,function(x) x$lambda)
+        alpha <- lapply(tmp,function(x) x$alpha)
         
         rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
         crel <- rep(NA,length(lambda))
@@ -298,6 +322,10 @@ function(
       output$crel <- crel
       output$rel <- rel
       output$lvcor <- lvcor
+      output$lambda <- lambda
+      output$theta <- theta
+      output$psi <- psi
+      output$alpha <- alpha
       if (!is.na(con)) output$con <- con
 
       return(output=output)

@@ -11,7 +11,7 @@ function(fitness.func=NULL,
       .5*(1 - (1/(1+exp(5-100*srmr))))
     }
   } else {
-    criteria <- union(criteria,names(formals(fitness.func)))
+    criteria <- names(formals(fitness.func))
   }
   
   output <- list()
@@ -34,8 +34,12 @@ function(fitness.func=NULL,
     names(output) <- c('pheromone',unlist(criteria))
   }
   
-  # remove latent correlations from output
+  # remove matrices from output
   output$lvcor <- NULL
+  output$lambda <- NULL
+  output$theta <- NULL
+  output$psi <- NULL
+  output$alpha <- NULL
   
   return(output)
 

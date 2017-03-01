@@ -73,17 +73,23 @@ function(
       }
       tmp <- tmp[which.min(tmp[,1]),2]
       assign(paste0(scheduled[i],'_cur'),tmp)
+      assign(scheduled[i],cbind(mget(scheduled[i])[[1]],FALSE))
     }
   } else {
     scheduled <- NULL
   }
-
+  
   #initialize pheromones
   if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^(1/1e+100))
+  } else {
+    if (attr(heuristics,'deposit.on')!=deposit.on) {
+      stop('The localization of the heuristics does not match your setting for deposit.on',call.=FALSE)
+    }
   }
+
 
   ### Loops ###
   log <- NULL
@@ -99,7 +105,22 @@ function(
     if (!is.null(scheduled)) {
       for (i in 1:length(scheduled)) {
         tmp <- mget(scheduled[i])[[1]]
-        tmp <- tmp[max(which(tmp[,1]<=mget(schedule)[[1]])),2]
+        if (schedule=='run') {
+          tmp <- tmp[max(which(tmp[,1]<=run)),2]
+        } 
+        if (schedule=='colony') {
+          tmp <- tmp[max(which(tmp[,1]<=colony)),2]
+        }
+        if (schedule=='mixed') {
+          if (any(tmp[,3]-(tmp[,1]<=colony)<0)) mix_new <- TRUE
+          if (mix_new) {
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony) 
+          } else {
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=(colony+max(c(tmp[as.logical(tmp[,3]),1],1)-1)))
+          }
+          assign(scheduled[i],tmp)
+          tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
+        }
         assign(paste0(scheduled[i],'_cur'),tmp)
       }
     }
@@ -151,7 +172,7 @@ function(
 
     #feedback
     utils::setTxtProgressBar(progress,colony)
-    
+
     #global.best memory
     if (phe.ib > phe.gb | run == 1) {
       count.gb <- count.gb + 1
@@ -159,17 +180,12 @@ function(
       phe.gb <- phe.ib
       selected.gb <- selected.ib
 
-      #compute upper and lower limits
-      phe.max <- phe.gb/(1-evaporation_cur)
-      phe.min <- (phe.max*(1-pbest_cur^(1/deci)))/((avg-1)*pbest_cur^(1/deci))
-
-      if (phe.min >= phe.max) {
-        stop('The lower pheromone limit is larger than the upper pheromone limit. This may be resolved by increasing pbest but may also indicate that none of the initial solutions were viable.\n',call.=FALSE)
-      }
-
+      # in cases of mixed counting, reset mix_new
+      mix_new <- FALSE
+      
       #new solution user feedback
       message(paste('\nGlobal best no.',count.gb,'found. Colony counter reset.'))
-
+      
       #restart the count
       colony <- 1
       utils::setTxtProgressBar(progress,0)
@@ -179,17 +195,29 @@ function(
       colony <- colony + 1
     }
 
-        
+    #compute upper and lower limits
+    phe.max <- phe.gb/(1-evaporation_cur)
+    phe.min <- (phe.max*(1-pbest_cur^(1/deci)))/((avg-1)*pbest_cur^(1/deci))
+
+    if (phe.min >= phe.max) {
+      stop('The lower pheromone limit is larger than the upper pheromone limit. This may indicate that none of the initial solutions were viable due to estimation problems.\n',call.=FALSE)
+    }
+    
     #updated pheromones
     pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,deposit.on,
       get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
 
     #check for convergence
-    tmp.min <- sapply(pheromones, function(x) sum(phe.min-tolerance_cur < x & x < phe.min+tolerance_cur))
-    tmp.max <- sapply(pheromones, function(x) sum(phe.max-tolerance_cur < x & x < phe.max+tolerance_cur))
-    tmp.all <- sapply(pheromones, length)
+    if (deposit.on=='arcs') {
+      conv <- lapply(pheromones,function(x) x[lower.tri(x)])
+    } else {
+      conv <- pheromones
+    }
+    tmp.min <- sapply(conv, function(x) sum(phe.min-tolerance_cur < x & x < phe.min+tolerance_cur))
+    tmp.max <- sapply(conv, function(x) sum(phe.max-tolerance_cur < x & x < phe.max+tolerance_cur))
+    tmp.all <- sapply(conv, length)
     tmp <- cbind(tmp.min,tmp.max)
-    abort.sequence <- all(rowSums(tmp)==tmp.all) & all(tmp!=0)
+    abort.sequence <- all(rowSums(tmp)==tmp.all) & all(tmp!=0)&run>1
 
 
     #abort if converged
@@ -219,7 +247,7 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
+    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
     heuristics=heuristics)
   return(results)
 

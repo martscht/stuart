@@ -397,9 +397,9 @@ function(
     lvcov <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
     size <- ifelse(any(lvcov==''),which(lvcov=='')[1]-1,1)
     tmp <- lapply(seq_len(max(ncol(lvcov),1)),function(x) lvcov[,x])
-    if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('_+',y),function(x) (x-3):x)])
-    #tmp <- lapply(tmp,paste,collapse=' ')
-    tmp <- lapply(tmp,function(x) gsub('[A-Z]','',x))
+    if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('(_)\\1+',y),function(x) (x-3):x)])
+    lvnames <- gsub(' +','',substr(tmp[[1]][1:size],2,9))
+    tmp <- lapply(tmp,function(x) gsub('[A-Z_a-z]','',x))
     tmp <- lapply(tmp,function(x) gsub(' [0-9+] ',' ',x))
     tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
     tmp <- lapply(tmp,function(x) gsub('^ ','',x))
@@ -476,9 +476,21 @@ function(
       crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
     }
     crel <- mean(crel)
-    output$rel <- rel
     output$crel <- crel
-
+    if (is.null(grouping)) {
+      output$lambda <- lambda[[1]]
+      output$theta <- theta[[1]]
+      output$psi <- psi[[1]]
+      output$alpha <- alpha[[1]]
+      output$rel <- rel[[1]]
+    } else {
+      output$lambda <- lambda
+      output$theta <- theta
+      output$psi <- psi
+      output$alpha <- alpha
+      output$rel <- rel
+    }
+    
     
     tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
     if (any(grepl('Latent',tmp))) {
