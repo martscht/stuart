@@ -213,7 +213,13 @@ function(
   
   #retain only the options that are accepted by lavaan
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
-  analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
+
+  # Temporary, for multiple lavaan Versions. Will be removed.  
+  if (packageVersion('lavaan')<'0.5.23') {
+    analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
+  } else {
+    analysis.options <- analysis.options[is.element(names(analysis.options),c(names(formals(lavaan::lavaan)),names(lavaan::lavOptions())))]
+  }
   
   # tmp.cfa <- get('cfa',asNamespace('lavaan'))  
   output <- try(suppressWarnings(do.call(lavaan::lavaan,analysis.options)),silent=TRUE)
