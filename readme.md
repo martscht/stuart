@@ -7,13 +7,13 @@ This repository contains the current alpha-build of the STUART package for R. It
 The easiest way to install the current version of STUART is via the use of the `install_bitbucket()`-function included in the devtools package. To install the *stable* version use:
 
         library(devtools)
-        install_bitbucket('martscht/stuart/stuart',auth_user='...',password='...')
+        install_bitbucket('martscht/stuart/stuart')
         library(stuart)
 
 This will install the version currently committed to the master branch. If you want to be a bit more edgy, you can install the development build by setting `ref='develop'`, like so:
 
         library(devtools)
-        install_bitbucket('martscht/stuart/stuart',ref='develop',auth_user='...',password='...')
+        install_bitbucket('martscht/stuart/stuart',ref='develop')
         library(stuart)
 
 After installation the easiest way to get an overview of STUARTs functions and capabilities is to use `?stuart` to open the package help-file.
