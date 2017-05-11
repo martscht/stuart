@@ -7,6 +7,8 @@ output:
 
 This repository contains the current alpha-build of the STUART package for R. It is intended for the creation of short-forms of questionnaires via an Ant-Colony-Optimization approach. For more details on the package please see the help files contained in the package itself.
 
+#### WARNING: Scripts written for versions <= 0.6.2 (currently the stable branch) may be incompatible with the current delevopment versions 0.7.0-900x. This is due to changes in the naming of arguments.
+
 ## Installation ##
 
 The easiest way to install the current version of STUART is via the use of the `install_bitbucket()`-function included in the devtools package. To install the *stable* version use:
