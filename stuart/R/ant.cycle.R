@@ -38,8 +38,10 @@ function(
   fitness.options$fitness.func <- fitness.func
   if (!is.null(mtmm)) fitness.options$criteria <- c(as.character(fitness.options$criteria)[-1],'con')
   solution.phe <- do.call(fitness,fitness.options)
-  if ('rel'%in%names(formals(fitness.func))) {
-    if (all(is.na(solution.phe$rel))) solution.phe$rel <- rep(NA,length(factor.structure)*max(c(1,length(unique(data[,grouping])))))
+  if (!is.null(fitness.func)) {
+    if ('rel'%in%names(formals(fitness.func))) {
+      if (all(is.na(solution.phe$rel))) solution.phe$rel <- rep(NA,length(factor.structure)*max(c(1,length(unique(data[,grouping])))))
+    }
   }
 
   return(list(solution=solution,selected=selected,solution.phe=solution.phe))

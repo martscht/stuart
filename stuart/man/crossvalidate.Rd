@@ -35,13 +35,12 @@ Returns a \code{data.frame} with 2 observations of 7 variables. The first observ
 \description{
 Cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
 }
-\author{
-Martin Schultze
-}
 \seealso{
 \code{\link{mmas}}, \code{\link{bruteforce}}
+}
+\author{
+Martin Schultze
 }
 \concept{
 ACO subtests
 }
-

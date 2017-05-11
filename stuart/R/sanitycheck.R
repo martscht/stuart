@@ -14,8 +14,13 @@ sanitycheck <- function(factor.structure,repeated.measures,mtmm,fitness.func=NUL
       unlist(mtmm)[!unlist(mtmm)%in%names(factor.structure)]),call.=FALSE)
   }
   
-  if (is.null(mtmm)&'con'%in%names(formals(fitness.func))) {
-    stop('The fitness function you requested uses consistency in the pheromone computation but mtmm=NULL',call.=FALSE)
+  if (!is.null(fitness.func)) {
+    if (!is.function(fitness.func)) {
+      stop('The fitness function you requested is not a function.',call.=FALSE)
+    }
+    if (is.null(mtmm)&'con'%in%names(formals(fitness.func))) {
+      stop('The fitness function you requested uses consistency in the pheromone computation but mtmm=NULL',call.=FALSE)
+    }
   }
   
 }

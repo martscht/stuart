@@ -74,13 +74,12 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \description{
 Construct a defined number of random subtests from a given pool of items.
 }
-\author{
-Martin Schultze
-}
 \seealso{
 \code{\link{mmas}} \code{\link{bruteforce}}
+}
+\author{
+Martin Schultze
 }
 \concept{
 ACO subtests
 }
-

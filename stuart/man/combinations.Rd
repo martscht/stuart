@@ -26,13 +26,12 @@ Returns the number of possible subtest constellations.
 \description{
 Used to compute the number of possible subtest constellations prior to running either \code{\link{mmas}} or \code{\link{bruteforce}}.
 }
-\author{
-Martin Schultze
-}
 \seealso{
 \code{\link{mmas}} \code{\link{bruteforce}}
+}
+\author{
+Martin Schultze
 }
 \concept{
 ACO subtests
 }
-

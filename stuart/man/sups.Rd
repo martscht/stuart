@@ -15,4 +15,3 @@ sups
 A scale for supervisor support with 19 items. The scale consists of two subscales: carreer promotion (items 1 through 12) and feedback and goal setting (items 13 through 19).
 }
 \keyword{datasets}
-

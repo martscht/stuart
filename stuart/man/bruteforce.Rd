@@ -69,13 +69,12 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \description{
 Construct subtests from a given pool of items using a brute-force approach (i.e. by estimating all possible combinations).
 }
-\author{
-Martin Schultze
-}
 \seealso{
 \code{\link{mmas}} \code{\link{combinations}}
+}
+\author{
+Martin Schultze
 }
 \concept{
 ACO subtests
 }
-

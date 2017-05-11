@@ -32,13 +32,12 @@ Creates uninformative heuristic matrices for the use in \code{\link{mmas}}.
 \details{
 This function generates a list of matrices which can be used as heuristics for all STUART constructions. This is mainly intended to write the structure of the heuristic matrices to an object, change components in line with theoretically derived heuristics and feed them back into \code{\link{mmas}} via the \code{heuristics} argument. The generated heuristics will contain only 1s and 0s, making it no heuristic information. Selection probabilities can be altered by manipulating the contents of the object created by \code{heuristics}. Setting a value to 0 will result in prohibiting a certain choice to be made. Please note, that it will lead to unpredictable behavior if the diagonal elements of the matrices produced in the arcs parameterization are set to values other than 0.
 }
-\author{
-Martin Schultze
-}
 \seealso{
 \code{\link{mmas}}
+}
+\author{
+Martin Schultze
 }
 \concept{
 ACO subtests
 }
-

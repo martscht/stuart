@@ -99,16 +99,15 @@ The pheromone function provided via \code{fitness.func} is used to assess the qu
 
 The scheduling of parameters is possible for the arguments \code{ants}, \code{colonies}, \code{evaporation}, \code{pbest}, \code{alpha}, \code{beta}, and \code{tolerance}. For all of these parameter scheduling is done when an array with two columns is provided. The first column of the array contains the timer, i.e. when to switch between parameter settings, the second column contains the values. The argument \code{schedule} can be used to select an absolute schedule (\code{schedule='run'}), a relative schedule which resets completely after a new global best is found (\code{schedule='colony'}), or a mixed version which resets the current phase of the schedule after a new global best is found (\code{schedule='mixed'}). When providing a parameter schedule for iterations 0, 3, and 10 using 'run' will result in a change after the third and the tenth iteration - irrespective of whether global best solutions were found. In contrast, using 'colony' will result in the first setting being used again once a new global best is found. This setting will then be used until iteration 3 (if no new best solution is found) before a switch occurs. If a new global best is found the setting will begin the sequence from the beginning. Using 'mixed' will result in the first setting being used until three consecutive iterations cannot produce a new global best. After this the second setting is used. If a new global best is found, the second setting is kept, but for the purpose of the schedule it is now iteration 3 again, meaning that the third setting will be used later than in a 'run' schedule.
 }
-\author{
-Martin Schultze
-}
 \references{
 Stützle, T. (1998). Local search algorithms for combinatorial problems: Analysis, improvements, and new applications. Unpublished doctoral dissertation. Darmstadt: Fachbereich Informatik, Universität Darmstadt.
 }
 \seealso{
 \code{\link{bruteforce}} \code{\link{heuristics}}
 }
+\author{
+Martin Schultze
+}
 \concept{
 ACO subtests
 }
-

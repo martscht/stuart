@@ -19,3 +19,7 @@ Addtionally, there are some convenience functions which are more or less useful.
 The package also provides two datasets: the \code{\link{sups}} dataset and the \code{\link{fairplayer}} dataset.
 }
 
+\author{
+\strong{Maintainer}: Martin Schultze \email{martin.schultze@fu-berlin.de}
+
+}

@@ -1,3 +1,8 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
 # README #
 
 This repository contains the current alpha-build of the STUART package for R. It is intended for the creation of short-forms of questionnaires via an Ant-Colony-Optimization approach. For more details on the package please see the help files contained in the package itself.

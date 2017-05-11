@@ -17,4 +17,3 @@ fairplayer
 Self- and teacher-reported empathy (8 item scale), relational aggression (5 item scale), and social intelligence (10 item scale) at three different occasions.
 }
 \keyword{datasets}
-

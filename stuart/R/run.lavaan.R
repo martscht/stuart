@@ -215,7 +215,7 @@ function(
   analysis.options <- analysis.options[!sapply(analysis.options,is.null)]
 
   # Temporary, for multiple lavaan Versions. Will be removed.  
-  if (packageVersion('lavaan')<'0.5.23') {
+  if (utils::packageVersion('lavaan')<'0.5.23') {
     analysis.options <- analysis.options[is.element(names(analysis.options),names(formals(lavaan::lavaan)))]
   } else {
     analysis.options <- analysis.options[is.element(names(analysis.options),c(names(formals(lavaan::lavaan)),names(lavaan::lavOptions())))]
