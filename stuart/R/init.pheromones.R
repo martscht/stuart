@@ -1,12 +1,12 @@
 init.pheromones <-
 function(
-  short.factor.structure, number.of.subtests, deposit.on='arcs', alpha=1
+  short.factor.structure, localization, alpha
 ) { #begin function
 
   pheromones <- list(NA)
 
   #initialize when depositing on arcs
-  if (deposit.on=='arcs') {
+  if (localization=='arcs') {
     #initialize all pheromones to 1e+100, diagonals to 0
     for (i in 1:length(short.factor.structure)) {
       pheromones[[i]] <- list(NA)
@@ -17,16 +17,14 @@ function(
   }
 
   #initialize when depositing on nodes
-  if (deposit.on=='nodes') {
+  if (localization=='nodes') {
     #initialize all pheromones to 1e+100
     for (i in 1:length(short.factor.structure)) {
       pheromones[[i]] <- list(NA)
-      pheromones[[i]] <- matrix((1e+100)^(1/alpha),number.of.subtests[[i]],length(short.factor.structure[[i]]))
+      pheromones[[i]] <- matrix((1e+100)^(1/alpha),1,length(short.factor.structure[[i]]))
       dimnames(pheromones[[i]])[[2]] <- short.factor.structure[[i]]
     }
   }
-
-  if (!deposit.on%in%c('arcs','nodes')) stop('The deposit must be either on arcs or nodes.')
 
   names(pheromones) <- names(short.factor.structure)
 

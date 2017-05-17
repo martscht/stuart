@@ -1,26 +1,21 @@
 stuart.mmas <-
 function(
-  short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
-  number.of.items,
+  short.factor.structure, short, long.equal,    #made on toplevel
+  capacity,
   data, factor.structure, auxi, use.order,                       #simple prerequisites
-  
-  number.of.subtests,  invariance,                               #subtest relations
+  item.invariance,
   repeated.measures, long.invariance,                            #longitudinal relations
   mtmm, mtmm.invariance,                                         #mtmm relations
   grouping, group.invariance,                                    #grouping relations
 
-  item.invariance, item.long.invariance, item.mtmm.invariance,
-  item.group.invariance,
-
-
   software, cores,                                               #Software to be used
 
-  fitness.func=NULL, ignore.errors=FALSE,                        #fitness function
+  objective=NULL, ignore.errors=FALSE,                           #objective function
   
   ants=16, colonies=256, evaporation=.95,                        #general ACO parameters
-  deposit='ib', pbest=.005, deposit.on='nodes',                  #MMAS parameters
+  deposit='ib', pbest=.005, localization='nodes',                #MMAS parameters
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,
-  tolerance=.001, schedule='run',                                #tolerance for convergence
+  tolerance=.5, schedule='run',                                  #tolerance for convergence
 
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
   filename,
@@ -41,15 +36,11 @@ function(
   colony <- 1
 
   #compute number of decisions and avg for limits
-  deci <- sum(unlist(number.of.items))
-  tmp <- list(NA)
-  for (i in 1:length(short.factor.structure)) {
-    tmp[[i]] <- length(short.factor.structure[[i]]):(length(short.factor.structure[[i]])-sum(number.of.items[[i]]))
-  }
-  avg <- mean(unlist(tmp))
-  
+  deci <- sum(unlist(capacity))
+  avg <- mean(c(sapply(short.factor.structure,length),(1+sapply(short.factor.structure,length)-unlist(capacity))))
+
   #initialize scheduling 
-  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance')
+  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance','deposit')
   
   #global assignment to avoid check note
   ants_cur <- NA
@@ -59,6 +50,7 @@ function(
   alpha_cur <- NA
   beta_cur <- NA
   tolerance_cur <- NA
+  deposit_cur <- NA
   
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
@@ -80,16 +72,15 @@ function(
   }
   
   #initialize pheromones
-  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
+  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure,localization,alpha_cur)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^(1/1e+100))
   } else {
-    if (attr(heuristics,'deposit.on')!=deposit.on) {
-      stop('The localization of the heuristics does not match your setting for deposit.on',call.=FALSE)
+    if (attr(heuristics,'localization')!=localization) {
+      stop('The localization of the heuristics does not match your setting for localization.',call.=FALSE)
     }
   }
-
 
   ### Loops ###
   log <- NULL
@@ -204,11 +195,11 @@ function(
     }
     
     #updated pheromones
-    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,deposit.on,
+    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,localization,
       get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
 
     #check for convergence
-    if (deposit.on=='arcs') {
+    if (localization=='arcs') {
       conv <- lapply(pheromones,function(x) x[lower.tri(x)])
     } else {
       conv <- pheromones
@@ -246,8 +237,8 @@ function(
   results$log <- log
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
-    deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
+    deposit=deposit,pbest=pbest,localization=localization,
+    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,objective=objective,
     heuristics=heuristics)
   return(results)
 
