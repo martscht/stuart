@@ -1,20 +1,16 @@
 stuart.bruteforce <-
 function(
-  short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
-  number.of.items,
+  short.factor.structure, short, long.equal,    #made on toplevel
+  capacity,
   data, factor.structure, auxi, use.order,                       #simple prerequisites
-  
-  number.of.subtests,  invariance,                               #subtest relations
+  item.invariance,
   repeated.measures, long.invariance,                            #longitudinal relations
   mtmm, mtmm.invariance,                                         #mtmm relations
   grouping, group.invariance,                                    #grouping relations
   
-  item.invariance, item.long.invariance, item.mtmm.invariance,
-  item.group.invariance,
-  
   software, cores,                                               #Software to be used
 
-  fitness.func=NULL, ignore.errors=FALSE,                        #fitness function
+  objective=NULL, ignore.errors=FALSE,                        #fitness function
   
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
   
@@ -114,7 +110,7 @@ function(
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
   results$pheromones <- NULL
-  results$parameters <- list(fitness.func=fitness.func)
+  results$parameters <- list(objective=objective)
   return(results)
 
 }

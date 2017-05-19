@@ -31,14 +31,14 @@ The STUART package comes with a dataset from an intervention study concerning th
 
         data(fairplayer)
 
-The `mmas`-function can take quite a number of arguments, but only three are actually required: `data`, `factor.structure`, and `items.per.subtest`. The `data` were just loaded. To establish a factor structure the STUART functions require a named list of factors and their indicators. For the simple, three-factor structure at the first occasion this list can simply be provided as
+The `mmas`-function can take quite a number of arguments, but only three are actually required: `data`, `factor.structure`, and `capacity`. The `data` were just loaded. To establish a factor structure the STUART functions require a named list of factors and their indicators. For the simple, three-factor structure at the first occasion this list can simply be provided as
 
         fs <- list(em=names(fairplayer)[5:12],
           ra=names(fairplayer)[53:57],
           si=names(fairplayer)[83:92])
         fs
 
-the names of the list elements will be used as factor names in the models while the items provided are those that are chosen from throughout the search process. The final required setting is the number of items to be chosen per scale. In this case we could want a scale with 10 items in total: 3 for empathy, 3 for relational aggression, and 4 for social intelligence. The `items.per.subtest` argument accepts either a single value (if all scales are supposed to have the same number of items) or a list in the same order as the factor structure provided.
+the names of the list elements will be used as factor names in the models while the items provided are those that are chosen from throughout the search process. The final required setting is the number of items to be chosen per scale. In this case we could want a scale with 10 items in total: 3 for empathy, 3 for relational aggression, and 4 for social intelligence. The `capacity` argument accepts either a single value (if all scales are supposed to have the same number of items) or a list in the same order as the factor structure provided.
 
         nitems <- list(3,3,4)
         
