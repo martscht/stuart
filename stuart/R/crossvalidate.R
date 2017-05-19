@@ -12,7 +12,7 @@
 #' @param old.data A \code{data.frame} of the calibration sample.
 #' @param new.data A \code{data.frame} of the validation sample.
 #' @param invariance The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.
-#' @param fitness.func A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
+#' @param objective A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".
 #' @param file.remove A logical indicating whether to remove the generated Mplus input and output files. Ignored if lavaan is used.
 #' 
@@ -35,7 +35,7 @@ crossvalidate <-
 function(
   selection, old.data, new.data,
   invariance='congeneric',
-  fitness.func=NULL,
+  objective=NULL,
   filename='stuart',
   file.remove=TRUE
 ) { #begin function
@@ -46,7 +46,7 @@ function(
   # check estimation software
   software <- selection$software
   # check fitness function
-  if (is.null(fitness.func)) fitness.func <- selection$parameters$fitness.func
+  if (is.null(objective)) objective <- selection$parameters$objective
   
   if (software=='Mplus' & is.null(old.data)) stop('When using Mplus the old.data is required.')
   
@@ -59,7 +59,7 @@ function(
   validated <- do.call(paste('crossvalidate',software,sep='.'),args)    
   fitness.options <- as.list(formals(fitness))
   fitness.options$solution.fit <- validated
-  fitness.options$fitness.func <- fitness.func
+  fitness.options$objective <- objective
   if ('con'%in%names(selection$log)) fitness.options$criteria <- c(as.character(fitness.options$criteria)[-1],'con')
   
   output <- do.call(fitness,fitness.options)

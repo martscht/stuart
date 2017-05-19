@@ -191,8 +191,9 @@ function(
         }
         # workaround for absence of short.factor.structure when crossvalidating
         if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+          warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
           short.factor.structure <- as.list(rep(NA,ncol(lambda)))
-          names(short.factor.structure) <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)
+          names(short.factor.structure) <- colnames(lambda)
         }
         reffilter <- colnames(lambda)%in%names(short.factor.structure)
         filter <- rowSums(lambda[,reffilter,drop=FALSE]!=0)>0
@@ -218,8 +219,9 @@ function(
           }
           # workaround for absence of short.factor.structure when crossvalidating
           if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+            warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
             short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
-            names(short.factor.structure) <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)
+            names(short.factor.structure) <- colnames(lambda[[i]])
           }
           reffilter <- colnames(lambda[[i]])%in%names(short.factor.structure)
           filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
