@@ -44,6 +44,7 @@ function(
   #parallel processing for R-internal estimations
   if (software=='lavaan') {
     if (cores>1) {
+      if (.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing parallel bruteforce computation in RStudio.')
       #set up parallel processing on windows
       if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
         cl <- parallel::makeCluster(cores)
