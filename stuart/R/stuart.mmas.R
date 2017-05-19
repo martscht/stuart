@@ -39,6 +39,12 @@ function(
   deci <- sum(unlist(capacity))
   avg <- mean(c(sapply(short.factor.structure,length),(1+sapply(short.factor.structure,length)-unlist(capacity))))
 
+  #recode deposit to numeric
+  deposit_save <- deposit
+  deposit[deposit=='ib'] <- 1
+  deposit[deposit=='gb'] <- 2
+  class(deposit) <- 'numeric'
+  
   #initialize scheduling 
   scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance','deposit')
   
@@ -97,19 +103,28 @@ function(
       for (i in 1:length(scheduled)) {
         tmp <- mget(scheduled[i])[[1]]
         if (schedule=='run') {
+          if (any(tmp[,1]==run)) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+          }
           tmp <- tmp[max(which(tmp[,1]<=run)),2]
         } 
         if (schedule=='colony') {
+          if (any(tmp[,1]==colony)) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+          }
           tmp <- tmp[max(which(tmp[,1]<=colony)),2]
         }
         if (schedule=='mixed') {
           if (any(tmp[,3]-(tmp[,1]<=colony)<0)) mix_new <- TRUE
           if (mix_new) {
-            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony) 
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony)
           } else {
             tmp[,3] <- tmp[,3]|(tmp[,1]<=(colony+max(c(tmp[as.logical(tmp[,3]),1],1)-1)))
           }
           assign(scheduled[i],tmp)
+          if (any(tmp[,1]==colony)&mix_new) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which.max(tmp[as.logical(tmp[,3]),1]),2],'.'))
+          }
           tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
         }
         assign(paste0(scheduled[i],'_cur'),tmp)
@@ -196,7 +211,7 @@ function(
     
     #updated pheromones
     pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,localization,
-      get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
+      get(paste('phe',c('ib','gb')[deposit_cur],sep='.')),get(paste('solution',c('ib','gb')[deposit_cur],sep='.')))
 
     #check for convergence
     if (localization=='arcs') {
@@ -237,7 +252,7 @@ function(
   results$log <- log
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
-    deposit=deposit,pbest=pbest,localization=localization,
+    deposit=deposit_save,pbest=pbest,localization=localization,
     alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,objective=objective,
     heuristics=heuristics)
   return(results)
