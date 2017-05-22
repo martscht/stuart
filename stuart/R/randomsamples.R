@@ -59,8 +59,8 @@ randomsamples <-
     item.invariance='congeneric',                  #cross invariance
     
     repeated.measures=NULL, long.invariance='strict', #long structure
-    mtmm=NULL, item.mtmm.invariance='congeneric', #MTMM structure
-    grouping=NULL, item.group.invariance='strict', #grouping structure
+    mtmm=NULL, mtmm.invariance='congeneric', #MTMM structure
+    grouping=NULL, group.invariance='strict', #grouping structure
     
     auxiliary=NULL, use.order=FALSE,
     software='lavaan', cores=NULL,                                        #run settings

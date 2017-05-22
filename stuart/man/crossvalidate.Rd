@@ -5,7 +5,7 @@
 \title{Cross-Validate a Measurement Model}
 \usage{
 crossvalidate(selection, old.data, new.data, invariance = "congeneric",
-  fitness.func = NULL, filename = "stuart", file.remove = TRUE)
+  objective = NULL, filename = "stuart", file.remove = TRUE)
 }
 \arguments{
 \item{selection}{An object of class \code{stuartOutput}.}
@@ -16,7 +16,7 @@ crossvalidate(selection, old.data, new.data, invariance = "congeneric",
 
 \item{invariance}{The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.}
 
-\item{fitness.func}{A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.}
+\item{objective}{A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.}
 
 \item{filename}{The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".}
 
