@@ -4,7 +4,7 @@ function(
   
   capacity=NULL, item.weights=NULL, item.invariance='congeneric',       #items
   repeated.measures=NULL, long.invariance='strict',                     #longitudinal relations
-  mtmm=NULL, mtmm.invariance='congeneric',                              #mtmm relations
+  mtmm=NULL, mtmm.invariance='configural',                              #mtmm relations
   grouping=NULL, group.invariance='strict',                             #grouping relations
 
   auxiliary=NULL,                                                       #add variables
@@ -22,7 +22,7 @@ function(
   if (is.null(repeated.measures)) {
     repeated.measures <- as.list(names(factor.structure))
     names(repeated.measures) <- names(factor.structure)
-    long.invariance <- 'congeneric'
+    long.invariance <- 'configural'
   } else {
     tmp <- as.list(c(repeated.measures,setdiff(names(factor.structure),unlist(repeated.measures))))
     names(tmp) <- c(names(repeated.measures),setdiff(names(factor.structure),unlist(repeated.measures)))
@@ -33,7 +33,7 @@ function(
   if (is.null(mtmm)) {
     mtmm <- as.list(names(factor.structure))
     names(mtmm) <- names(factor.structure)
-    mtmm.invariance <- 'congeneric'
+    mtmm.invariance <- 'configural'
   } else {
     tmp <- as.list(c(mtmm,setdiff(names(factor.structure),unlist(mtmm))))
     names(tmp) <- c(names(mtmm),setdiff(names(factor.structure),unlist(mtmm)))

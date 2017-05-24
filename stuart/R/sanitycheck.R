@@ -32,5 +32,4 @@ sanitycheck <- function(factor.structure,capacity,
   
   if (!localization%in%c('arcs','nodes')) stop('Pheromones must be localized to arcs or nodes.',call.=FALSE)
   
-  
 }
