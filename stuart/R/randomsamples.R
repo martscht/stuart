@@ -29,6 +29,7 @@
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
+#' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
 #' @param request.override The maximum number of combinations for which the estimation is performed immediately, without an additional override request.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
 #' @param n The number of random samples to be drawn.
@@ -66,7 +67,7 @@ randomsamples <-
     software='lavaan', cores=NULL,                                        #run settings
     objective=NULL, ignore.errors=FALSE,                               #fitness specs
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
-    request.override=10000,
+    seed=NULL, request.override=10000,
     filename='randomsample', n=1000, percentile=100
   ) {#function begin
     

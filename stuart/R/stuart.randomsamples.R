@@ -13,6 +13,7 @@ function(
   objective=NULL, ignore.errors=FALSE,                        #fitness function
   
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
+  seed,
   
   filename, n=1000, percentile=100,
   
@@ -25,6 +26,13 @@ function(
   #generate random sample of combinations
   message('Generating random samples of combinations.')
   full <- FALSE
+  
+  if (!is.null(seed)) {
+    old.seed <- .Random.seed
+    set.seed(seed)
+    on.exit(.Random.seed <<- old.seed)
+  }
+
   combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
   filter <- combinations$filter
   combi <- combinations$combi
