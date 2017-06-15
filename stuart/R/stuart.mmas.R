@@ -154,6 +154,10 @@ function(
         #set up parallel processing on windows
         if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
           cl <- parallel::makeCluster(cores)
+          if (!is.null(seed)) {
+            seed_cur <- sample(1e+9,1)
+            clusterSetRNGStream(cl,seed_cur)
+          }
           ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
           parallel::stopCluster(cl)
         }
@@ -255,8 +259,10 @@ function(
   message(paste('\nSearch ended.',end.reason))      
 
   #return to previous random seeds
-  RNGkind(old.kind)
-  .Random.seed <<- old.seed
+  if (!is.null(seed)) {
+    RNGkind(old.kind)
+    .Random.seed <<- old.seed
+  }
   
   
   #Generating Output
