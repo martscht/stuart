@@ -13,7 +13,8 @@ mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
   evaporation = 0.95, alpha = 1, beta = 1, pheromones = NULL,
   heuristics = NULL, deposit = "ib", localization = "nodes",
   pbest = 0.005, tolerance = 0.5, schedule = "run",
-  analysis.options = NULL, suppress.model = FALSE, filename = "stuart")
+  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
+  filename = "stuart")
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -77,6 +78,8 @@ mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
 \item{suppress.model}{A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.}
+
+\item{seed}{A random seed for the generation of random samples. See \code{\link{Random}} for more details.}
 
 \item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".}
 }

@@ -10,7 +10,7 @@ randomsamples(data, factor.structure, capacity = NULL,
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
   objective = NULL, ignore.errors = FALSE, analysis.options = NULL,
-  suppress.model = FALSE, request.override = 10000,
+  suppress.model = FALSE, seed = NULL, request.override = 10000,
   filename = "randomsample", n = 1000, percentile = 100)
 }
 \arguments{
@@ -49,6 +49,8 @@ randomsamples(data, factor.structure, capacity = NULL,
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
 \item{suppress.model}{A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.}
+
+\item{seed}{A random seed for the generation of random samples. See \code{\link{Random}} for more details.}
 
 \item{request.override}{The maximum number of combinations for which the estimation is performed immediately, without an additional override request.}
 
