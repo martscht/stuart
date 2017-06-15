@@ -156,7 +156,7 @@ function(
           cl <- parallel::makeCluster(cores)
           if (!is.null(seed)) {
             seed_cur <- sample(1e+9,1)
-            clusterSetRNGStream(cl,seed_cur)
+            parallel::clusterSetRNGStream(cl,seed_cur)
           }
           ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
           parallel::stopCluster(cl)
