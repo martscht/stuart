@@ -20,7 +20,7 @@
 #' @param mtmm A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.
 #' @param grouping The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.
 #' @param localization Which parameterization to use when depositing pheromones. Can be either 'nodes' (the default) for depositing pheromones on selected nodes or 'arcs' for depositing on selection arcs.
-#' 
+#' @param ... Other arguments normally provided to \code{\link{mmas}}, which will be ignored.
 #' 
 ### Outputs ---- 
 #' @return Returns a list of the same length as the \code{factor.structure} argument provided.
@@ -33,7 +33,7 @@ heuristics <-
 function(
   data, factor.structure, capacity=NULL, #number.of.subtests=1,
   repeated.measures=NULL, mtmm=NULL, grouping=NULL,  
-  localization='nodes'
+  localization='nodes', ...
 ) { #begin function
 
   #combine arguments

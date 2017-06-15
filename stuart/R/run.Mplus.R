@@ -112,10 +112,10 @@ function(
         if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
           if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])) {
             input <- paste(input,
-              paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
+              paste0('[',names(selected.items[i]),'@0];',collapse='\n'),sep='\n')
           } else {
             input <- paste(input,
-              paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
+              paste0('[',names(selected.items[i]),'*];',collapse='\n'),sep='\n')
           }
         }
       }
@@ -202,10 +202,10 @@ function(
             if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])&
                 k==1) {
               input <- paste(input,
-                paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[i]),'@0];',collapse='\n'),sep='\n')
             } else {
               input <- paste(input,
-                paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[i]),'*];',collapse='\n'),sep='\n')
             }
           }
         }

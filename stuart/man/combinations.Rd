@@ -5,7 +5,7 @@
 \title{Compute the number of possible subtest combinations}
 \usage{
 combinations(data, factor.structure, capacity = NULL,
-  repeated.measures = NULL, mtmm = NULL, use.order = FALSE)
+  repeated.measures = NULL, mtmm = NULL, use.order = FALSE, ...)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -19,6 +19,8 @@ combinations(data, factor.structure, capacity = NULL,
 \item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
 
 \item{use.order}{A logical indicating whether or not to take the selection order of the items into account. Defaults to \code{FALSE}.}
+
+\item{...}{Other arguments normally provided to \code{\link{mmas}}, which will be ignored.}
 }
 \value{
 Returns the number of possible subtest constellations.

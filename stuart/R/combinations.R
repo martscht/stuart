@@ -18,6 +18,7 @@
 #' @param repeated.measures A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.
 #' @param mtmm A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.
 #' @param use.order A logical indicating whether or not to take the selection order of the items into account. Defaults to \code{FALSE}.
+#' @param ... Other arguments normally provided to \code{\link{mmas}}, which will be ignored.
 #' 
 ### Outputs ---- 
 #' @return Returns the number of possible subtest constellations.
@@ -30,7 +31,7 @@
 combinations <-
 function(
   data, factor.structure, capacity=NULL, #subtest settings
-  repeated.measures=NULL, mtmm=NULL, use.order=FALSE
+  repeated.measures=NULL, mtmm=NULL, use.order=FALSE,...
 ) {#function begin
 
   #arguments

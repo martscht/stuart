@@ -6,7 +6,7 @@
 \usage{
 randomsamples(data, factor.structure, capacity = NULL,
   item.invariance = "congeneric", repeated.measures = NULL,
-  long.invariance = "strict", mtmm = NULL, mtmm.invariance = "congeneric",
+  long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
   objective = NULL, ignore.errors = FALSE, analysis.options = NULL,
@@ -24,15 +24,15 @@ randomsamples(data, factor.structure, capacity = NULL,
 
 \item{repeated.measures}{A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.}
 
-\item{long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
+\item{long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'configural', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
 
 \item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
 
-\item{mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
+\item{mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'configural', 'weak', 'strong', and 'strict'. Defaults to 'configural'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
 
 \item{grouping}{The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.}
 
-\item{group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
+\item{group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'configural', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
 
 \item{auxiliary}{The names of auxiliary variables in \code{data}. These can be used in additional modeling steps that may be provided in \code{analysis.options$model}.}
 

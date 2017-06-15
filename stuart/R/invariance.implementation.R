@@ -14,7 +14,7 @@ function(
 ) { #begin function
 
   #errors for wrong invariance settings
-  tmp.inv <- c('configural','weak','strong','strict')
+  tmp.inv <- c('none','configural','weak','strong','strict')
   if (any(c((!unlist(long.invariance)%in%tmp.inv),(!unlist(mtmm.invariance)%in%tmp.inv),(!unlist(group.invariance)%in%tmp.inv)))) {
     stop(paste0('Invariance levels across repeated measurements, groups, and sources of information must be one of ',paste(tmp.inv,collapse=', '),'.'),call.=FALSE)
   }

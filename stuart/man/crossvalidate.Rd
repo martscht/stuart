@@ -4,7 +4,7 @@
 \alias{crossvalidate}
 \title{Cross-Validate a Measurement Model}
 \usage{
-crossvalidate(selection, old.data, new.data, invariance = "congeneric",
+crossvalidate(selection, old.data, new.data, invariance = "configural",
   objective = NULL, filename = "stuart", file.remove = TRUE)
 }
 \arguments{
@@ -14,7 +14,7 @@ crossvalidate(selection, old.data, new.data, invariance = "congeneric",
 
 \item{new.data}{A \code{data.frame} of the validation sample.}
 
-\item{invariance}{The invariance between the calibration and the validation sample. Can be one of 'congeneric', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.}
+\item{invariance}{The invariance between the calibration and the validation sample. Can be one of 'configural', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.}
 
 \item{objective}{A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(fitness)}.}
 

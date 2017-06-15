@@ -30,6 +30,11 @@ function(
   #dole out some names
   names(selected.items) <- names(factor.structure)
 
+  if (any(is.na(unlist(selected.items)))) {
+    tmp <- names(factor.structure)[sapply(selected.items,function(x) any(is.na(x)))]
+    stop(paste('Items could not be selected for some facets. Check your factor structure. Problem with',paste(tmp,collapse=', ')),call.=FALSE)
+  }
+  
   return(selected.items)
 
 }
