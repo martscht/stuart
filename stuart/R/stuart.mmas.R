@@ -18,6 +18,7 @@ function(
   tolerance=.5, schedule='run',                                  #tolerance for convergence
 
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
+  seed,
   filename,
 
   ...                                                            #All the other stuff
@@ -88,6 +89,16 @@ function(
     }
   }
 
+  
+  #set random seed, if provided
+  if (!is.null(seed)) {
+    old.seed <- .Random.seed
+    old.kind <- RNGkind()[1]
+    RNGkind("L'Ecuyer-CMRG")
+    set.seed(seed)
+  }
+  
+  
   ### Loops ###
   log <- NULL
 
@@ -143,7 +154,6 @@ function(
         #set up parallel processing on windows
         if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
           cl <- parallel::makeCluster(cores)
-          
           ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
           parallel::stopCluster(cl)
         }
@@ -244,6 +254,11 @@ function(
   close(progress)
   message(paste('\nSearch ended.',end.reason))      
 
+  #return to previous random seeds
+  RNGkind(old.kind)
+  .Random.seed <<- old.seed
+  
+  
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)

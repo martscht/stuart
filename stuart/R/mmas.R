@@ -49,6 +49,7 @@
 #' @param schedule The counter which the scheduling of parameters pertains to. Can be either 'run' (the default), for a continuous schedule, 'colony', for a schedule that is restarted every time a new global best is found, or 'mixed' for a schedule that restarts its current phase every time a new global best is found. See 'details'.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
+#' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
 #' 
 #' 
@@ -98,6 +99,7 @@ function(
   schedule='run',
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
+  seed=NULL,
   
   filename='stuart'                                                     #stem of filenames for Mplus
 ) { #begin function
