@@ -274,7 +274,9 @@ function(
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit_save,pbest=pbest,localization=localization,
-    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,objective=objective,
+    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,
+    seed=seed,
+    objective=objective,
     heuristics=heuristics)
   return(results)
 

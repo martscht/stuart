@@ -118,7 +118,7 @@ function(
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
   results$pheromones <- NULL
-  results$parameters <- list(objective=objective)
+  results$parameters <- list(n=n,percentile=percentile,seed=seed,objective=objective)
   return(results)
   
 }
