@@ -1,7 +1,7 @@
 ### Function definition ----
 crossvalidate.lavaan <- 
 function(
-  selection, old.data, new.data, invariance, ...
+  selection, old.data, new.data, invariance, output.model=FALSE, ...
 ) { #begin function
   
   # retrieve old results
@@ -44,7 +44,8 @@ function(
   
   args <- list(data=new.data,selected.items=selection$subtests,
     grouping=grouping,auxi=new.data[,NULL],suppress.model=TRUE,
-    analysis.options=list(model=parameters),ignore.errors=TRUE)
+    analysis.options=list(model=parameters),ignore.errors=TRUE,
+    output.model=output.model)
   
   output <- do.call('run.lavaan',args)
   
