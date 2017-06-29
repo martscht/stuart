@@ -49,7 +49,7 @@ function(
   }
   
   if (!use.order) {
-    selected <- sapply(selected,sort)
+    selected <- lapply(selected,sort)
   }
   
   return(list(selected=selected,solution=solution))
