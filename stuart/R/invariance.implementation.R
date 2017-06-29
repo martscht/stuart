@@ -111,6 +111,7 @@ function(
   #implementing group invariance
   if (!is.null(grouping)) {
     group <- as.factor(data[,grouping])
+    group <- droplevels(group)
     equal <- list(equal,equal)
 
     for (i in 2:length(levels(group))) {
