@@ -51,6 +51,13 @@ function(
   args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
   args <- args[names(args)%in%names(formals(paste('crossvalidate',software,sep='.')))]
   
+  #select calibration sample (change to methods later)
+  if (class(old.data) == 'stuartKfolds') {
+    args$new.data <- old.data$validate
+    args$old.data <- old.data$calibrate
+  }
+  
+  
   # run validation
   validated <- do.call(paste('crossvalidate',software,sep='.'),args)    
   fitness.options <- as.list(formals(fitness))
