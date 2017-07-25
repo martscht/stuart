@@ -27,6 +27,9 @@ function(
     tmp <- as.list(c(repeated.measures,setdiff(names(factor.structure),unlist(repeated.measures))))
     names(tmp) <- c(names(repeated.measures),setdiff(names(factor.structure),unlist(repeated.measures)))
     repeated.measures <- tmp
+    if (length(long.invariance)!=1 & length(long.invariance)!=length(repeated.measures)) {
+      stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    }
   }
 
   #create phantom mtmm data, if only one method
@@ -38,6 +41,9 @@ function(
     tmp <- as.list(c(mtmm,setdiff(names(factor.structure),unlist(mtmm))))
     names(tmp) <- c(names(mtmm),setdiff(names(factor.structure),unlist(mtmm)))
     mtmm <- tmp
+    if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(mtmm)) {
+      stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
+    }
   }
 
   #create a longitudinal factor structure
@@ -83,21 +89,9 @@ function(
   names(auxi) <- auxiliary
   ####       ####
 
-    
+  #create vectors of invariance assumptions
   item.invariance <- as.list(array(item.invariance,length(short.factor.structure)))
-
-  #create a vector of longitudial invariance assumptions
-  if (length(long.invariance)!=1 & length(long.invariance)!=length(factor.structure)) {
-    stop('The number of longitudinal invariance levels and the number of factors are not compatible.\n',call.=FALSE)
-  }
-  
   long.invariance <- as.list(array(long.invariance,length(long.factor.structure)))
-  
-  #create a vector of mtmm invariance assumptions
-  if (length(mtmm.invariance)!=1 & length(mtmm.invariance)!=length(factor.structure)) {
-    stop('The number of MTMM invariance levels and the number of factors are not compatible.\n',call.=FALSE)
-  }
-  
   mtmm.invariance <- as.list(array(mtmm.invariance,length(mtmm.factor.structure)))
   
   # Expanding the capacity
