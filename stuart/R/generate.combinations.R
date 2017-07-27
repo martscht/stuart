@@ -6,7 +6,8 @@ function(
   combi <- list()
   
   n_max <- do.call('compute.combinations',mget(names(formals(compute.combinations))))
-  
+  overlap <- any(duplicated(unlist(short.factor.structure)))
+    
   if (full) {
     if (use.order) {
       for (i in 1:length(short.factor.structure)) {

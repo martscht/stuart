@@ -20,11 +20,15 @@ function(run,
     selected[[j]] <- as.numeric(combi[[j]][filter[run,j],])
   }
   selected.items <- translate.selection(selected,factor.structure,short)
-  
+    
   #specify modeling options
-  output.model=FALSE
-  run.options <- names(formals(paste('run',software,sep='.')))
-  solution.fit <- do.call(paste('run',software,sep='.'),as.list(mget(run.options)))
+  if (any(duplicated(unlist(selected.items)))) {
+    solution.fit <- NA
+  } else {
+    output.model=FALSE
+    run.options <- names(formals(paste('run',software,sep='.')))
+    solution.fit <- do.call(paste('run',software,sep='.'),as.list(mget(run.options)))
+  }
 
   #compute pheromone
   fitness.options <- as.list(formals(fitness))
