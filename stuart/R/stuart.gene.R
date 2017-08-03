@@ -13,7 +13,7 @@ stuart.gene <-
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
     generations = 32, individuals = 64,                            #settings of the algorithm
-    survival = .10, reproduction = .5, mutation = .05,
+    survival = 0, reproduction = .5, mutation = .1,
     
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
@@ -38,7 +38,7 @@ stuart.gene <-
     generation <- 1
         
     ### Loops ###
-    log <- NULL
+    log <- list()
     
     #creating user feedback
     message('Running STUART with Genetic Algorithm.\n')
@@ -49,57 +49,73 @@ stuart.gene <-
     n <- individuals
     combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
     
+    duplicate <- combinations$duplicate
+    filter <- combinations$filter[!duplicated(duplicate), , drop = FALSE]
     combi <- combinations$combi
-    filter <- combinations$filter
-
+    tried <- matrix(NA, ncol = sum(unlist(capacity)))[-1,]
+    
     repeat { #over generations
       
       output.model <- FALSE
       bf.args <- mget(names(formals(bf.cycle))[-1])
       
-      #parallel processing for R-internal estimations
-      if (software=='lavaan') {
-        if (cores>1) {
-          #set up parallel processing on windows
-          if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-            cl <- parallel::makeCluster(cores)
+      if (nrow(filter) > 0) {
+        #parallel processing for R-internal estimations
+        if (software=='lavaan') {
+          if (cores>1) {
+            #set up parallel processing on windows
+            if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+              cl <- parallel::makeCluster(cores)
+              
+              bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
+                do.call('bf.cycle',c(run,bf.args))
+              })
+              parallel::stopCluster(cl)
+            }
             
-            bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
-              do.call('bf.cycle',c(run,bf.args))
-            })
-            parallel::stopCluster(cl)
+            #run ants in parallel on unixies
+            else {
+              bf.results <- parallel::mclapply(1:nrow(filter), function(run) {
+                do.call('bf.cycle',c(run,bf.args))},
+                mc.cores=cores
+              )
+            }
+          } else {
+            bf.results <- lapply(1:nrow(filter),function(run) {
+              do.call('bf.cycle',c(run,bf.args))})
           }
-          
-          #run ants in parallel on unixies
-          else {
-            bf.results <- parallel::mclapply(1:nrow(filter), function(run) {
-              do.call('bf.cycle',c(run,bf.args))},
-              mc.cores=cores
-            )
-          }
-        } else {
-          bf.results <- lapply(1:nrow(filter),function(run) {
+        }
+        
+        #serial processing if Mplus is used (Mplus-internal parallelization is used)
+        if (software=='Mplus') {
+          bf.args$filename <- filename
+          bf.args$cores <- cores
+          bf.results <- lapply(1:nrow(filter), function(run) {     
             do.call('bf.cycle',c(run,bf.args))})
         }
       }
       
-      #serial processing if Mplus is used (Mplus-internal parallelization is used)
-      if (software=='Mplus') {
-        bf.args$filename <- filename
-        bf.args$cores <- cores
-        bf.results <- lapply(1:nrow(filter), function(run) {     
-            do.call('bf.cycle',c(run,bf.args))})
+      #fill in results for duplicates
+      tmp <- vector('list', individuals)
+      tmp[filter[,1]] <- bf.results
+      if (generation == 1) {
+        bf.results <- tmp[duplicate]
+      } else {
+        tmp[sapply(tmp,is.null)] <- log[na.omit(duplicate)]
+        bf.results <- tmp
       }
       
-      
+      # components of genetic algorithm
       pheromones <- sapply(bf.results, function(x) x$solution.phe$pheromone)
-      tmp <- pheromones * as.numeric(rank(pheromones, ties.method = 'random')>=(1-reproduction)*individuals)
+      tmp <- pheromones * as.numeric(rank(pheromones, ties.method = 'random')>(1-reproduction)*individuals)
       mating <- tmp / sum(tmp)
 
-      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>=round(individuals*(1-survival))), ])
+      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>round(individuals*(1-survival))), , drop = FALSE])
+      if (nrow(nextgen[[1]]) > 0) {
+        nextgen <- lapply(nextgen, function(x) x[!duplicated(do.call(cbind, nextgen)), , drop = FALSE])
+      }
 
-      j <- round(individuals*survival)+1
-      while (j <= individuals) {
+      while (nrow(nextgen[[1]]) <= individuals) {
         mates <- sample(individuals, 2, FALSE, mating)
         dad <- lapply(combi, function(x) x[mates[1],])
         mom <- lapply(combi, function(x) x[mates[2],])
@@ -110,7 +126,7 @@ stuart.gene <-
           dif_solution <- dad_solution - mom_solution
           tmp <- which(cumsum(dif_solution) == 0)
           crossover <- ifelse(length(tmp)>1, sample(tmp, 1), tmp)
-          if (is.na(crossover) | crossover == length(dad_solution)) break
+          if (is.na(crossover) | crossover == length(dad_solution)) crossover <- 0
           
           kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
           if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
@@ -118,7 +134,6 @@ stuart.gene <-
             kid_solution[tmp] <- kid_solution[rev(tmp)]
           }
           nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
-          j <- j + 1
           
           kid_solution <- c(mom_solution[0:crossover],dad_solution[(crossover+1):length(dad_solution)])
           if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
@@ -126,12 +141,10 @@ stuart.gene <-
             kid_solution[tmp] <- kid_solution[rev(tmp)]
           }
           nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
-          j <- j + 1
         }
       }
       
-      #create log
-      log <- rbind(log,cbind(rep(generation,individuals),1:individuals,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe))))))
+      nextgen <- lapply(nextgen, function(x) x[1:individuals, ])
       
       #iteration.best memory
       individual.ib <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
@@ -149,6 +162,18 @@ stuart.gene <-
         selected.gb <- selected.ib
       }
       
+      #create log
+      log <- c(log, bf.results)
+      
+      #create matrix of combinations already evaluated
+      tried <- rbind(tried, do.call(cbind, combi))
+      
+      #check for duplication in nextgen
+      duplicate <- match(data.frame(t(do.call(cbind, nextgen))), data.frame(t(tried)))
+      filter <- data.frame(matrix(which(is.na(duplicate)),
+        nrow=sum(is.na(duplicate)),
+        ncol=length(short.factor.structure)))
+      
       #go on to next generation
       combi <- nextgen
       
@@ -164,6 +189,12 @@ stuart.gene <-
     close(progress)
     message(paste('\nSearch ended.'))      
     
+    # reformat log
+    log <- cbind(rep(1:generations,each = individuals),1:individuals,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+    log <- data.frame(log)
+    names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
+    
+    
     #return to previous random seeds
     if (!is.null(seed)) {
       RNGkind(old.kind)
@@ -174,8 +205,6 @@ stuart.gene <-
     for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
     results <- mget(grep('.gb',ls(),value=TRUE))
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
-    log <- data.frame(log)
-    names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
     results$log <- log
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, survival, mutation,

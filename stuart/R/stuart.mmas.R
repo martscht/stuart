@@ -100,7 +100,10 @@ function(
   
   
   ### Loops ###
-  log <- NULL
+  log <- list()
+  tried <- matrix(NA, ncol = sum(unlist(capacity)))[-1,]
+  counter <- matrix(NA, ncol=2)[-1,]
+  
 
   #creating user feedback
   message('Running STUART with MMAS.\n')
@@ -143,50 +146,73 @@ function(
     }
 
     output.model <- FALSE
-    ant.args <- mget(names(formals(ant.cycle)))
+    cons.args <- mget(names(formals(paste('construction',localization,sep='.'))))
+    if (length(scheduled[scheduled%in%names(cons.args)])>0) {
+      ant.args[scheduled[scheduled%in%names(cons.args)]] <- mget(paste(scheduled[scheduled%in%names(cons.args)],'cur',sep='_'))
+    }
+    constructed <- lapply(1:ants_cur, function(x) do.call(paste('construction',localization,sep='.'),cons.args))
+    
+    combi <- lapply(constructed, function(x) x$selected)
+    combi <- do.call(Map, c(rbind, combi))
+    duplicate <- match(data.frame(t(do.call(cbind, combi))), data.frame(t(tried)))
+    filter <- data.frame(matrix(which(is.na(duplicate)),
+      nrow=sum(is.na(duplicate)),
+      ncol=length(short.factor.structure)))
+    
+    tried <- rbind(tried, do.call(cbind, combi))
+    
+    ant.args <- mget(names(formals(bf.cycle))[-1])
     if (length(scheduled[scheduled%in%names(ant.args)])>0) {
       ant.args[scheduled[scheduled%in%names(ant.args)]] <- mget(paste(scheduled[scheduled%in%names(ant.args)],'cur',sep='_'))
     }
     
-    #parallel processing for R-internal estimations
-    if (software=='lavaan') {
-      if (cores>1) {
-        #set up parallel processing on windows
-        if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-          cl <- parallel::makeCluster(cores)
-          if (!is.null(seed)) {
-            seed_cur <- sample(1e+9,1)
-            parallel::clusterSetRNGStream(cl,seed_cur)
+    if (nrow(filter) > 0) {
+      #parallel processing for R-internal estimations
+      if (software=='lavaan') {
+        if (cores>1) {
+          #set up parallel processing on windows
+          if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+            cl <- parallel::makeCluster(cores)
+            if (!is.null(seed)) {
+              seed_cur <- sample(1e+9,1)
+              parallel::clusterSetRNGStream(cl,seed_cur)
+            }
+            ant.results <- parallel::parLapply(cl,1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
+            parallel::stopCluster(cl)
           }
-          ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
-          parallel::stopCluster(cl)
+          
+          #run ants in parallel on unixies
+          else {
+            ant.results <- parallel::mclapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)), mc.cores=cores)
+          }
         }
         
-        #run ants in parallel on unixies
+        #serial processing for single cores
         else {
-          ant.results <- parallel::mclapply(1:ants_cur,function(x) do.call(ant.cycle,ant.args), mc.cores=cores)
+          ant.results <- lapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
         }
       }
-
-      #serial processing for single cores
-      else {
-        ant.results <- lapply(as.list(1:ants_cur),function(x) do.call(ant.cycle,ant.args))
+      
+      #serial processing if Mplus is used (Mplus-internal parallelization is used)
+      if (software=='Mplus') {
+        ant.args$filename <- filename
+        ant.args$cores <- cores
+        ant.results <- lapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
       }
     }
-
-    #serial processing if Mplus is used (Mplus-internal parallelization is used)
-    if (software=='Mplus') {
-      ant.args$filename <- filename
-      ant.args$cores <- cores
-      ant.results <- lapply(as.list(1:ants_cur),function(x) do.call(ant.cycle,ant.args))
-    }
     
-    #create log
-    log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
-
+    #fill in results for duplicates
+    tmp <- vector('list', ants_cur)
+    tmp[filter[,1]] <- ant.results
+    tmp[sapply(tmp,is.null)] <- log[na.omit(duplicate)]
+    ant.results <- tmp
+    
     #iteration.best memory
     ant.ib <- which.max(sapply(ant.results, function(x) return(x$solution.phe$pheromone)))
-    solution.ib <- ant.results[[ant.ib]]$solution
+    solution.ib <- list()
+    for (i in seq_along(short.factor.structure)) {
+      solution.ib[[i]] <- seq_along(short.factor.structure[[i]])%in%ant.results[[ant.ib]]$selected[[i]]
+    }
     phe.ib <- ant.results[[ant.ib]]$solution.phe$pheromone
     selected.ib <- ant.results[[ant.ib]]$selected
 
@@ -227,6 +253,13 @@ function(
     pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,localization,
       get(paste('phe',c('ib','gb')[deposit_cur],sep='.')),get(paste('solution',c('ib','gb')[deposit_cur],sep='.')))
 
+    
+    #create log
+    log <- c(log, ant.results)
+    counter <- rbind(counter, c(run, ants_cur))
+    # log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
+    
+    
     #check for convergence
     if (localization=='arcs') {
       conv <- lapply(pheromones,function(x) x[lower.tri(x)])
@@ -264,12 +297,16 @@ function(
     .Random.seed <<- old.seed
   }
   
+  # reformat log
+  tmp <- as.numeric(unlist(apply(counter, 1, function(x) seq(1,x[2]))))
+  log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+  log <- data.frame(log)
+  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
+  
   
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
-  log <- data.frame(log)
-  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
   results$log <- log
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,

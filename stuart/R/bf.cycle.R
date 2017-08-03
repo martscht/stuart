@@ -21,7 +21,6 @@ function(run,
   }
   selected.items <- translate.selection(selected,factor.structure,short)
     
-  #specify modeling options
   if (any(duplicated(unlist(selected.items)))) {
     solution.fit <- NA
   } else {

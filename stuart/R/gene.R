@@ -36,9 +36,9 @@
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
 #' @param generations The number of generations to run. Defaults to 32.
 #' @param individuals The number of individuals per generation. Defaults to 64.
-#' @param survival The proportion of individuals from the last generation to carry over to the next generation. Defaults to .1, meaning the best 10\% of individuals are retained into the next generation.
+#' @param survival The proportion of individuals from the last generation to carry over to the next generation. Defaults to 0, meaning no individuals are retained into the next generation.
 #' @param reproduction The proportion of individuals that are allowed to sire offspring. Defaults to .5, meaning that only the best-performing 50\% in each generation reproduce.
-#' @param mutation The mutation probability. Defaults to .05. See 'details'.
+#' @param mutation The mutation probability. Defaults to .1. See 'details'.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
@@ -86,7 +86,7 @@ gene <-
     objective=NULL, ignore.errors=FALSE,                                  #fitness specs
     
     generations = 32, individuals = 64,                                   #algorithm specs
-    survival = .10, reproduction = .5, mutation = .05,
+    survival = 0, reproduction = .5, mutation = .1,
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL,

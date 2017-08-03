@@ -22,9 +22,10 @@ function(
       }  
     }
     filter <- expand.grid(lapply(lapply(combi,nrow),function(x) return(1:x)))
+    duplicate <- NULL
     
   } else {
-    if (n > n_max) warning('The number of random samples is larger than the number of possible combinations.')
+    if (n > n_max) warning('The number of random samples is larger than the number of possible combinations.', call. = FALSE)
     
     for (i in 1:length(short.factor.structure)) {
       tmp <- matrix(NA,nrow=n,ncol=capacity[[i]])
@@ -36,8 +37,14 @@ function(
     }
     
     filter <- as.data.frame(matrix(1:n,nrow=n,ncol=length(short.factor.structure)))
+    tmp <- do.call(cbind, combi)
+    if (anyDuplicated(tmp)) {
+      duplicate <- match(data.frame(t(tmp)), data.frame(t(tmp)))
+    } else {
+      duplicate <- 1:nrow(tmp)
+    }
   }
 
-  return(list(combi=combi,filter=filter))
+  return(list(combi=combi,filter=filter,duplicate=duplicate))
 
 }

@@ -15,6 +15,8 @@ function(
   filename,cores
 ) { #begin function
 
+  .Deprecated('bf.cycle')
+  
   #construct solution
   tmp <- mget(names(formals(paste('construction',localization,sep='.'))))
   constructed <- do.call(paste('construction',localization,sep='.'),tmp)

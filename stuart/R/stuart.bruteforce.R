@@ -106,11 +106,15 @@ function(
   close(progress)
   message('\nSearch ended.')
 
+  tried <- try(do.call(cbind, lapply(filter, function(y) do.call(rbind,lapply(y, function(x) combi[[1]][x, ])))), silent = TRUE)
+  if (class(tried)[1]=='try-error') warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
+  
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
   log <- data.frame(log)
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
+  results$tried <- tried
   results$pheromones <- NULL
   results$parameters <- list(objective=objective)
   return(results)

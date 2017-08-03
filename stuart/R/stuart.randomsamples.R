@@ -34,7 +34,10 @@ function(
   }
 
   combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
-  filter <- combinations$filter
+  duplicate <- combinations$duplicate
+  
+  filter <- combinations$filter[!duplicated(duplicate), , drop = FALSE]
+  # combi <- lapply(combinations$combi, function(x) x[!duplicated(duplicate), ])
   combi <- combinations$combi
   
   #creating user feedback
@@ -46,57 +49,65 @@ function(
   output.model <- FALSE
   bf.args <- mget(names(formals(bf.cycle))[-1])
   
-  #parallel processing for R-internal estimations
-  if (software=='lavaan') {
-    if (cores>1) {
-      if (.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in RStudio.')
-      #set up parallel processing on windows
-      if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-        if (!.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in Windows.')
-        cl <- parallel::makeCluster(cores)
+  if (nrow(filter) > 0) {
+    
+    #parallel processing for R-internal estimations
+    if (software=='lavaan') {
+      if (cores>1) {
+        if (.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in RStudio.')
+        #set up parallel processing on windows
+        if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+          if (!.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in Windows.')
+          cl <- parallel::makeCluster(cores)
+          
+          bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
+            utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
+            do.call('bf.cycle',c(run,bf.args))
+          })
+          parallel::stopCluster(cl)
+        }
         
-        bf.results <- parallel::parLapply(cl,1:n,function(run) {
-          utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(n/(10*cores)));
-          do.call('bf.cycle',c(run,bf.args))
-        })
-        parallel::stopCluster(cl)
+        #run ants in parallel on unixies
+        else {
+          bf.results <- parallel::mclapply(1:nrow(filter),
+            function(run) {     
+              utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(nrow(filter)/(10*cores)));
+              do.call('bf.cycle',c(run,bf.args))
+            },
+            mc.cores=cores
+          )
+        }
       }
       
-      #run ants in parallel on unixies
       else {
-        bf.results <- parallel::mclapply(1:n,
+        bf.results <- lapply(1:nrow(filter),
           function(run) {     
-            utils::setTxtProgressBar(progress, ceiling(run/(10*cores))/(n/(10*cores)));
+            utils::setTxtProgressBar(progress, run/nrow(filter));
             do.call('bf.cycle',c(run,bf.args))
-          },
-          mc.cores=cores
+          }
         )
       }
     }
     
-    else {
-      bf.results <- lapply(1:n,
+    #serial processing if Mplus is used (Mplus-internal parallelization is used)
+    if (software=='Mplus') {
+      bf.args$filename <- filename
+      bf.args$cores <- cores
+      bf.results <- lapply(1:nrow(filter),
         function(run) {     
-          utils::setTxtProgressBar(progress, run/n);
+          utils::setTxtProgressBar(progress, run/nrow(filter));
           do.call('bf.cycle',c(run,bf.args))
         }
       )
     }
   }
   
-  #serial processing if Mplus is used (Mplus-internal parallelization is used)
-  if (software=='Mplus') {
-    bf.args$filename <- filename
-    bf.args$cores <- cores
-    bf.results <- lapply(1:n,
-      function(run) {     
-        utils::setTxtProgressBar(progress, run/nrow(filter));
-        do.call('bf.cycle',c(run,bf.args))
-      }
-    )
-  }
-  
-  log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
+  #fill in results for duplicates
+  tmp <- vector('list', n)
+  tmp[filter[,1]] <- bf.results
+  bf.results <- tmp[duplicate]
+
+  log <- cbind(1:n,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
   
   #best solution
   tmp <- data.frame(1:length(bf.results),sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
