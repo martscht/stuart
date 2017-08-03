@@ -1,0 +1,187 @@
+stuart.gene <-
+  function(
+    short.factor.structure, short, long.equal,    #made on toplevel
+    capacity,
+    data, factor.structure, auxi, use.order,                       #simple prerequisites
+    item.invariance,
+    repeated.measures, long.invariance,                            #longitudinal relations
+    mtmm, mtmm.invariance,                                         #mtmm relations
+    grouping, group.invariance,                                    #grouping relations
+    
+    software, cores,                                               #Software to be used
+    
+    objective=NULL, ignore.errors=FALSE,                           #objective function
+    
+    generations = 32, individuals = 64,                            #settings of the algorithm
+    survival = .10, reproduction = .5, mutation = .05,
+    
+    suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
+    seed,
+    filename,
+    
+    ...                                                            #All the other stuff
+  ) { #function begin
+   
+    #set random seed, if provided
+    if (!is.null(seed)) {
+      old.seed <- .Random.seed
+      old.kind <- RNGkind()[1]
+      RNGkind("L'Ecuyer-CMRG")
+      set.seed(seed)
+    }
+    
+    #initialize fitness results of best solutions
+    phe.ib <- 0
+    phe.gb <- 0
+
+    #counting
+    generation <- 1
+        
+    ### Loops ###
+    log <- NULL
+    
+    #creating user feedback
+    message('Running STUART with Genetic Algorithm.\n')
+    progress <- utils::txtProgressBar(0,max(c(generations,1)),style=3)
+    
+    # generate initial population
+    full <- FALSE
+    n <- individuals
+    combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
+    
+    combi <- combinations$combi
+    filter <- combinations$filter
+
+    repeat { #over generations
+      
+      output.model <- FALSE
+      bf.args <- mget(names(formals(bf.cycle))[-1])
+      
+      #parallel processing for R-internal estimations
+      if (software=='lavaan') {
+        if (cores>1) {
+          #set up parallel processing on windows
+          if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+            cl <- parallel::makeCluster(cores)
+            
+            bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
+              do.call('bf.cycle',c(run,bf.args))
+            })
+            parallel::stopCluster(cl)
+          }
+          
+          #run ants in parallel on unixies
+          else {
+            bf.results <- parallel::mclapply(1:nrow(filter), function(run) {
+              do.call('bf.cycle',c(run,bf.args))},
+              mc.cores=cores
+            )
+          }
+        } else {
+          bf.results <- lapply(1:nrow(filter),function(run) {
+            do.call('bf.cycle',c(run,bf.args))})
+        }
+      }
+      
+      #serial processing if Mplus is used (Mplus-internal parallelization is used)
+      if (software=='Mplus') {
+        bf.args$filename <- filename
+        bf.args$cores <- cores
+        bf.results <- lapply(1:nrow(filter), function(run) {     
+            do.call('bf.cycle',c(run,bf.args))})
+      }
+      
+      
+      pheromones <- sapply(bf.results, function(x) x$solution.phe$pheromone)
+      tmp <- pheromones * as.numeric(rank(pheromones, ties.method = 'random')>=(1-reproduction)*individuals)
+      mating <- tmp / sum(tmp)
+
+      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>=round(individuals*(1-survival))), ])
+
+      j <- round(individuals*survival)+1
+      while (j <= individuals) {
+        mates <- sample(individuals, 2, FALSE, mating)
+        dad <- lapply(combi, function(x) x[mates[1],])
+        mom <- lapply(combi, function(x) x[mates[2],])
+
+        for (i in 1:length(short.factor.structure)) {
+          dad_solution <- seq_along(short.factor.structure[[i]])%in%dad[[i]]
+          mom_solution <- seq_along(short.factor.structure[[i]])%in%mom[[i]]
+          dif_solution <- dad_solution - mom_solution
+          tmp <- which(cumsum(dif_solution) == 0)
+          crossover <- ifelse(length(tmp)>1, sample(tmp, 1), tmp)
+          if (is.na(crossover) | crossover == length(dad_solution)) break
+          
+          kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
+          if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
+            tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
+            kid_solution[tmp] <- kid_solution[rev(tmp)]
+          }
+          nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
+          j <- j + 1
+          
+          kid_solution <- c(mom_solution[0:crossover],dad_solution[(crossover+1):length(dad_solution)])
+          if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
+            tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
+            kid_solution[tmp] <- kid_solution[rev(tmp)]
+          }
+          nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
+          j <- j + 1
+        }
+      }
+      
+      #create log
+      log <- rbind(log,cbind(rep(generation,individuals),1:individuals,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe))))))
+      
+      #iteration.best memory
+      individual.ib <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
+      solution.ib <- list()
+      for (i in seq_along(short.factor.structure)) {
+        solution.ib[[i]] <- seq_along(short.factor.structure[[i]])%in%bf.results[[individual.ib]]$selected[[i]]
+      }
+      phe.ib <- bf.results[[individual.ib]]$solution.phe$pheromone
+      selected.ib <- bf.results[[individual.ib]]$selected
+      
+      #global.best memory
+      if (phe.ib > phe.gb | generation == 1) {
+        solution.gb <- solution.ib
+        phe.gb <- phe.ib
+        selected.gb <- selected.ib
+      }
+      
+      #go on to next generation
+      combi <- nextgen
+      
+      utils::setTxtProgressBar(progress,generation)
+      
+      generation <- generation + 1
+      
+      if (generation > generations) break
+      
+    } # end loop
+     
+    #feedback
+    close(progress)
+    message(paste('\nSearch ended.'))      
+    
+    #return to previous random seeds
+    if (!is.null(seed)) {
+      RNGkind(old.kind)
+      .Random.seed <<- old.seed
+    }
+    
+    #Generating Output
+    for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
+    results <- mget(grep('.gb',ls(),value=TRUE))
+    results$selected.items <- translate.selection(selected.gb,factor.structure,short)
+    log <- data.frame(log)
+    names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
+    results$log <- log
+    results$pheromones <- pheromones
+    results$parameters <- list(generations, individuals, survival, mutation,
+      seed, objective)
+    names(results$parameters) <- c('generations', 'individuals', 'survival', 'mutation',
+      'seed', 'objective')
+    return(results)
+    
+  }

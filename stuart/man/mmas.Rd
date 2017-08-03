@@ -107,7 +107,7 @@ The scheduling of parameters is possible for the arguments \code{ants}, \code{co
 Stützle, T. (1998). Local search algorithms for combinatorial problems: Analysis, improvements, and new applications. Unpublished doctoral dissertation. Darmstadt: Fachbereich Informatik, Universität Darmstadt.
 }
 \seealso{
-\code{\link{bruteforce}} \code{\link{heuristics}}
+\code{\link{bruteforce}}, \code{\link{gene}}, \code{\link{randomsamples}}, \code{\link{heuristics}}
 }
 \author{
 Martin Schultze

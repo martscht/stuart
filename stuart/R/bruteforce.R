@@ -5,7 +5,7 @@
 #' 
 #' @author Martin Schultze
 #' 
-#' @seealso \code{\link{mmas}} \code{\link{combinations}}
+#' @seealso \code{\link{mmas}}, \code{\link{gene}}, \code{\link{randomsamples}}, \code{\link{combinations}}
 #' 
 #' @concept ACO subtests
 #' 

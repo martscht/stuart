@@ -10,7 +10,7 @@
 #' 
 #' @author Martin Schultze
 #' 
-#' @seealso \code{\link{bruteforce}} \code{\link{heuristics}}
+#' @seealso \code{\link{bruteforce}}, \code{\link{gene}}, \code{\link{randomsamples}}, \code{\link{heuristics}}
 #' 
 #' @concept ACO subtests
 #' 
