@@ -9,8 +9,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, generations = 32,
-  individuals = 64, survival = 0.1, reproduction = 0.5, mutation = 0.05,
+  objective = NULL, ignore.errors = FALSE, generations = 256,
+  individuals = 64, elitism = 1/individuals, reproduction = 0.5,
+  mutation = 0.1, mating.index = 1, mating.size = 0.25,
+  mating.criterion = "fitness", tolerance = 1e-05,
   analysis.options = NULL, suppress.model = FALSE, seed = NULL,
   filename = "stuart")
 }
@@ -49,15 +51,23 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
 
-\item{generations}{The number of generations to run. Defaults to 32.}
+\item{generations}{Maximum number of generations to run. Defaults to 32.}
 
 \item{individuals}{The number of individuals per generation. Defaults to 64.}
 
-\item{survival}{The proportion of individuals from the last generation to carry over to the next generation. Defaults to .1, meaning the best 10\% of individuals are retained into the next generation.}
+\item{elitism}{The proportion of individuals from the last generation to carry over to the next generation. Defaults to 1/individuals, meaning that the best individual is retained into the next generation.}
 
-\item{reproduction}{The proportion of individuals that are allowed to sire offspring. Defaults to .5, meaning that only the best-performing 50\% in each generation reproduce.}
+\item{reproduction}{The proportion of individuals that are allowed to sire offspring. These individuals are selected using fitness proportionate selection. Defaults to .5.}
 
-\item{mutation}{The mutation probability. Defaults to .05. See 'details'.}
+\item{mutation}{The mutation probability. Defaults to .1. See 'details'.}
+
+\item{mating.index}{The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.}
+
+\item{mating.size}{The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.}
+
+\item{mating.criterion}{The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.}
+
+\item{tolerance}{The tolerance for deteriming convergence. Defaults to .00001. See 'details'.}
 
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
@@ -71,7 +81,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
 \item{call }{The called function.}
 \item{software}{The software used to fit the CFA models.}
-\item{parameters}{A list of the ACO parameters used.}
+\item{parameters}{A list of the parameters used.}
 \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 \item{log}{A \code{data.frame} containing the optimization history.}
 \item{solution}{A list of matrices with the choices made in the global-best solution.}
@@ -85,7 +95,12 @@ Construct subtests from a given pool of items using a simple genetic algorithm. 
 \details{
 The pheromone function provided via \code{objective} is used to assess the quality of the solutions. These functions can contain any combination of the fit indices provided by the estimation software. When using Mplus these fit indices are 'rmsea', 'srmr', 'cfi', 'tli', 'chisq' (with 'df' and 'pvalue'), 'aic', 'bic', and 'abic'. With lavaan any fit index provided by \code{\link[lavaan]{inspect}} can be used. Additionally 'crel' provides an aggregate of composite reliabilites, 'rel' provides a vector or a list of reliability coefficients for the latent variables, 'con' provides an aggregate consistency estimate for MTMM analyses, and 'lvcor' provides a list of the latent variable correlation matrices. For more detailed objective functions 'lambda', 'theta', 'psi', and 'alpha' provide the model-implied matrices. Per default a pheromone function using 'crel', 'rmsea', and 'srmr' is used. Please be aware that the \code{objective} must be a function with the required fit indices as (correctly named) arguments.
 
-Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation.
+The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation. Convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). For generalizability over different functions provided to \code{objective}, these are scaled to the first global-best found.
+}
+\references{
+Bhandari, D., Murthy, C.A., & Pal, S.K. (2012). Variance as a Stopping Criterion for Genetic Algorithms with Elitist Model. Fundamenta Informaticae, 120, 145-164. doi:10.3233/FI-2012-754
+
+Galán, S.F., Mengshoel, O.J., & Pinter,  R. (2013). A novel mating approach for genetic algorithms. Evolutionary Computation, 21(2), 197-229. doi:10.1162/EVCO_a_00067
 }
 \seealso{
 \code{\link{bruteforce}}, \code{\link{mmas}}, \code{\link{randomsamples}}

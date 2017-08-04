@@ -12,8 +12,11 @@ stuart.gene <-
     
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
-    generations = 32, individuals = 64,                            #settings of the algorithm
-    survival = 0, reproduction = .5, mutation = .1,
+    generations = 256, individuals = 64,                            #settings of the algorithm
+    elitism = 1/individuals, reproduction = .5, mutation = .1,
+    mating.index = 1, mating.size = .25, 
+    mating.criterion = 'fitness',
+    tolerance = .00001,
     
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
@@ -39,6 +42,7 @@ stuart.gene <-
         
     ### Loops ###
     log <- list()
+    conv <- NULL
     
     #creating user feedback
     message('Running STUART with Genetic Algorithm.\n')
@@ -58,6 +62,7 @@ stuart.gene <-
       
       output.model <- FALSE
       bf.args <- mget(names(formals(bf.cycle))[-1])
+      combi_mat <- do.call(cbind, combi)
       
       if (nrow(filter) > 0) {
         #parallel processing for R-internal estimations
@@ -101,24 +106,48 @@ stuart.gene <-
       if (generation == 1) {
         bf.results <- tmp[duplicate]
       } else {
-        tmp[sapply(tmp,is.null)] <- log[na.omit(duplicate)]
+        tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
         bf.results <- tmp
       }
       
       # components of genetic algorithm
+      # parent selection: fitness proportionate selection
       pheromones <- sapply(bf.results, function(x) x$solution.phe$pheromone)
-      tmp <- pheromones * as.numeric(rank(pheromones, ties.method = 'random')>(1-reproduction)*individuals)
-      mating <- tmp / sum(tmp)
-
-      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>round(individuals*(1-survival))), , drop = FALSE])
+      parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones / sum(pheromones))
+      
+      # random mating
+      if (is.null(mating.index)) {
+        mating <- matrix(sample(rep_len(parents, individuals*2)), ncol = 2)
+      } 
+      # fitness and similarity mating
+      else {
+        parents <- rep_len(parents, individuals)
+        mating <- matrix(NA, ncol = 2, nrow = individuals)
+        for (i in seq_along(parents)) {
+          partners <- sample(parents[-i], individuals*reproduction*mating.size)
+          if (mating.criterion == 'fitness') {
+            mating[i,] <- c(parents[i], 
+              partners[which(pheromones[partners] == 
+                  stats::quantile(pheromones[partners], mating.index, type = 1))[1]])
+          }
+          if (mating.criterion == 'similarity') {
+            tmp <- combi_mat[partners,]
+            similar <- apply(tmp, 1, function(x) length(intersect(combi_mat[parents[i],], x))/length(union(combi_mat[parents[i],], x)))
+            mating[i,] <- c(parents[i], 
+              partners[which(similar == stats::quantile(similar, mating.index, type = 1))[1]])
+          }
+        }
+      }
+      
+      # elitism
+      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>round(individuals*(1-elitism))), , drop = FALSE])
       if (nrow(nextgen[[1]]) > 0) {
         nextgen <- lapply(nextgen, function(x) x[!duplicated(do.call(cbind, nextgen)), , drop = FALSE])
       }
 
-      while (nrow(nextgen[[1]]) <= individuals) {
-        mates <- sample(individuals, 2, FALSE, mating)
-        dad <- lapply(combi, function(x) x[mates[1],])
-        mom <- lapply(combi, function(x) x[mates[2],])
+      for (i in 1:nrow(mating)) {
+        dad <- lapply(combi, function(x) x[mating[i,1],])
+        mom <- lapply(combi, function(x) x[mating[i,2],])
 
         for (i in 1:length(short.factor.structure)) {
           dad_solution <- seq_along(short.factor.structure[[i]])%in%dad[[i]]
@@ -129,13 +158,6 @@ stuart.gene <-
           if (is.na(crossover) | crossover == length(dad_solution)) crossover <- 0
           
           kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
-          if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
-            tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
-            kid_solution[tmp] <- kid_solution[rev(tmp)]
-          }
-          nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
-          
-          kid_solution <- c(mom_solution[0:crossover],dad_solution[(crossover+1):length(dad_solution)])
           if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
             tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
             kid_solution[tmp] <- kid_solution[rev(tmp)]
@@ -162,11 +184,8 @@ stuart.gene <-
         selected.gb <- selected.ib
       }
       
-      #create log
-      log <- c(log, bf.results)
-      
       #create matrix of combinations already evaluated
-      tried <- rbind(tried, do.call(cbind, combi))
+      tried <- rbind(tried, combi_mat)
       
       #check for duplication in nextgen
       duplicate <- match(data.frame(t(do.call(cbind, nextgen))), data.frame(t(tried)))
@@ -174,20 +193,31 @@ stuart.gene <-
         nrow=sum(is.na(duplicate)),
         ncol=length(short.factor.structure)))
       
-      #go on to next generation
-      combi <- nextgen
-      
+      #create log
+      log <- c(log, bf.results)
       utils::setTxtProgressBar(progress,generation)
       
-      generation <- generation + 1
-      
-      if (generation > generations) break
+      # check for convergence
+      conv <- c(conv, phe.gb)
+      if (generation > 1 & stats::var(conv/conv[1]) <= tolerance) {
+        end.reason <- 'Algorithm converged.'
+        break
+      }
+      if (generation >= generations) {
+        end.reason <- 'Maximum number of generations exceeded.'
+        break
+      }
+      else {
+        #go on to next generation
+        combi <- nextgen
+        generation <- generation + 1
+      }
       
     } # end loop
      
     #feedback
     close(progress)
-    message(paste('\nSearch ended.'))      
+    message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
     log <- cbind(rep(1:generations,each = individuals),1:individuals,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
@@ -207,9 +237,11 @@ stuart.gene <-
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log
     results$pheromones <- pheromones
-    results$parameters <- list(generations, individuals, survival, mutation,
+    results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size, 
+      mating.criterion, tolerance, var.gb = stats::var(conv/conv[1]),
       seed, objective)
-    names(results$parameters) <- c('generations', 'individuals', 'survival', 'mutation',
+    names(results$parameters) <- c('generations', 'individuals', 'elitism', 'mutation', 
+      'mating.index', 'mating.size', 'mating.criterion', 'tolerance', 'var.gb',
       'seed', 'objective')
     return(results)
     

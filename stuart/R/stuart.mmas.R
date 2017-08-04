@@ -204,7 +204,7 @@ function(
     #fill in results for duplicates
     tmp <- vector('list', ants_cur)
     tmp[filter[,1]] <- ant.results
-    tmp[sapply(tmp,is.null)] <- log[na.omit(duplicate)]
+    tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
     ant.results <- tmp
     
     #iteration.best memory
