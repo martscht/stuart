@@ -113,10 +113,17 @@ stuart.gene <-
       # components of genetic algorithm
       # parent selection: fitness proportionate selection
       pheromones <- sapply(bf.results, function(x) x$solution.phe$pheromone)
-      if (sum(pheromones > 0) < round(individuals * reproduction)) {
-        stop('There are not enough viable individuals in the current generation to select for mating, indicating estimation problems.\n', call.=FALSE)
+      if (sum(pheromones > 0) == 0) {
+        stop(paste0('There were no viable solutions in generation ', generation,'. This may indicate estimation problems in the CFA.'), call. = FALSE)
       }
-      parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones / sum(pheromones))
+      if (sum(pheromones > 0) < round(individuals * reproduction)) {
+        warning(paste0('There were not enough viable individuals in generation ', generation, '. Some non-viables were randomly selected.\n', call.=FALSE))
+        parents <- (1:individuals)[pheromones > 0]
+        parents <- c(parents, sample((1:individuals)[-parents], round(individuals * reproduction)-length(parents)))
+      }
+      else {
+        parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones / sum(pheromones))
+      }
       
       # random mating
       if (is.null(mating.index)) {
