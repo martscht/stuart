@@ -209,7 +209,7 @@ stuart.gene <-
       
       # check for convergence
       conv <- c(conv, phe.gb)
-      if (generation > 1 & stats::var(conv/conv[1]) <= tolerance) {
+      if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= tolerance) {
         end.reason <- 'Algorithm converged.'
         break
       }
@@ -230,7 +230,7 @@ stuart.gene <-
     message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
-    log <- cbind(rep(1:generations,each = individuals),1:individuals,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+    log <- cbind(rep(1:generation,each = individuals),rep(1:individuals, generation),t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
     log <- data.frame(log)
     names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
     

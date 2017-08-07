@@ -261,11 +261,11 @@ function(
   if (output.model) return(MplusOut)
   
   if (!any(grepl('MODEL FIT',MplusOut))) {
-    if (any(grepl('NO CONVERGENCE.',MplusOut))) {
-      warning('The model did not converge.',call.=FALSE)
-    } else {
-      warning('The Mplus input file generated an error.',call.=FALSE)
-    }
+    # if (any(grepl('NO CONVERGENCE.',MplusOut))) {
+    #   warning('The model did not converge.',call.=FALSE)
+    # } else {
+    #   warning('The Mplus input file generated an error.',call.=FALSE)
+    # }
     exclusion <- TRUE
   } else {
     #exclude non-positive and non-converged models
