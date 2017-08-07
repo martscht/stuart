@@ -44,7 +44,7 @@
 #' @param mating.index The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.
 #' @param mating.size The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.
 #' @param mating.criterion The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.
-#' @param tolerance The tolerance for deteriming convergence. Defaults to .00001. See 'details'.
+#' @param tolerance The tolerance for deteriming convergence. Defaults to .001. See 'details'.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
@@ -95,7 +95,7 @@ gene <-
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
-    tolerance = .00001,
+    tolerance = .001,
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL,

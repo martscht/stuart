@@ -16,7 +16,7 @@ stuart.gene <-
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
-    tolerance = .00001,
+    tolerance = .001,
     
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
@@ -117,7 +117,7 @@ stuart.gene <-
         stop(paste0('There were no viable solutions in generation ', generation,'. This may indicate estimation problems in the CFA.'), call. = FALSE)
       }
       if (sum(pheromones > 0) < round(individuals * reproduction)) {
-        warning(paste0('There were not enough viable individuals in generation ', generation, '. Some non-viables were randomly selected.\n', call.=FALSE))
+        warning(paste0('There were not enough viable individuals in generation ', generation, '. Some non-viables were randomly selected.\n'), call. = FALSE)
         parents <- (1:individuals)[pheromones > 0]
         parents <- c(parents, sample((1:individuals)[-parents], round(individuals * reproduction)-length(parents)))
       }
