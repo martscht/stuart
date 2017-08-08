@@ -36,7 +36,7 @@
 #' @param cores The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.
 #' @param objective A function that converts the results of model estimation into a pheromone. See 'details' for... details.
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
-#' @param generations Maximum number of generations to run. Defaults to 32.
+#' @param generations Maximum number of generations to run. Defaults to 128.
 #' @param individuals The number of individuals per generation. Defaults to 64.
 #' @param elitism The proportion of individuals from the last generation to carry over to the next generation. Defaults to 1/individuals, meaning that the best individual is retained into the next generation.
 #' @param reproduction The proportion of individuals that are allowed to sire offspring. These individuals are selected using fitness proportionate selection. Defaults to .5. 
@@ -44,7 +44,7 @@
 #' @param mating.index The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.
 #' @param mating.size The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.
 #' @param mating.criterion The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.
-#' @param tolerance The tolerance for deteriming convergence. Defaults to .001. See 'details'.
+#' @param tolerance The tolerance for deteriming convergence. Defaults to .0001. See 'details'.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
@@ -91,11 +91,11 @@ gene <-
     
     objective=NULL, ignore.errors=FALSE,                                  #fitness specs
     
-    generations = 256, individuals = 64,                                  #algorithm specs
+    generations = 128, individuals = 64,                                  #algorithm specs
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
-    tolerance = .001,
+    tolerance = .0001,
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL,

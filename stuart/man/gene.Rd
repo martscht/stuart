@@ -9,10 +9,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, generations = 256,
+  objective = NULL, ignore.errors = FALSE, generations = 128,
   individuals = 64, elitism = 1/individuals, reproduction = 0.5,
   mutation = 0.1, mating.index = 1, mating.size = 0.25,
-  mating.criterion = "fitness", tolerance = 0.001,
+  mating.criterion = "fitness", tolerance = 1e-04,
   analysis.options = NULL, suppress.model = FALSE, seed = NULL,
   filename = "stuart")
 }
@@ -51,7 +51,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
 
-\item{generations}{Maximum number of generations to run. Defaults to 32.}
+\item{generations}{Maximum number of generations to run. Defaults to 128.}
 
 \item{individuals}{The number of individuals per generation. Defaults to 64.}
 
@@ -67,7 +67,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{mating.criterion}{The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.}
 
-\item{tolerance}{The tolerance for deteriming convergence. Defaults to .001. See 'details'.}
+\item{tolerance}{The tolerance for deteriming convergence. Defaults to .0001. See 'details'.}
 
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 

@@ -12,11 +12,11 @@ stuart.gene <-
     
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
-    generations = 256, individuals = 64,                            #settings of the algorithm
+    generations = 128, individuals = 64,                            #settings of the algorithm
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
-    tolerance = .001,
+    tolerance = .0001,
     
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
