@@ -34,12 +34,17 @@ function(objective=NULL,
     names(output) <- c('pheromone',unlist(criteria))
   }
   
+  if (length(output$pheromone)!=1) {
+    stop('The objective function you provided does not return a single value.', call. = FALSE)
+  }
+  
   # remove matrices from output
   output$lvcor <- NULL
   output$lambda <- NULL
   output$theta <- NULL
   output$psi <- NULL
   output$alpha <- NULL
+  output$beta <- NULL
   
   return(output)
 

@@ -195,11 +195,11 @@ function(
       # compute composite reliability (overall)
       if (is.null(grouping)) {
         tmp <- lavaan::inspect(output,'est')
-        theta <- tmp$theta
-        psi <- tmp$psi
-        lambda <- tmp$lambda
-        alpha <- tmp$alpha
-
+        
+        theta <- tmp$theta[rownames(tmp$theta)%in%unlist(selected.items),colnames(tmp$theta)%in%unlist(selected.items), drop = FALSE]
+        psi <- tmp$psi[rownames(tmp$psi)%in%names(factor.structure),colnames(tmp$psi)%in%names(factor.structure), drop  = FALSE]
+        lambda <- tmp$lambda[rownames(tmp$lambda)%in%unlist(selected.items),colnames(tmp$lambda)%in%names(factor.structure), drop = FALSE]
+        
         rel <- rep(NA,ncol(lambda))        
         for (i in 1:ncol(lambda)) {
           filter <- which(lambda[,i]!=0)
@@ -216,15 +216,21 @@ function(
         
         crel <- sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))/(sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         
+        # pass matrices from lavaan to output
+        theta <- tmp$theta
+        psi <- tmp$psi
+        lambda <- tmp$lambda
+        alpha <- tmp$alpha
+        beta <- tmp$beta
+        
         tmp <- lavaan::inspect(output,'rsquare')
-        con <- mean(tmp[!names(tmp)%in%names(model.data)])
+        con <- mean(tmp[names(tmp)%in%names(factor.structure)])
           
       } else {
         tmp <- lavaan::inspect(output,'est')
-        theta <- lapply(tmp,function(x) x$theta)
-        psi <- lapply(tmp,function(x) x$psi)
-        lambda <- lapply(tmp,function(x) x$lambda)
-        alpha <- lapply(tmp,function(x) x$alpha)
+        theta <- lapply(tmp,function(x) x$theta[rownames(x$theta)%in%unlist(selected.items),colnames(x$theta)%in%unlist(selected.items), drop = FALSE])
+        psi <- lapply(tmp,function(x) x$psi[rownames(x$psi)%in%names(factor.structure),colnames(x$psi)%in%names(factor.structure), drop  = FALSE])
+        lambda <- lapply(tmp,function(x) x$lambda[rownames(x$lambda)%in%unlist(selected.items),colnames(x$lambda)%in%names(factor.structure), drop = FALSE])
         
         rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
         crel <- rep(NA,length(lambda))
@@ -245,6 +251,13 @@ function(
           crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
         }
         crel <- mean(crel)
+
+        # pass matrices from lavaan to output
+        alpha <- lapply(tmp,function(x) x$alpha)
+        beta <- lapply(tmp,function(x) x$beta)
+        theta <- lapply(tmp,function(x) x$theta)
+        lambda <- lapply(tmp,function(x) x$lambda)
+        psi <- lapply(tmp,function(x) x$psi)
         
         tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
@@ -262,6 +275,7 @@ function(
       output$theta <- theta
       output$psi <- psi
       output$alpha <- alpha
+      output$beta <- beta
       if (!is.na(con)) output$con <- con
 
       return(output=output)
