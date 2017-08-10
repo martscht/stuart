@@ -85,7 +85,7 @@ function(
   items <- unlist(factor.structure,use.names=FALSE)
   
   #create the subset of auxiliary variables
-  auxi <- data[,auxiliary]
+  auxi <- data[,auxiliary, drop = FALSE]
   names(auxi) <- auxiliary
   ####       ####
 
