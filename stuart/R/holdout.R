@@ -1,7 +1,7 @@
 ### Roxygen-izable Documentation ----
-#' Data selection for k-folds crossvalidation.
+#' Data selection for holdout validation.
 #' 
-#' Split a \code{data.frame} into two subsets for k-folds crossvalidation.
+#' Split a \code{data.frame} into two subsets for holdout validation.
 #' 
 #' @author Martin Schultze
 #' 
@@ -9,7 +9,7 @@
 #' 
 ### Inputs ----
 #' @param data A \code{data.frame}.
-#' @param k The k-folding parameter. Defaults to 2, for an even split.
+#' @param prop Proportion of data in calibration sample. Default to .5, for an even split.
 #' @param seed A random seed. See \code{\link{Random}} for more details.
 #' 
 ### Outputs ----
@@ -20,7 +20,7 @@
 #' @export
 
 
-kfolds <- function(data, k = 2, seed = NULL) {
+holdout <- function(data, prop = .5, seed = NULL) {
   
   # set random seed
   if (!is.null(seed)) {
@@ -29,11 +29,11 @@ kfolds <- function(data, k = 2, seed = NULL) {
     set.seed(seed)
   }
   
-  n_cali <- ceiling(nrow(data)/k * (k - 1))
+  n_cali <- ceiling(nrow(data)*prop)
   filter <- sort(sample(nrow(data), n_cali))
   
   output <- list(calibrate = data[filter, ], validate = data[-filter, ])
-  class(output) <- 'stuartKfolds'
+  class(output) <- 'stuartHoldout'
   
   # return to previous random seeds
   if (!is.null(seed)) {

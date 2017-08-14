@@ -108,7 +108,7 @@ gene <-
     args <- c(args,formals()[!names(formals())%in%c(names(args),'...')])
     
     #select calibration sample (change to methods later)
-    if (class(data) == 'stuartKfolds') {
+    if (class(data) == 'stuartHoldout') {
       data <- data$calibrate
       args$data <- data
     }
