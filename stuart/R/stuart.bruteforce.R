@@ -116,7 +116,7 @@ function(
   results$log <- log
   results$tried <- tried
   results$pheromones <- NULL
-  results$parameters <- list(objective=objective)
+  results$parameters <- list(objective=objective, factor.structure=factor.structure)
   return(results)
 
 }

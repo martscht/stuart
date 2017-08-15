@@ -18,7 +18,7 @@ function(
   
   args <- list(data=old.data,selected.items=selection$subtests,
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
-    output.model=TRUE,
+    output.model=TRUE,factor.structure=selection$parameters$factor.structure,
     filename=paste0(filename,'_calibration'),cores=NULL,
     analysis.options=list(model=model,output=out))
   

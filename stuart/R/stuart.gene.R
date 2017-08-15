@@ -249,10 +249,10 @@ stuart.gene <-
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size, 
       mating.criterion, tolerance, var.gb = stats::var(conv/conv[1]),
-      seed, objective)
+      seed, objective, factor.structure)
     names(results$parameters) <- c('generations', 'individuals', 'elitism', 'mutation', 
       'mating.index', 'mating.size', 'mating.criterion', 'tolerance', 'var.gb',
-      'seed', 'objective')
+      'seed', 'objective', 'factor.structure')
     return(results)
     
   }

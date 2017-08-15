@@ -1,7 +1,7 @@
 ### Roxygen-izable Documentation ----
 #' Cross-Validate a Measurement Model
 #' 
-#' Cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
+#' Cross-validate a measurement model obtained from STUART.
 #' 
 #' @author Martin Schultze
 #' 

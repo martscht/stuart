@@ -314,7 +314,8 @@ function(
     alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,
     seed=seed,
     objective=objective,
-    heuristics=heuristics)
+    heuristics=heuristics,
+    factor.structure=factor.structure)
   return(results)
 
 }

@@ -45,7 +45,7 @@ function(
   args <- list(data=new.data,selected.items=selection$subtests,
     grouping=grouping,auxi=new.data[,NULL],suppress.model=TRUE,
     analysis.options=list(model=parameters),ignore.errors=TRUE,
-    output.model=output.model)
+    output.model=output.model,factor.structure=selection$parameters$factor.structure)
   
   output <- do.call('run.lavaan',args)
   
