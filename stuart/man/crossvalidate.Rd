@@ -29,7 +29,7 @@ Returns a list containing the \code{data.frame} \code{comparison} and an object 
 \item{validation}{When using \code{lavaan} for estimation, an object of class \code{lavaan} containing the model results fit to the validation sample. When using Mplus for estimation, a character vector containing the Mplus output for the validation sample.}
 }
 \description{
-Cross-validate a measurement model obtained via either \code{\link{mmas}} or \code{\link{bruteforce}}.
+Cross-validate a measurement model obtained from STUART.
 }
 \seealso{
 \code{\link{mmas}}, \code{\link{bruteforce}}

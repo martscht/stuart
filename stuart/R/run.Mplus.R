@@ -354,6 +354,7 @@ function(
     }
     
     output$lvcor <- lapply(psi,stats::cov2cor)
+    if (length(output$lvcor)==1) output$lvcor <- output$lvcor[[1]]
     
     
     # compute rho estimate of reliability
@@ -430,6 +431,9 @@ function(
       
       tmp <- tmp[1:grep('Latent',tmp)[1]]
     }
+
+    
+    file.remove(paste0(filename,'_est.dat'))
 
     return(output=output)
   }  

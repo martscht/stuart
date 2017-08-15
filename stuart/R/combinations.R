@@ -46,6 +46,9 @@ function(
   do.call('sanitycheck',mget(names(formals(sanitycheck))))
   
   #data preparation
+  if (class(data) == 'stuartHoldout') {
+    args$data <- data$calibrate
+  }
   prepared <- do.call('data.prep',args)
 
   combs <- do.call('compute.combinations', c(prepared[names(prepared)%in%names(formals(compute.combinations))],use.order))

@@ -40,6 +40,9 @@ function(
   args <- as.list(match.call())[-1]
   args <- c(args,formals()[!names(formals())%in%names(args)])
   args$number.of.substests <- 1
+  if (class(data) == 'stuartHoldout') {
+    args$data <- data$calibrate
+  }
 
   #sanity check
   do.call('sanitycheck',args[names(formals(sanitycheck))][!is.na(names(args[names(formals(sanitycheck))]))])
