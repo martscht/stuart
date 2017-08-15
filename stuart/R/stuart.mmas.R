@@ -209,10 +209,7 @@ function(
     
     #iteration.best memory
     ant.ib <- which.max(sapply(ant.results, function(x) return(x$solution.phe$pheromone)))
-    solution.ib <- list()
-    for (i in seq_along(short.factor.structure)) {
-      solution.ib[[i]] <- seq_along(short.factor.structure[[i]])%in%ant.results[[ant.ib]]$selected[[i]]
-    }
+    solution.ib <- constructed[[ant.ib]]$solution
     phe.ib <- ant.results[[ant.ib]]$solution.phe$pheromone
     selected.ib <- ant.results[[ant.ib]]$selected
 
