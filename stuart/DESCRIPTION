@@ -1,12 +1,12 @@
 Package: stuart
 Type: Package
 Title: Subtests Using Algorithmic Rummaging Techniques
-Version: 0.7.0-9005
+Version: 0.8.0
 Date: 2016-01-27
 Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
   role=c('aut','cre'))
-Description: Construct subtests from a pool of items by using Ant-Colony-
-    Optimization, brute force, or random sampling.
+Description: Construct subtests from a pool of items by using ant-colony-
+    optimization, genetic algorithms, brute force, or random sampling.
 License: GPL-3
 Depends: R (>= 3.0.0)
 Imports: 
