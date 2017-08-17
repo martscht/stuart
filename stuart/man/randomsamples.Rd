@@ -4,36 +4,35 @@
 \alias{randomsamples}
 \title{Generating random samples of Subtests}
 \usage{
-randomsamples(data, factor.structure, items.per.subtest = NULL,
+randomsamples(data, factor.structure, capacity = NULL,
   item.invariance = "congeneric", repeated.measures = NULL,
-  item.long.invariance = "strict", mtmm = NULL,
-  item.mtmm.invariance = "congeneric", grouping = NULL,
-  item.group.invariance = "strict", auxiliary = NULL, use.order = FALSE,
-  software = "lavaan", cores = NULL, fitness.func = NULL,
-  ignore.errors = FALSE, analysis.options = NULL, suppress.model = FALSE,
-  request.override = 10000, filename = "randomsample", n = 1000,
-  percentile = 100)
+  long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
+  grouping = NULL, group.invariance = "strict", auxiliary = NULL,
+  use.order = FALSE, software = "lavaan", cores = NULL,
+  objective = NULL, ignore.errors = FALSE, analysis.options = NULL,
+  suppress.model = FALSE, seed = NULL, request.override = 10000,
+  filename = "randomsample", n = 1000, percentile = 100)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
 
 \item{factor.structure}{A list linking factors to items. The names of the list elements correspond to the factor names. Each list element must contain a character-vector of item names that are indicators of this factor.}
 
-\item{items.per.subtest}{A list containing the number of items per subtest. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all subtests. If \code{NULL} all items are evenly distributed among the subtests.}
+\item{capacity}{A list containing the number of items per subtest. This must be in the same order as the \code{factor.structure} provided. If a single number, it is applied to all subtests. If \code{NULL} all items are evenly distributed among the subtests.}
 
 \item{item.invariance}{A character vector of length 1 or the same length as \code{factor.structure} containing the desired invariance levels between items pertaining to the same subtest. Currently there are five options: 'congeneric', 'ess.equivalent', 'ess.parallel', 'equivalent', and 'parallel', the first being the default.}
 
 \item{repeated.measures}{A list linking factors that are repeated measures of each other. Repeated factors must be in one element of the list - other sets of factors in other elements of the list. When this is \code{NULL} (the default) a cross-sectional model is estimated.}
 
-\item{item.long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
+\item{long.invariance}{A character vector of length 1 or the same length as \code{repeated.measures} containing the longitudinal invariance level of repeated items. Currently there are four options: 'configural', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{repeated.measures=NULL} this argument is ignored.}
 
 \item{mtmm}{A list linking factors that are measurements of the same construct with different methods. Measurements of the same construct must be in one element of the list - other sets of methods in other elements of the list. When this is \code{NULL} (the default) a single method model is estimated.}
 
-\item{item.mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'congeneric'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
+\item{mtmm.invariance}{A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'configural', 'weak', 'strong', and 'strict'. Defaults to 'configural'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.}
 
 \item{grouping}{The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.}
 
-\item{item.group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'congeneric', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
+\item{group.invariance}{A single value describing the assumed invariance of items across groups. Currently there are four options: 'configural', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.}
 
 \item{auxiliary}{The names of auxiliary variables in \code{data}. These can be used in additional modeling steps that may be provided in \code{analysis.options$model}.}
 
@@ -43,13 +42,15 @@ randomsamples(data, factor.structure, items.per.subtest = NULL,
 
 \item{cores}{The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.}
 
-\item{fitness.func}{A function that converts the results of model estimation into a pheromone. See \code{\link{mmas}} for details.}
+\item{objective}{A function that converts the results of model estimation into a pheromone. See \code{\link{mmas}} for details.}
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
 
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
 \item{suppress.model}{A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.}
+
+\item{seed}{A random seed for the generation of random samples. See \code{\link{Random}} for more details.}
 
 \item{request.override}{The maximum number of combinations for which the estimation is performed immediately, without an additional override request.}
 
@@ -74,8 +75,24 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \description{
 Construct a defined number of random subtests from a given pool of items.
 }
+\examples{
+
+# Random samples in a simple situation
+# requires lavaan
+# number of cores set to 1 in all examples
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+# 10 random solutions, report median solution
+sel <- randomsamples(fairplayer, fs, 4, 
+  n = 10, percentile = 50,
+  seed = 55635, cores = 1)
+summary(sel)
+
+
+}
 \seealso{
-\code{\link{mmas}} \code{\link{bruteforce}}
+\code{\link{bruteforce}}, \code{\link{mmas}}, \code{\link{gene}}
 }
 \author{
 Martin Schultze

@@ -13,6 +13,17 @@ function(
   label.change=FALSE                                            #replace label names?
 ) { #begin function
 
+  #errors for wrong invariance settings
+  tmp.inv <- c('none','configural','weak','strong','strict')
+  if (any(c((!unlist(long.invariance)%in%tmp.inv),(!unlist(mtmm.invariance)%in%tmp.inv),(!unlist(group.invariance)%in%tmp.inv)))) {
+    stop(paste0('Invariance levels across repeated measurements, groups, and sources of information must be one of ',paste(tmp.inv,collapse=', '),'.'),call.=FALSE)
+  }
+  
+  tmp.inv <- c('congeneric','ess.equivalent','equivalent','ess.parallel','parallel')
+  if (any(!unlist(invariance%in%tmp.inv))) {
+    stop(paste0('Item invariance must be one of ',paste(tmp.inv,collapse=', '),'.'),call.=FALSE)
+  }
+  
   #invariance parameters
   equal <- rep(list(list(lam=NA,alp=NA,eps=NA)),length(factor.structure))
   names(equal) <- names(factor.structure)
@@ -77,15 +88,15 @@ function(
       
       if (mtmm.invariance[[locate.mtmm]]!='strict') equal[[i]]$eps[,3] <- locate.mtmm2
       
-      if (mtmm.invariance[[locate.mtmm]]%in%c('weak','congeneric')) equal[[i]]$alp[,3] <- locate.mtmm2
+      if (mtmm.invariance[[locate.mtmm]]%in%c('weak','configural')) equal[[i]]$alp[,3] <- locate.mtmm2
       
-      if (mtmm.invariance[[locate.mtmm]]=='congeneric') equal[[i]]$lam[,3] <- locate.mtmm2
+      if (mtmm.invariance[[locate.mtmm]]=='configural') equal[[i]]$lam[,3] <- locate.mtmm2
 
       if (long.invariance[[locate.long]]!='strict') equal[[i]]$eps[,4] <- locate.long2
 
-      if (long.invariance[[locate.long]]%in%c('weak','congeneric')) equal[[i]]$alp[,4] <- locate.long2
+      if (long.invariance[[locate.long]]%in%c('weak','configural')) equal[[i]]$alp[,4] <- locate.long2
       
-      if (long.invariance[[locate.long]]=='congeneric') equal[[i]]$lam[,4] <- locate.long2
+      if (long.invariance[[locate.long]]=='configural') equal[[i]]$lam[,4] <- locate.long2
       
     }
   }
@@ -100,6 +111,7 @@ function(
   #implementing group invariance
   if (!is.null(grouping)) {
     group <- as.factor(data[,grouping])
+    group <- droplevels(group)
     equal <- list(equal,equal)
 
     for (i in 2:length(levels(group))) {
@@ -115,7 +127,7 @@ function(
     }
     
     #add variable intercepts
-    if (group.invariance%in%c('weak','congeneric')) {
+    if (group.invariance%in%c('weak','configural')) {
       for (i in 2:length(levels(group))) {
         for (j in 1:length(factor.structure)) {
           equal[[i]][[j]]$alp <- paste(equal[[i]][[j]]$alp,'g',i,sep='')
@@ -124,7 +136,7 @@ function(
     }
 
     #add variable loadings
-    if (group.invariance=='congeneric') {
+    if (group.invariance=='configural') {
       for (i in 2:length(levels(group))) {
         for (j in 1:length(factor.structure)) {
           equal[[i]][[j]]$lam <- paste(equal[[i]][[j]]$lam,'g',i,sep='')

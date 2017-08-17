@@ -1,9 +1,9 @@
 compute.combinations <-
 function(
-  short.factor.structure, number.of.items, use.order
+  short.factor.structure, capacity, use.order
 ) { #begin function
 
-  comb <- matrix(c(sapply(short.factor.structure,length),unlist(number.of.items)),ncol=2)
+  comb <- matrix(c(sapply(short.factor.structure,length),unlist(capacity)),ncol=2)
   if (use.order) {
     combinations <- prod(factorial(comb[,1])/(factorial((comb[,1]-comb[,2]))))
   } else {

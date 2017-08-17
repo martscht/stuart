@@ -1,13 +1,13 @@
 mmas.update <-
 function(
   pheromones, phe.min, phe.max, evaporation,
-  deposit.on,
+  localization,
   phe, solution
 ) { #begin function
 
       tmp <- list(NA)
       for (i in 1:length(pheromones)) {
-        if (deposit.on=='arcs') {
+        if (localization=='arcs') {
           solution[[i]] <- solution[[i]]+t(solution[[i]])
         } 
         tmp[[i]] <- phe*solution[[i]]

@@ -1,13 +1,12 @@
 run.lavaan <-
 function(
   data, auxi, 
-  number.of.items, number.of.subtests,
+  capacity,
   selected, selected.items,
-  long.equal, item.long.equal,
+  long.equal,
   factor.structure, repeated.measures, grouping,
   short.factor.structure, short, mtmm=NULL,
-  invariance, long.invariance, mtmm.invariance, group.invariance,
-  item.invariance, item.long.invariance, item.mtmm.invariance, item.group.invariance,
+  item.invariance, long.invariance, mtmm.invariance, group.invariance,
 
   analysis.options=NULL, suppress.model=FALSE,
 
@@ -26,47 +25,44 @@ function(
   if (!suppress.model) {
     #write the (item) factor structure
     for (i in 1:length(selected.items)) { #over factors
-      for (j in 1:length(selected.items[[i]])) { #over subtests
-        #shorten the writing by creating tmp-data
-        tmp.fil <- which(unlist(lapply(short,
-          function(x) is.element(names(factor.structure)[i],x))))
-        tmp.sel <- selected[[tmp.fil]][[j]]
-        tmp.sit <- selected.items[[i]][[j]]
+      #shorten the writing by creating tmp-data
+      tmp.fil <- which(unlist(lapply(short,
+        function(x) is.element(names(factor.structure)[i],x))))
+      tmp.sel <- selected[[tmp.fil]]
+      tmp.sit <- selected.items[[i]]
 
-        #write the labels (no grouping)
-        if (is.null(grouping)) {
-          tmp.inv <- lapply(item.long.equal[[i]],function(x) return(x[tmp.sel]))
-        }
-
-        #write the labels (grouping)
-        else {
-          tmp.inv <- list(NA)
-          for (k in 1:length(item.long.equal)) { #over groups
-            tmp.inv[[k]] <- lapply(item.long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
-            tmp.inv[[k]] <- unlist(tmp.inv[[k]])
-          }
-          tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
-          tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
-          tmp.inv <- paste('c(',tmp.inv,')',sep='')
-          tmp.inv <- list(lam=tmp.inv[1:number.of.items[[tmp.fil]][j]],
-            alp=tmp.inv[(number.of.items[[tmp.fil]][j]+1):(number.of.items[[tmp.fil]][j]*2)],
-            eps=tmp.inv[(number.of.items[[tmp.fil]][j]*2+1):(number.of.items[[tmp.fil]][j]*3)])
-        }
-
-        #factor loadings
-        input <- paste(input,'\n',
-          names(selected.items[[i]])[j],'=~',
-          paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
-
-        #residual variances
-        input <- paste(input,
-          paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
-
-        #intercepts
-        input <- paste(input,
-          paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
-        
+      #write the labels (no grouping)
+      if (is.null(grouping)) {
+        tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
       }
+
+      #write the labels (grouping)
+      else {
+        tmp.inv <- list(NA)
+        for (k in 1:length(long.equal)) { #over groups
+          tmp.inv[[k]] <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
+          tmp.inv[[k]] <- unlist(tmp.inv[[k]])
+        }
+        tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
+        tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
+        tmp.inv <- paste('c(',tmp.inv,')',sep='')
+        tmp.inv <- list(lam=tmp.inv[1:capacity[[tmp.fil]]],
+          alp=tmp.inv[(capacity[[tmp.fil]]+1):(capacity[[tmp.fil]]*2)],
+          eps=tmp.inv[(capacity[[tmp.fil]]*2+1):(capacity[[tmp.fil]]*3)])
+      }
+
+      #factor loadings
+      input <- paste(input,'\n',
+        names(selected.items[i]),'=~',
+        paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
+
+      #residual variances
+      input <- paste(input,
+        paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
+
+      #intercepts
+      input <- paste(input,
+        paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
       
       #supress correlations between traits and methods (for CTC(M-1) structure)
 #       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
@@ -76,104 +72,36 @@ function(
 #         tmp <- paste(tmp,collapse='\n')
 #         input <- paste(input,tmp,sep='\n')
 #       }
-
+  
       #estimate latent regressions (MTMM)
       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
         tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
-        regs <- expand.grid(sapply(tmp,function(x) names(selected.items[[x]])),names(selected.items[[i]]))
-        regs <- sapply(regs,as.character)
-        
-        if (is.null(nrow(regs))) {
-          tmp <- paste(regs,collapse='~')
-        } else {
-          tmp <- paste(apply(regs,1,paste,collapse='~'),collapse='\n')
-        }
-        
-        input <- paste(input,tmp,sep='\n')
-      }
-    }
-
-    #write the (subtest) factor structure
-    for (i in 1:length(selected.items)) {
-      tmp.fil <- which(unlist(lapply(short,
-        function(x) is.element(names(factor.structure)[i],x))))
-      
-      tmp.sit <- names(selected.items[[i]])
-      tmp.lin <- long.invariance[[tmp.fil]]
-      
-      if (number.of.subtests[sapply(repeated.measures,function(x) is.element(names(selected.items)[1], x))]>1) {
-          if (is.null(grouping)) {
-            tmp.inv <- long.equal[[i]]
+        if (length(tmp) > 0) {
+          regs <- expand.grid(sapply(tmp,function(x) names(selected.items[x])),names(selected.items[i]))
+          regs <- sapply(regs,as.character)
+          if (is.null(nrow(regs))) {
+            tmp <- paste(regs,collapse='~')
+          } else {
+            tmp <- paste(apply(regs,1,paste,collapse='~'),collapse='\n')
           }
-
-          #write the labels (grouping)
-          else {
-            tmp.inv <- list(NA)
-            for (k in 1:length(long.equal)) { #over groups
-              tmp.inv[[k]] <- long.equal[[k]][[i]]
-              tmp.inv[[k]] <- unlist(tmp.inv[[k]])
-            }
-            tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
-            tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
-            tmp.inv <- paste('c(',tmp.inv,')',sep='')
-            tmp.inv <- list(lam=tmp.inv[1:number.of.subtests[[tmp.fil]]],
-              alp=tmp.inv[(number.of.subtests[[tmp.fil]]+1):(number.of.subtests[[tmp.fil]]*2)],
-              eps=tmp.inv[(number.of.subtests[[tmp.fil]]*2+1):(number.of.subtests[[tmp.fil]]*3)])
-          }
-
-        #factor loadings
-        input <- paste(input,'\n',
-          names(selected.items)[i],'=~',
-          paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
-
-        #residual variances
-        input <- paste(input,
-          paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
-
-        #intercepts
-        #set latent means for all first occasion measures & if weak or less long inv.
-        if (names(selected.items)[i]%in%names(short.factor.structure) | 
-          tmp.lin%in%c('congeneric','weak')) {
-          input <- paste(input,
-            paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
           
-          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
+          input <- paste(input,tmp,sep='\n')
+        }
+      }
+      
+      # write latent means
+      if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
+        if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])) {
+          if (!is.null(grouping)&group.invariance%in%c('strong','strict')) {
             input <- paste(input,
-              paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
+              paste0(names(selected.items[i]),'~c(', paste(c(0,rep(NA,nlevels(as.factor(model.data$group))-1)),collapse=','),')*1',collapse='\n'),sep='\n')
           } else {
             input <- paste(input,
-              paste(names(selected.items)[i],'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
+              paste0(names(selected.items[i]),'~ 0*1',collapse='\n'),sep='\n')
           }
-        }
-
-        else {
+        } else {
           input <- paste(input,
-            paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
-          input <- paste(input,
-            paste(names(selected.items)[i],'~','0','*1',sep='',collapse='\n'),sep='\n')
-        }
-      } else {
-        #intercepts
-        #set latent means for all first occasion measures & if weak or less long inv.
-        if (names(selected.items)[i]%in%names(short.factor.structure) | 
-            tmp.lin%in%c('congeneric','weak')) {
-          if (is.null(grouping)|group.invariance%in%c('congeneric','weak')) {
-            input <- paste(input,
-              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
-          } else {
-            input <- paste(input,
-              paste(tmp.sit,'~ c(',paste(rep(NA,length(unique(data[,grouping]))-1),collapse=', '),', 0)','*1',sep='',collapse='\n'),sep='\n')
-          }
-        }
-        
-        else {
-          if (names(factor.structure)[i]%in%sapply(mtmm,function(x) x[-1])&item.mtmm.invariance%in%c('congeneric','weak')) {
-            input <- paste(input,
-              paste(tmp.sit,'~','0','*1',sep='',collapse='\n'),sep='\n')
-          } else {
-            input <- paste(input,
-              paste(tmp.sit,'~1',sep='',collapse='\n'),sep='\n')
-          }
+            paste0(names(selected.items[i]),'~ 1;',collapse='\n'),sep='\n')
         }
       }
     }
@@ -267,11 +195,11 @@ function(
       # compute composite reliability (overall)
       if (is.null(grouping)) {
         tmp <- lavaan::inspect(output,'est')
-        theta <- tmp$theta
-        psi <- tmp$psi
-        lambda <- tmp$lambda
-        alpha <- tmp$alpha
-
+        
+        theta <- tmp$theta[rownames(tmp$theta)%in%unlist(selected.items),colnames(tmp$theta)%in%unlist(selected.items), drop = FALSE]
+        psi <- tmp$psi[rownames(tmp$psi)%in%names(factor.structure),colnames(tmp$psi)%in%names(factor.structure), drop  = FALSE]
+        lambda <- tmp$lambda[rownames(tmp$lambda)%in%unlist(selected.items),colnames(tmp$lambda)%in%names(factor.structure), drop = FALSE]
+        
         rel <- rep(NA,ncol(lambda))        
         for (i in 1:ncol(lambda)) {
           filter <- which(lambda[,i]!=0)
@@ -279,23 +207,30 @@ function(
         }
         # workaround for absence of short.factor.structure when crossvalidating
         if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+          warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
           short.factor.structure <- as.list(rep(NA,ncol(lambda)))
-          names(short.factor.structure) <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)
+          names(short.factor.structure) <- colnames(lambda)
         }
-        reffilter <- substr(colnames(lambda),1,nchar(colnames(lambda))-1)%in%names(short.factor.structure)
+        reffilter <- colnames(lambda)%in%names(short.factor.structure)
         filter <- rowSums(lambda[,reffilter,drop=FALSE]!=0)>0
         
         crel <- sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))/(sum(lambda[,reffilter,drop=FALSE]%*%psi[reffilter,reffilter,drop=FALSE]%*%t(lambda[,reffilter,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         
+        # pass matrices from lavaan to output
+        theta <- tmp$theta
+        psi <- tmp$psi
+        lambda <- tmp$lambda
+        alpha <- tmp$alpha
+        beta <- tmp$beta
+        
         tmp <- lavaan::inspect(output,'rsquare')
-        con <- mean(tmp[!names(tmp)%in%names(model.data)])
+        con <- mean(tmp[names(tmp)%in%names(factor.structure)])
           
       } else {
         tmp <- lavaan::inspect(output,'est')
-        theta <- lapply(tmp,function(x) x$theta)
-        psi <- lapply(tmp,function(x) x$psi)
-        lambda <- lapply(tmp,function(x) x$lambda)
-        alpha <- lapply(tmp,function(x) x$alpha)
+        theta <- lapply(tmp,function(x) x$theta[rownames(x$theta)%in%unlist(selected.items),colnames(x$theta)%in%unlist(selected.items), drop = FALSE])
+        psi <- lapply(tmp,function(x) x$psi[rownames(x$psi)%in%names(factor.structure),colnames(x$psi)%in%names(factor.structure), drop  = FALSE])
+        lambda <- lapply(tmp,function(x) x$lambda[rownames(x$lambda)%in%unlist(selected.items),colnames(x$lambda)%in%names(factor.structure), drop = FALSE])
         
         rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
         crel <- rep(NA,length(lambda))
@@ -305,16 +240,24 @@ function(
             rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
           }
           # workaround for absence of short.factor.structure when crossvalidating
-          if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+          if (class(try(short.factor.structure,silent=TRUE))=='try-error' & !output.model) {
+            warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
             short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
-            names(short.factor.structure) <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)
+            names(short.factor.structure) <- colnames(lambda[[i]])
           }
-          reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
+          reffilter <- colnames(lambda[[i]])%in%names(short.factor.structure)
           filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
           
           crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
         }
         crel <- mean(crel)
+
+        # pass matrices from lavaan to output
+        alpha <- lapply(tmp,function(x) x$alpha)
+        beta <- lapply(tmp,function(x) x$beta)
+        theta <- lapply(tmp,function(x) x$theta)
+        lambda <- lapply(tmp,function(x) x$lambda)
+        psi <- lapply(tmp,function(x) x$psi)
         
         tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
@@ -332,6 +275,7 @@ function(
       output$theta <- theta
       output$psi <- psi
       output$alpha <- alpha
+      output$beta <- beta
       if (!is.na(con)) output$con <- con
 
       return(output=output)

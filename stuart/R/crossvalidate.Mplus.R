@@ -3,7 +3,8 @@ crossvalidate.Mplus <-
 function(
   selection,
   new.data, old.data,
-  invariance, filename, file.remove, ...
+  invariance, filename, file.remove,
+  output.model=FALSE, ...
 ) { # begin function
   
   model <- selection$final
@@ -17,7 +18,7 @@ function(
   
   args <- list(data=old.data,selected.items=selection$subtests,
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
-    output.model=TRUE,
+    output.model=TRUE,factor.structure=selection$parameters$factor.structure,
     filename=paste0(filename,'_calibration'),cores=NULL,
     analysis.options=list(model=model,output=out))
   
@@ -69,7 +70,7 @@ function(
   args$data <- new.data
   args$auxi <- new.data[,NULL]
   args$analysis.options <- list(model=paste(model,collapse='\n'))
-  args$output.model <- FALSE
+  args$output.model <- output.model
   args['grouping'] <- list(grouping)
   args$ignore.errors <- TRUE
 

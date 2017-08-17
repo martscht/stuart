@@ -12,10 +12,9 @@ function(x,...) {
   cat('\nOptimization History:\n')
   print(x$Results)
   cat('\nConstructed Subtests:\n')
+  paste(paste(names(x$Subtests),': ',paste(x$Subtests,collapse=' '),'\n',collapse=' ',sep=''))
   for (i in 1:length(x$Subtests)) {
-    for (j in 1:length(x$Subtests[[i]])) {
-      cat(paste(names(x$Subtests[[i]])[j],': ',paste(x$Subtests[[i]][[j]],collapse=' '),'\n',collapse=' ',sep=''))
-    }
+    cat(paste0(names(x$Subtests)[i],': ',paste(x$Subtests[[i]],collapse=' '),'\n'))
   }
 
 }

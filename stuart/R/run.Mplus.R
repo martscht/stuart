@@ -1,13 +1,12 @@
 run.Mplus <-
 function(
   data, auxi, 
-  number.of.items, number.of.subtests,
+  capacity,
   selected, selected.items,
-  long.equal, item.long.equal,
+  long.equal,
   factor.structure, repeated.measures, grouping,
   short.factor.structure, short, mtmm,
-  invariance, long.invariance, mtmm.invariance, group.invariance,
-  item.invariance, item.long.invariance, item.mtmm.invariance, item.group.invariance,
+  item.invariance, long.invariance, mtmm.invariance, group.invariance,
   
   analysis.options=NULL, suppress.model=FALSE,
   
@@ -68,33 +67,89 @@ function(
     if (is.null(grouping)) {
       #write the (item) factor structure
       for (i in 1:length(selected.items)) { #over factors
-        for (j in 1:length(selected.items[[i]])) { #over subtests
-          #shorten the writing by creating tmp-data
-          tmp.fil <- which(unlist(lapply(short,
-            function(x) is.element(names(factor.structure)[i],x))))
-          tmp.sel <- selected[[tmp.fil]][[j]]
-          tmp.sit <- selected.items[[i]][[j]]
+        #shorten the writing by creating tmp-data
+        tmp.fil <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
+        tmp.sel <- selected[[tmp.fil]]
+        tmp.sit <- selected.items[[i]]
+        
+        #write the labels (no grouping)
+        tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
+        
+        #factor loadings
+        input <- paste(input,'\n',
+                       names(selected.items[i]),'by',
+                       paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
+        
+        #residual variances
+        input <- paste(input,
+                       paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
+        
+        #intercepts
+        input <- paste(input,
+                       paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
+        
+        #estimate latent regressions (MTMM)
+        if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+          tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+          if (length(tmp)>0) {
+            regs <- expand.grid(sapply(tmp,function(x) names(selected.items[x])),names(selected.items[i]))
+            regs <- sapply(regs,as.character)
           
-          #write the labels (no grouping)
-          tmp.inv <- lapply(item.long.equal[[i]],function(x) return(x[tmp.sel]))
-          
-          #factor loadings
-          input <- paste(input,'\n',
-                         names(selected.items[[i]])[j],'by',
-                         paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
-          
-          #residual variances
-          input <- paste(input,
-                         paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-          
-          #intercepts
-          input <- paste(input,
-                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-          
-          #estimate latent regressions (MTMM)
-          if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
-            tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
-            regs <- expand.grid(sapply(tmp,function(x) names(selected.items[[x]])),names(selected.items[[i]]))
+            if (is.null(nrow(regs))) {
+              tmp <- paste0(paste(regs,collapse=' on '),';\n')
+            } else {
+              tmp <- paste0(paste(apply(regs,1,paste,collapse=' on '),collapse=';\n'),';\n')
+            }
+            
+            input <- paste(input,tmp,sep='\n')
+          }
+        }
+      }
+      
+      #set latent means
+      for (i in 1:length(factor.structure)) {
+        if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
+          if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])) {
+            input <- paste(input,
+              paste0('[',names(selected.items[i]),'@0];',collapse='\n'),sep='\n')
+          } else {
+            input <- paste(input,
+              paste0('[',names(selected.items[i]),'*];',collapse='\n'),sep='\n')
+          }
+        }
+      }
+    }
+    
+    #write Mplus input (grouping)
+    else {
+      #write the (item) factor structure
+      for (i in 1:length(selected.items)) { #over factors
+
+        #shorten the writing by creating tmp-data
+        tmp.fil <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
+        tmp.sel <- selected[[tmp.fil]]
+        tmp.sit <- selected.items[[i]]
+        
+        #factor loadings (overall)
+        input <- paste(input,'\n',
+                       names(selected.items[i]),'by',
+                       paste0(tmp.sit,collapse='\n\t\t'),';\n')
+        
+        #residual variances (overall)
+        input <- paste(input,
+                       paste0(tmp.sit,';',collapse='\n'),sep='\n')
+        
+        #intercepts (overall)
+        input <- paste(input,
+                       paste0('[',tmp.sit,'];',collapse='\n'),'',sep='\n')
+        
+        #estimate latent regressions (MTMM)
+        if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
+          tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
+          if (length(tmp)>0) {
+            regs <- expand.grid(sapply(tmp,function(x) names(selected.items[x])),names(selected.items[i]))
             regs <- sapply(regs,as.character)
             
             if (is.null(nrow(regs))) {
@@ -107,113 +162,9 @@ function(
           }
         }
       }
-      
-      #write the (subtest) factor structure
-      for (i in 1:length(selected.items)) {
-        tmp.fil <- which(unlist(lapply(short,
-          function(x) is.element(names(factor.structure)[i],x))))
-        if (number.of.subtests[tmp.fil]>1) {
-          tmp.sit <- names(selected.items[[i]])
-          tmp.inv <- long.equal[[i]]
-          tmp.lin <- long.invariance[[tmp.fil]]
-          
-          #factor loadings
-          input <- paste(input,'\n',
-                         names(selected.items)[i],'by',
-                         paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
-          
-          #residual variances
-          input <- paste(input,
-                         paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-          
-          #intercepts
-          #set latent means for all first occasion measures & if weak or less long inv.
-          input <- paste(input,
-                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-        
-        }
-      }
 
-      #set latent means
-      for (i in 1:length(factor.structure)) {
-        if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
-          if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])) {
-            input <- paste(input,
-              paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
-          } else {
-            input <- paste(input,
-              paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
-          }
-        }
-      }
-    }
-    
-    #write Mplus input (grouping)
-    else {
-      #write the (item) factor structure
-      for (i in 1:length(selected.items)) { #over factors
-        for (j in 1:length(selected.items[[i]])) { #over subtests
-          
-          #shorten the writing by creating tmp-data
-          tmp.fil <- which(unlist(lapply(short,
-            function(x) is.element(names(factor.structure)[i],x))))
-          tmp.sel <- selected[[tmp.fil]][[j]]
-          tmp.sit <- selected.items[[i]][[j]]
-          
-          #factor loadings (overall)
-          input <- paste(input,'\n',
-                         names(selected.items[[i]])[j],'by',
-                         paste0(tmp.sit,collapse='\n\t\t'),';\n')
-          
-          #residual variances (overall)
-          input <- paste(input,
-                         paste0(tmp.sit,';',collapse='\n'),sep='\n')
-          
-          #intercepts (overall)
-          input <- paste(input,
-                         paste0('[',tmp.sit,'];',collapse='\n'),'',sep='\n')
-        }
-        #estimate latent regressions (MTMM)
-        if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
-          tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
-          regs <- expand.grid(sapply(tmp,function(x) names(selected.items[[x]])),names(selected.items[[i]]))
-          regs <- sapply(regs,as.character)
-          
-          if (is.null(nrow(regs))) {
-            tmp <- paste0(paste(regs,collapse=' on '),';\n')
-          } else {
-            tmp <- paste0(paste(apply(regs,1,paste,collapse=' on '),collapse=';\n'),';\n')
-          }
-          
-          input <- paste(input,tmp,sep='\n')
-        }
-      }
-          
-      #write the (subtest) factor structure
-      for (i in 1:length(selected.items)) {
-        tmp.fil <- which(unlist(lapply(short,
-          function(x) is.element(names(factor.structure)[i],x))))
-        if (number.of.subtests[tmp.fil]>1) {
-          tmp.sit <- names(selected.items[[i]])
-          tmp.inv <- long.equal[[i]]
-
-          #factor loadings
-          input <- paste(input,'\n',
-                         names(selected.items)[i],'by',
-                         paste0(tmp.sit,collapse='\n\t\t'),';\n')
-          
-          #residual variances
-          input <- paste(input,
-                         paste0(tmp.sit,';',collapse='\n'),sep='\n')
-          
-          #intercepts
-          input <- paste(input,
-                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-        }
-      }
-    
       #group specific models
-      for (k in 1:length(item.long.equal)) { #over groups
+      for (k in 1:length(long.equal)) { #over groups
 
         #write grouping header
         input <- paste(input,'\n',
@@ -221,67 +172,40 @@ function(
         
         #write the (item) factor structure
         for (i in 1:length(selected.items)) { #over factors
-          for (j in 1:length(selected.items[[i]])) { #over subtests
-            #shorten the writing by creating tmp-data
-            tmp.fil <- which(unlist(lapply(short,
-              function(x) is.element(names(factor.structure)[i],x))))
-            tmp.sel <- selected[[tmp.fil]][[j]]
-            tmp.sit <- selected.items[[i]][[j]]
-
-            tmp.inv <- lapply(item.long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
-            
-            #factor loadings
-            tmp.lam <- paste(names(selected.items[[i]])[j],'by',
-                             paste0(tmp.sit[1],'@1\n\t\t'))
-            tmp.lam <- paste(tmp.lam,
-                             paste0(tmp.sit[-1],' (',tmp.inv$lam[-1],')',collapse='\n\t\t'),';\n')
-            input <- paste(input,'\n',tmp.lam)
-            
-            #residual variances
-            input <- paste(input,
-                           paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-            
-            #intercepts
-            input <- paste(input,
-                           paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-          }
-        }
-        
-        #write the (subtest) factor structure
-        for (i in 1:length(selected.items)) {
+          #shorten the writing by creating tmp-data
           tmp.fil <- which(unlist(lapply(short,
             function(x) is.element(names(factor.structure)[i],x))))
-          if (number.of.subtests[tmp.fil]>1) {
-            tmp.sit <- names(selected.items[[i]])
-            tmp.inv <- long.equal[[k]][[i]]
-            tmp.lin <- long.invariance[[tmp.fil]]
-            
-            #factor loadings
-            input <- paste(input,'\n',
-                           names(selected.items)[i],'by',
-                           paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
-            
-            #residual variances
-            input <- paste(input,
-                           paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-            
-            #intercepts
-            input <- paste(input,
-                           paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
-          }
+          tmp.sel <- selected[[tmp.fil]]
+          tmp.sit <- selected.items[[i]]
+
+          tmp.inv <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
+          
+          #factor loadings
+          tmp.lam <- paste(names(selected.items[i]),'by',
+                           paste0(tmp.sit[1],'@1\n\t\t'))
+          tmp.lam <- paste(tmp.lam,
+                           paste0(tmp.sit[-1],' (',tmp.inv$lam[-1],')',collapse='\n\t\t'),';\n')
+          input <- paste(input,'\n',tmp.lam)
+          
+          #residual variances
+          input <- paste(input,
+                         paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
+          
+          #intercepts
+          input <- paste(input,
+                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
         }
-        
-        #set latent means
+
         #set latent means
         for (i in 1:length(factor.structure)) {
           if (long.invariance[[which(unlist(lapply(repeated.measures,function(x) is.element(names(factor.structure)[i],x))))]]%in%c('strong','strict')) {
             if (names(selected.items[i])%in%lapply(repeated.measures, function(x) x[1])&
                 k==1) {
               input <- paste(input,
-                paste0('[',names(selected.items[[i]]),'@0];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[i]),'@0];',collapse='\n'),sep='\n')
             } else {
               input <- paste(input,
-                paste0('[',names(selected.items[[i]]),'*];',collapse='\n'),sep='\n')
+                paste0('[',names(selected.items[i]),'*];',collapse='\n'),sep='\n')
             }
           }
         }
@@ -337,11 +261,11 @@ function(
   if (output.model) return(MplusOut)
   
   if (!any(grepl('MODEL FIT',MplusOut))) {
-    if (any(grepl('NO CONVERGENCE.',MplusOut))) {
-      warning('The model did not converge.',call.=FALSE)
-    } else {
-      warning('The Mplus input file generated an error.',call.=FALSE)
-    }
+    # if (any(grepl('NO CONVERGENCE.',MplusOut))) {
+    #   warning('The model did not converge.',call.=FALSE)
+    # } else {
+    #   warning('The Mplus input file generated an error.',call.=FALSE)
+    # }
     exclusion <- TRUE
   } else {
     #exclude non-positive and non-converged models
@@ -426,10 +350,11 @@ function(
     }
     
     for (i in 1:ncol(lvcov)) {
-      dimnames(psi[[i]]) <- list(sapply(selected.items,names),sapply(selected.items,names))
+      dimnames(psi[[i]]) <- list(names(selected.items),names(selected.items))
     }
     
     output$lvcor <- lapply(psi,stats::cov2cor)
+    if (length(output$lvcor)==1) output$lvcor <- output$lvcor[[1]]
     
     
     # compute rho estimate of reliability
@@ -452,7 +377,7 @@ function(
       theta[[i]][lower.tri(theta[[i]])] <- t(theta[[i]])[lower.tri(theta[[i]])]
       tmp <- tmp[-(1:((nitems*(nitems+1)/2)+nfacto+nfacto^2+(nfacto*(nfacto+1)/2)))]
       
-      dimnames(lambda[[i]]) <- list(unlist(selected.items),sapply(selected.items,names))
+      dimnames(lambda[[i]]) <- list(unlist(selected.items),names(selected.items))
       
       if (length(tmp)==0) break
       i <- i + 1
@@ -467,10 +392,11 @@ function(
       }
       # workaround for absence of short.factor.structure when crossvalidating
       if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+        warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
         short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
-        names(short.factor.structure) <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)
+        names(short.factor.structure) <- colnames(lambda[[i]])
       }
-      reffilter <- substr(colnames(lambda[[i]]),1,nchar(colnames(lambda[[i]]))-1)%in%names(short.factor.structure)
+      reffilter <- colnames(lambda[[i]])%in%names(short.factor.structure)
       filter <- rowSums(lambda[[i]][,reffilter,drop=FALSE]!=0)>0
       
       crel[i] <- sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))/(sum(lambda[[i]][,reffilter,drop=FALSE]%*%psi[[i]][reffilter,reffilter,drop=FALSE]%*%t(lambda[[i]][,reffilter,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
@@ -505,6 +431,9 @@ function(
       
       tmp <- tmp[1:grep('Latent',tmp)[1]]
     }
+
+    
+    file.remove(paste0(filename,'_est.dat'))
 
     return(output=output)
   }  

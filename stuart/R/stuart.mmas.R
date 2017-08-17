@@ -1,28 +1,24 @@
 stuart.mmas <-
 function(
-  short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
-  number.of.items,
+  short.factor.structure, short, long.equal,    #made on toplevel
+  capacity,
   data, factor.structure, auxi, use.order,                       #simple prerequisites
-  
-  number.of.subtests,  invariance,                               #subtest relations
+  item.invariance,
   repeated.measures, long.invariance,                            #longitudinal relations
   mtmm, mtmm.invariance,                                         #mtmm relations
   grouping, group.invariance,                                    #grouping relations
 
-  item.invariance, item.long.invariance, item.mtmm.invariance,
-  item.group.invariance,
-
-
   software, cores,                                               #Software to be used
 
-  fitness.func=NULL, ignore.errors=FALSE,                        #fitness function
+  objective=NULL, ignore.errors=FALSE,                           #objective function
   
   ants=16, colonies=256, evaporation=.95,                        #general ACO parameters
-  deposit='ib', pbest=.005, deposit.on='nodes',                  #MMAS parameters
+  deposit='ib', pbest=.005, localization='nodes',                #MMAS parameters
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,
-  tolerance=.001, schedule='run',                                #tolerance for convergence
+  tolerance=.5, schedule='run',                                  #tolerance for convergence
 
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
+  seed,
   filename,
 
   ...                                                            #All the other stuff
@@ -41,15 +37,17 @@ function(
   colony <- 1
 
   #compute number of decisions and avg for limits
-  deci <- sum(unlist(number.of.items))
-  tmp <- list(NA)
-  for (i in 1:length(short.factor.structure)) {
-    tmp[[i]] <- length(short.factor.structure[[i]]):(length(short.factor.structure[[i]])-sum(number.of.items[[i]]))
-  }
-  avg <- mean(unlist(tmp))
+  deci <- sum(unlist(capacity))
+  avg <- mean(c(sapply(short.factor.structure,length),(1+sapply(short.factor.structure,length)-unlist(capacity))))
+
+  #recode deposit to numeric
+  deposit_save <- deposit
+  deposit[deposit=='ib'] <- 1
+  deposit[deposit=='gb'] <- 2
+  class(deposit) <- 'numeric'
   
   #initialize scheduling 
-  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance')
+  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance','deposit')
   
   #global assignment to avoid check note
   ants_cur <- NA
@@ -59,6 +57,7 @@ function(
   alpha_cur <- NA
   beta_cur <- NA
   tolerance_cur <- NA
+  deposit_cur <- NA
   
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
@@ -80,19 +79,31 @@ function(
   }
   
   #initialize pheromones
-  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure, number.of.subtests, deposit.on,alpha_cur)
+  if (is.null(pheromones)) pheromones <- init.pheromones(short.factor.structure,localization,alpha_cur)
 
   if (is.null(heuristics)) {
     heuristics <- lapply(pheromones,function(x) x^(1/1e+100))
   } else {
-    if (attr(heuristics,'deposit.on')!=deposit.on) {
-      stop('The localization of the heuristics does not match your setting for deposit.on',call.=FALSE)
+    if (attr(heuristics,'localization')!=localization) {
+      stop('The localization of the heuristics does not match your setting for localization.',call.=FALSE)
     }
   }
 
-
+  
+  #set random seed, if provided
+  if (!is.null(seed)) {
+    old.seed <- .Random.seed
+    old.kind <- RNGkind()[1]
+    RNGkind("L'Ecuyer-CMRG")
+    set.seed(seed)
+  }
+  
+  
   ### Loops ###
-  log <- NULL
+  log <- list()
+  tried <- matrix(NA, ncol = sum(unlist(capacity)))[-1,]
+  counter <- matrix(NA, ncol=2)[-1,]
+  
 
   #creating user feedback
   message('Running STUART with MMAS.\n')
@@ -106,19 +117,28 @@ function(
       for (i in 1:length(scheduled)) {
         tmp <- mget(scheduled[i])[[1]]
         if (schedule=='run') {
+          if (any(tmp[,1]==run)) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+          }
           tmp <- tmp[max(which(tmp[,1]<=run)),2]
         } 
         if (schedule=='colony') {
+          if (any(tmp[,1]==colony)) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+          }
           tmp <- tmp[max(which(tmp[,1]<=colony)),2]
         }
         if (schedule=='mixed') {
           if (any(tmp[,3]-(tmp[,1]<=colony)<0)) mix_new <- TRUE
           if (mix_new) {
-            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony) 
+            tmp[,3] <- tmp[,3]|(tmp[,1]<=colony)
           } else {
             tmp[,3] <- tmp[,3]|(tmp[,1]<=(colony+max(c(tmp[as.logical(tmp[,3]),1],1)-1)))
           }
           assign(scheduled[i],tmp)
+          if (any(tmp[,1]==colony)&mix_new) {
+            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which.max(tmp[as.logical(tmp[,3]),1]),2],'.'))
+          }
           tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
         }
         assign(paste0(scheduled[i],'_cur'),tmp)
@@ -126,47 +146,70 @@ function(
     }
 
     output.model <- FALSE
-    ant.args <- mget(names(formals(ant.cycle)))
+    cons.args <- mget(names(formals(paste('construction',localization,sep='.'))))
+    if (length(scheduled[scheduled%in%names(cons.args)])>0) {
+      ant.args[scheduled[scheduled%in%names(cons.args)]] <- mget(paste(scheduled[scheduled%in%names(cons.args)],'cur',sep='_'))
+    }
+    constructed <- lapply(1:ants_cur, function(x) do.call(paste('construction',localization,sep='.'),cons.args))
+    
+    combi <- lapply(constructed, function(x) x$selected)
+    combi <- do.call(Map, c(rbind, combi))
+    duplicate <- match(data.frame(t(do.call(cbind, combi))), data.frame(t(tried)))
+    filter <- data.frame(matrix(which(is.na(duplicate)),
+      nrow=sum(is.na(duplicate)),
+      ncol=length(short.factor.structure)))
+    
+    tried <- rbind(tried, do.call(cbind, combi))
+    
+    ant.args <- mget(names(formals(bf.cycle))[-1])
     if (length(scheduled[scheduled%in%names(ant.args)])>0) {
       ant.args[scheduled[scheduled%in%names(ant.args)]] <- mget(paste(scheduled[scheduled%in%names(ant.args)],'cur',sep='_'))
     }
     
-    #parallel processing for R-internal estimations
-    if (software=='lavaan') {
-      if (cores>1) {
-        #set up parallel processing on windows
-        if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-          cl <- parallel::makeCluster(cores)
+    if (nrow(filter) > 0) {
+      #parallel processing for R-internal estimations
+      if (software=='lavaan') {
+        if (cores>1) {
+          #set up parallel processing on windows
+          if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+            cl <- parallel::makeCluster(cores)
+            if (!is.null(seed)) {
+              seed_cur <- sample(1e+9,1)
+              parallel::clusterSetRNGStream(cl,seed_cur)
+            }
+            ant.results <- parallel::parLapply(cl,1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
+            parallel::stopCluster(cl)
+          }
           
-          ant.results <- parallel::parLapply(cl,1:ants_cur,function(x) do.call(ant.cycle,ant.args))
-          parallel::stopCluster(cl)
+          #run ants in parallel on unixies
+          else {
+            ant.results <- parallel::mclapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)), mc.cores=cores)
+          }
         }
         
-        #run ants in parallel on unixies
+        #serial processing for single cores
         else {
-          ant.results <- parallel::mclapply(1:ants_cur,function(x) do.call(ant.cycle,ant.args), mc.cores=cores)
+          ant.results <- lapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
         }
       }
-
-      #serial processing for single cores
-      else {
-        ant.results <- lapply(as.list(1:ants_cur),function(x) do.call(ant.cycle,ant.args))
+      
+      #serial processing if Mplus is used (Mplus-internal parallelization is used)
+      if (software=='Mplus') {
+        ant.args$filename <- filename
+        ant.args$cores <- cores
+        ant.results <- lapply(1:nrow(filter),function(run) do.call(bf.cycle,c(run,ant.args)))
       }
     }
-
-    #serial processing if Mplus is used (Mplus-internal parallelization is used)
-    if (software=='Mplus') {
-      ant.args$filename <- filename
-      ant.args$cores <- cores
-      ant.results <- lapply(as.list(1:ants_cur),function(x) do.call(ant.cycle,ant.args))
-    }
     
-    #create log
-    log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
-
+    #fill in results for duplicates
+    tmp <- vector('list', ants_cur)
+    tmp[filter[,1]] <- ant.results
+    tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
+    ant.results <- tmp
+    
     #iteration.best memory
     ant.ib <- which.max(sapply(ant.results, function(x) return(x$solution.phe$pheromone)))
-    solution.ib <- ant.results[[ant.ib]]$solution
+    solution.ib <- constructed[[ant.ib]]$solution
     phe.ib <- ant.results[[ant.ib]]$solution.phe$pheromone
     selected.ib <- ant.results[[ant.ib]]$selected
 
@@ -204,11 +247,18 @@ function(
     }
     
     #updated pheromones
-    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,deposit.on,
-      get(paste('phe',deposit,sep='.')),get(paste('solution',deposit,sep='.')))
+    pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,localization,
+      get(paste('phe',c('ib','gb')[deposit_cur],sep='.')),get(paste('solution',c('ib','gb')[deposit_cur],sep='.')))
 
+    
+    #create log
+    log <- c(log, ant.results)
+    counter <- rbind(counter, c(run, ants_cur))
+    # log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
+    
+    
     #check for convergence
-    if (deposit.on=='arcs') {
+    if (localization=='arcs') {
       conv <- lapply(pheromones,function(x) x[lower.tri(x)])
     } else {
       conv <- pheromones
@@ -238,17 +288,31 @@ function(
   close(progress)
   message(paste('\nSearch ended.',end.reason))      
 
+  #return to previous random seeds
+  if (!is.null(seed)) {
+    RNGkind(old.kind)
+    .Random.seed <<- old.seed
+  }
+  
+  # reformat log
+  tmp <- as.numeric(unlist(apply(counter, 1, function(x) seq(1,x[2]))))
+  log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+  log <- data.frame(log)
+  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
+  
+  
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
-  log <- data.frame(log)
-  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
   results$log <- log
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
-    deposit=deposit,pbest=pbest,deposit.on=deposit.on,
-    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,fitness.func=fitness.func,
-    heuristics=heuristics)
+    deposit=deposit_save,pbest=pbest,localization=localization,
+    alpha=alpha,beta=beta,tolerance=tolerance,schedule=schedule,phe.max=phe.max,phe.min=phe.min,
+    seed=seed,
+    objective=objective,
+    heuristics=heuristics,
+    factor.structure=factor.structure)
   return(results)
 
 }

@@ -1,17 +1,17 @@
 fitness <-
-function(fitness.func=NULL,
+function(objective=NULL,
   solution.fit, criteria=c('chisq','df','pvalue','rmsea','srmr','crel')
 ) { #begin function
 
   # preset fitness function
-  if (is.null(fitness.func)) {
-    fitness.func <- function(crel,rmsea,srmr) {
+  if (is.null(objective)) {
+    objective <- function(crel,rmsea,srmr) {
       1/(1+exp(4-10*(crel))) +
       .5*(1 - (1/(1+exp(5-100*rmsea)))) +
       .5*(1 - (1/(1+exp(5-100*srmr))))
     }
   } else {
-    criteria <- names(formals(fitness.func))
+    criteria <- names(formals(objective))
   }
   
   output <- list()
@@ -25,7 +25,7 @@ function(fitness.func=NULL,
   }
   
   else {
-    pheromone <- do.call(fitness.func,solution.fit[names(formals(fitness.func))])
+    pheromone <- do.call(objective,solution.fit[names(formals(objective))])
     
     output[[1]] <- pheromone
     for (i in 1:length(criteria)) {
@@ -34,12 +34,17 @@ function(fitness.func=NULL,
     names(output) <- c('pheromone',unlist(criteria))
   }
   
+  if (length(output$pheromone)!=1) {
+    stop('The objective function you provided does not return a single value.', call. = FALSE)
+  }
+  
   # remove matrices from output
   output$lvcor <- NULL
   output$lambda <- NULL
   output$theta <- NULL
   output$psi <- NULL
   output$alpha <- NULL
+  output$beta <- NULL
   
   return(output)
 

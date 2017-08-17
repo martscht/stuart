@@ -1,20 +1,16 @@
 stuart.bruteforce <-
 function(
-  short.factor.structure, short, long.equal, item.long.equal,    #made on toplevel
-  number.of.items,
+  short.factor.structure, short, long.equal,    #made on toplevel
+  capacity,
   data, factor.structure, auxi, use.order,                       #simple prerequisites
-  
-  number.of.subtests,  invariance,                               #subtest relations
+  item.invariance,
   repeated.measures, long.invariance,                            #longitudinal relations
   mtmm, mtmm.invariance,                                         #mtmm relations
   grouping, group.invariance,                                    #grouping relations
   
-  item.invariance, item.long.invariance, item.mtmm.invariance,
-  item.group.invariance,
-  
   software, cores,                                               #Software to be used
 
-  fitness.func=NULL, ignore.errors=FALSE,                        #fitness function
+  objective=NULL, ignore.errors=FALSE,                        #fitness function
   
   suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
   
@@ -48,8 +44,10 @@ function(
   #parallel processing for R-internal estimations
   if (software=='lavaan') {
     if (cores>1) {
+      if (.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for bruteforce in RStudio.')
       #set up parallel processing on windows
       if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
+        if (!.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for bruteforce in Windows.')
         cl <- parallel::makeCluster(cores)
         
         bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
@@ -108,13 +106,17 @@ function(
   close(progress)
   message('\nSearch ended.')
 
+  tried <- try(do.call(cbind, lapply(filter, function(y) do.call(rbind,lapply(y, function(x) combi[[1]][x, ])))), silent = TRUE)
+  if (class(tried)[1]=='try-error') warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
+  
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
   log <- data.frame(log)
   names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
+  results$tried <- tried
   results$pheromones <- NULL
-  results$parameters <- list(fitness.func=fitness.func)
+  results$parameters <- list(objective=objective, factor.structure=factor.structure)
   return(results)
 
 }
