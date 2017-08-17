@@ -103,6 +103,64 @@ The pheromone function provided via \code{objective} is used to assess the quali
 
 The scheduling of parameters is possible for the arguments \code{ants}, \code{colonies}, \code{evaporation}, \code{pbest}, \code{alpha}, \code{beta}, \code{tolerance}, and \code{deposit}. For all of these parameter scheduling is done when an array with two columns is provided. The first column of the array contains the timer, i.e. when to switch between parameter settings, the second column contains the values. The argument \code{schedule} can be used to select an absolute schedule (\code{schedule='run'}), a relative schedule which resets completely after a new global best is found (\code{schedule='colony'}), or a mixed version which resets the current phase of the schedule after a new global best is found (\code{schedule='mixed'}). When providing a parameter schedule for iterations 0, 3, and 10 using 'run' will result in a change after the third and the tenth iteration - irrespective of whether global best solutions were found. In contrast, using 'colony' will result in the first setting being used again once a new global best is found. This setting will then be used until iteration 3 (if no new best solution is found) before a switch occurs. If a new global best is found the setting will begin the sequence from the beginning. Using 'mixed' will result in the first setting being used until three consecutive iterations cannot produce a new global best. After this the second setting is used. If a new global best is found, the second setting is kept, but for the purpose of the schedule it is now iteration 3 again, meaning that the third setting will be used later than in a 'run' schedule.
 }
+\examples{
+# MMAS in a simple situation
+# requires lavaan
+# number of cores set to 1 in all examples
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+# minimal example
+sel <- mmas(fairplayer, fs, 4, 
+  colonies = 0, ants = 10,  # minimal runtime, remove for application
+  seed = 55635, cores = 1)
+summary(sel)
+
+\dontrun{
+# longitudinal example
+data(fairplayer)
+fs <- list(si1 = names(fairplayer)[83:92],
+  si2 = names(fairplayer)[93:102],
+  si3 = names(fairplayer)[103:112])
+
+repe <- list(si = c('si1', 'si2', 'si3'))
+
+# change evaporation rate after 10 and 20 colonies
+sel <- mmas(fairplayer, fs, 4, 
+  repeated.measures = repe, long.invariance = 'strong',
+  evaporation = cbind(c(0, 10, 20), c(.95, .8, .5)),
+  seed = 55635, cores = 1)
+
+# adding a predictor variable to selection model (using lavaan)
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+add <- 'si ~ IGS'
+
+sel <- mmas(fairplayer, fs, 4,
+  auxiliary = 'IGS',
+  analysis.options = list(model = add),
+  seed = 55635, cores = 1)
+
+# inspect regression (in lavaan)
+lavaan::coef(sel$final)
+
+# same example, maximizing regression weight
+obj <- function(chisq, df, pvalue, rmsea, srmr, beta) {
+  beta[1, 'IGS']
+}
+
+sel <- mmas(fairplayer, fs, 4,
+  auxiliary = 'IGS',
+  analysis.options = list(model = add),
+  objective = obj,
+  seed = 55635, cores = 1)
+  
+# inspect regression (in lavaan)
+lavaan::coef(sel$final)
+}
+
+}
 \references{
 Stützle, T. (1998). Local search algorithms for combinatorial problems: Analysis, improvements, and new applications. Unpublished doctoral dissertation. Darmstadt: Fachbereich Informatik, Universität Darmstadt.
 }

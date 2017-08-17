@@ -97,6 +97,45 @@ The pheromone function provided via \code{objective} is used to assess the quali
 
 The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation. Convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. For generalizability over different functions provided to \code{objective}, these are scaled to the first global-best found.
 }
+\examples{
+
+# Genetic selection in a simple situation
+# requires lavaan
+# number of cores set to 1 in all examples
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+# minimal example
+sel <- gene(fairplayer, fs, 4, 
+  generations = 1, individuals = 10,  # minimal runtime, remove for application
+  seed = 55635, cores = 1)
+summary(sel)
+
+\dontrun{
+# longitudinal example
+data(fairplayer)
+fs <- list(si1 = names(fairplayer)[83:92],
+  si2 = names(fairplayer)[93:102],
+  si3 = names(fairplayer)[103:112])
+
+repe <- list(si = c('si1', 'si2', 'si3'))
+
+# run to convergence
+# switching to best-last mating and 50\\\% mating size
+sel <- gene(fairplayer, fs, 4, 
+  repeated.measures = repe, long.invariance = 'strong',
+  mating.index = 0, mating.size = .5,
+  seed = 55635, cores = 1)
+
+# forcing a run through all generations
+# by disabling the variance convergence rule
+sel <- gene(fairplayer, fs, 4,
+  repeated.measures = repe, long.invariance = 'strong',
+  tolerance = 0, seed = 55635,
+  cores = 1)
+}
+
+}
 \references{
 Bhandari, D., Murthy, C.A., & Pal, S.K. (2012). Variance as a Stopping Criterion for Genetic Algorithms with Elitist Model. Fundamenta Informaticae, 120, 145-164. doi:10.3233/FI-2012-754
 

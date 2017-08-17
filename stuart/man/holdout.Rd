@@ -19,8 +19,16 @@ Returns a list containing two \code{data.frame}s, called calibrate and validate.
 \description{
 Split a \code{data.frame} into two subsets for holdout validation.
 }
+\examples{
+
+# seeded selection, 25\% validation sample
+data(fairplayer)
+split <- holdout(fairplayer, .75, 55635)
+lapply(split, nrow) # check size of samples
+
+}
 \seealso{
-\code{\link{mmas}}, \code{\link{crossvalidate}}
+\code{\link{crossvalidate}}
 }
 \author{
 Martin Schultze

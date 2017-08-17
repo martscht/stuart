@@ -69,6 +69,18 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \description{
 Construct subtests from a given pool of items using a brute-force approach (i.e. by estimating all possible combinations).
 }
+\examples{
+
+# Bruteforce selection in a minimal example
+# selecting 3 of 5 items
+# requires lavaan
+data(fairplayer)
+fs <- list(ra = names(fairplayer)[53:57])
+sel <- bruteforce(fairplayer, fs, 3,
+  cores = 1)  # number of cores set to 1
+summary(sel)  # Fit is perfect because of just-identified model
+
+}
 \seealso{
 \code{\link{mmas}}, \code{\link{gene}}, \code{\link{randomsamples}}, \code{\link{combinations}}
 }

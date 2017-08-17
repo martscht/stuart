@@ -34,6 +34,29 @@ Creates uninformative heuristic matrices for the use in \code{\link{mmas}}.
 \details{
 This function generates a list of matrices which can be used as heuristics for all STUART constructions. This is mainly intended to write the structure of the heuristic matrices to an object, change components in line with theoretically derived heuristics and feed them back into \code{\link{mmas}} via the \code{heuristics} argument. The generated heuristics will contain only 1s and 0s, making it no heuristic information. Selection probabilities can be altered by manipulating the contents of the object created by \code{heuristics}. Setting a value to 0 will result in prohibiting a certain choice to be made. Please note, that it will lead to unpredictable behavior if the diagonal elements of the matrices produced in the arcs parameterization are set to values other than 0.
 }
+\examples{
+
+# heuristics for node localization
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+(heu <- heuristics(fairplayer, fs, 4))
+
+# Define anchor-item
+heu$si[1] <- 10000
+heu
+
+# heuristics for arc localization
+data(fairplayer)
+fs <- list(si = names(fairplayer)[83:92])
+
+(heu <- heuristics(fairplayer, fs, 4, localization = 'arcs'))
+
+# Define equal selection of odd and even items
+heu$si[1:10,] <- c(rep(c(0, 1), 5), rep(c(1, 0), 5))
+heu
+
+}
 \seealso{
 \code{\link{mmas}}
 }

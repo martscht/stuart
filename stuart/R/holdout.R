@@ -5,7 +5,7 @@
 #' 
 #' @author Martin Schultze
 #' 
-#' @seealso \code{\link{mmas}}, \code{\link{crossvalidate}}
+#' @seealso \code{\link{crossvalidate}}
 #' 
 ### Inputs ----
 #' @param data A \code{data.frame}.
@@ -16,6 +16,14 @@
 #' @return Returns a list containing two \code{data.frame}s, called calibrate and validate. The first corresponds to the calibration sample, the second to the validation sample.
 #' 
 #' @concept ACO subtests
+#' 
+### Examples ----
+#' @examples
+#' 
+#' # seeded selection, 25% validation sample
+#' data(fairplayer)
+#' split <- holdout(fairplayer, .75, 55635)
+#' lapply(split, nrow) # check size of samples
 #' 
 #' @export
 

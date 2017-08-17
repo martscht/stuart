@@ -5,7 +5,7 @@
 #' 
 #' @author Martin Schultze
 #' 
-#' @seealso \code{\link{mmas}}, \code{\link{bruteforce}}
+#' @seealso \code{\link{holdout}}, \code{\link{mmas}}, \code{\link{bruteforce}}
 #' 
 ### Inputs ----
 #' @param selection An object of class \code{stuartOutput}.
@@ -23,6 +23,36 @@
 #' \item{validation}{When using \code{lavaan} for estimation, an object of class \code{lavaan} containing the model results fit to the validation sample. When using Mplus for estimation, a character vector containing the Mplus output for the validation sample.}
 #' 
 #' @concept ACO subtests
+#' 
+### Examples ----
+#' @examples
+#' 
+#' # Split data into two halves
+#' data(fairplayer)
+#' half1 <- fairplayer[1:72,]
+#' half2 <- fairplayer[73:143,]
+#' 
+#' # Simple example from bruteforce
+#' fs <- list(ra = names(fairplayer)[53:57])
+#' sel <- bruteforce(half1, fs, 3,
+#'   cores = 1)  # number of cores set to 1
+#' 
+#' # Validation
+#' crossvalidate(sel, half1, half2, 
+#'   invariance = 'strong')  # assuming equality of loadings and intercepts
+#' 
+#' # Using the 'holdout' function for data split
+#' data(fairplayer)
+#' split <- holdout(fairplayer, seed = 55635)
+#' 
+#' # Simple example from bruteforce
+#' fs <- list(ra = names(fairplayer)[53:57])
+#' sel <- bruteforce(split, fs, 3,
+#'   cores = 1)  # number of cores set to 1
+#' 
+#' # Validation
+#' crossvalidate(sel, split,
+#'   invariance = 'weak')  # assuming equality of loadings
 #' 
 #' @export
 
