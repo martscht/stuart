@@ -168,7 +168,7 @@ function(
 
         #write grouping header
         input <- paste(input,'\n',
-                       'Model',unique(model.data$group)[k],':\n')
+                       'Model',stats::na.omit(unique(model.data$group))[k],':\n')
         
         #write the (item) factor structure
         for (i in 1:length(selected.items)) { #over factors
