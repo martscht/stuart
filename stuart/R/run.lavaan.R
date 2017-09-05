@@ -105,7 +105,7 @@ function(
         }
       }
       
-      if (!is.null(grouping)) {
+      if (!is.null(grouping) & is.null(repeated.measures)) {
         if (group.invariance %in% c('strong', 'strict')) {
           input <- paste(input,
             paste0(names(selected.items[i]),'~c(', paste(c(0,rep(NA,nlevels(as.factor(model.data$group))-1)),collapse=','),')*1',collapse='\n'),sep='\n')
