@@ -80,7 +80,7 @@ randomsamples <-
     
     auxiliary=NULL, use.order=FALSE,
     software='lavaan', cores=NULL,                                        #run settings
-    objective=NULL, ignore.errors=FALSE,                               #fitness specs
+    objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL, request.override=10000,
     filename='randomsample', n=1000, percentile=100

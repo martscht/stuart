@@ -1,19 +1,9 @@
 fitness <-
-function(objective=NULL,
-  solution.fit, criteria=c('chisq','df','pvalue','rmsea','srmr','crel')
+function(objective = NULL, solution.fit
 ) { #begin function
 
-  # preset fitness function
-  if (is.null(objective)) {
-    objective <- function(crel,rmsea,srmr) {
-      1/(1+exp(4-10*(crel))) +
-      .5*(1 - (1/(1+exp(5-100*rmsea)))) +
-      .5*(1 - (1/(1+exp(5-100*srmr))))
-    }
-  } else {
-    criteria <- names(formals(objective))
-  }
-  
+  criteria <- names(formals(objective))
+
   output <- list()
   
   if (!all(criteria%in%names(solution.fit))) {

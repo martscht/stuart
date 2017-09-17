@@ -61,7 +61,7 @@ crossvalidate <-
 function(
   selection, old.data, new.data,
   invariance='configural',
-  objective=NULL,
+  objective=objective.preset,
   filename='stuart',
   file.remove=TRUE
 ) { #begin function

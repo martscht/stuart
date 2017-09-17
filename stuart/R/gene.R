@@ -129,7 +129,7 @@ gene <-
     
     software='lavaan', cores=NULL,                                        #run settings
     
-    objective=NULL, ignore.errors=FALSE,                                  #fitness specs
+    objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     
     generations = 128, individuals = 64,                                  #algorithm specs
     elitism = 1/individuals, reproduction = .5, mutation = .1,

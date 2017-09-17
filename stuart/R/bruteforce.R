@@ -79,7 +79,7 @@ function(
 
   software='lavaan', cores=NULL,                                        #run settings
 
-  objective=NULL, ignore.errors=FALSE,                               #fitness specs
+  objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
   
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
 
