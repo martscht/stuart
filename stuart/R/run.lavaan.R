@@ -5,13 +5,13 @@ function(
   selected, selected.items,
   long.equal,
   factor.structure, repeated.measures, grouping,
-  short.factor.structure, short, mtmm=NULL,
+  short.factor.structure, short, mtmm = NULL,
   item.invariance, long.invariance, mtmm.invariance, group.invariance,
 
-  analysis.options=NULL, suppress.model=FALSE,
+  analysis.options = NULL, suppress.model = FALSE,
 
-  output.model=FALSE,
-  ignore.errors=FALSE
+  output.model = FALSE,
+  objective = NULL, ignore.errors = FALSE
 ) { #begin function
 
   #prepare data for model fit
@@ -139,6 +139,10 @@ function(
     analysis.options$se <- 'none'
   }
   
+  if (all(names(formals(objective))%in%c('crel', 'rel', 'con', 'lvcor', 'alpha', 'beta', 'lambda', 'psi', 'theta'))) {
+    analysis.options$h1 <- FALSE
+  }
+  
   #imply sem() presets
   presets <- list(int.ov.free=TRUE,int.lv.free=FALSE,auto.fix.first=TRUE,std.lv=FALSE,
     auto.fix.single=TRUE,auto.var=TRUE,auto.cov.lv.x=TRUE,auto.th=TRUE,auto.delta=TRUE,auto.cov.y=TRUE)
@@ -193,7 +197,8 @@ function(
       }
     }
 
-    fit <- try(suppressWarnings(lavaan::inspect(output,'fit')),silent=TRUE)
+    
+    fit <- try(suppressWarnings(lavaan::fitMeasures(output, names(formals(objective)))),silent=TRUE)
     
     if (class(fit)[1]=='try-error') {
       return(output=list(NA))
