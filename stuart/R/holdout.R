@@ -10,6 +10,7 @@
 ### Inputs ----
 #' @param data A \code{data.frame}.
 #' @param prop Proportion of data in calibration sample. Default to .5, for an even split.
+#' @param grouping Name of the grouping variable. Providing a grouping variable ensures that the provided proportion is selected within each group.
 #' @param seed A random seed. See \code{\link{Random}} for more details.
 #' 
 ### Outputs ----
@@ -28,7 +29,7 @@
 #' @export
 
 
-holdout <- function(data, prop = .5, seed = NULL) {
+holdout <- function(data, prop = .5, grouping = NULL, seed = NULL) {
   
   # set random seed
   if (!is.null(seed)) {
@@ -37,8 +38,18 @@ holdout <- function(data, prop = .5, seed = NULL) {
     set.seed(seed)
   }
   
-  n_cali <- ceiling(nrow(data)*prop)
-  filter <- sort(sample(nrow(data), n_cali))
+  if (!is.null(grouping)) {
+    n_cali <- ceiling(table(data[grouping]) * prop)
+    filter <- NULL
+    for (i in unlist(unique(data[grouping]))) {
+      tmp <- data[data[grouping] == i, ]
+      tmp_filter <- sort(sample(nrow(tmp), n_cali[i]))
+      filter <- c(filter, as.numeric(rownames(tmp)[tmp_filter]))
+    }
+  } else {
+    n_cali <- ceiling(nrow(data)*prop)
+    filter <- sort(sample(nrow(data), n_cali))
+  }
   
   output <- list(calibrate = data[filter, ], validate = data[-filter, ])
   class(output) <- 'stuartHoldout'
