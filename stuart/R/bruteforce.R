@@ -39,6 +39,7 @@
 #' \item{call }{The called function.}
 #' \item{software}{The software used to fit the CFA models.}
 #' \item{parameters}{A list of the ACO parameters used.}
+#' \item{analysis.options}{A list of the additional arguments passed to the estimation software.}
 #' \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 #' \item{log}{A \code{data.frame} containing the estimation history.}
 #' \item{solution}{\code{NULL}}
@@ -150,6 +151,7 @@ function(
   output <- list(call=match.call()[1])  
   output$software <- software
   output$parameters <- c(solution$parameters)
+  output$analysis.options <- analysis.options
   output$timer <- proc.time() - timer
   output$log <- solution$log
   output$solution <- NULL
