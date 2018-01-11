@@ -60,10 +60,9 @@
 crossvalidate <- 
 function(
   selection, old.data, new.data,
-  invariance='configural',
-  objective=objective.preset,
-  filename='stuart',
-  file.remove=TRUE
+  invariance = 'configural',
+  objective = NULL,
+  filename = 'stuart', file.remove=TRUE
 ) { #begin function
   
   if (!invariance%in%c('configural','weak','strong','strict','full'))
@@ -71,8 +70,6 @@ function(
   
   # check estimation software
   software <- selection$software
-  # check fitness function
-  if (is.null(objective)) objective <- selection$parameters$objective
   
   if (software=='Mplus' & is.null(old.data)) stop('When using Mplus the old.data is required.')
   
@@ -86,7 +83,13 @@ function(
     args$new.data <- old.data$validate
     args$old.data <- old.data$calibrate
   }
-  
+
+  # check fitness function
+  if (is.null(objective)) objective <- selection$parameters$objective 
+  args$objective <- objective
+
+  # add analysis options
+  args$analysis.options <- selection$analysis.options
   
   # run validation
   validated <- do.call(paste('crossvalidate',software,sep='.'),args)    
