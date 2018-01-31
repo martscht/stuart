@@ -4,6 +4,7 @@ function(
   selection,
   new.data, old.data,
   invariance, filename, file.remove,
+  objective = NULL, analysis.options = NULL,
   output.model=FALSE, ...
 ) { # begin function
   
@@ -11,8 +12,8 @@ function(
   model.begin <- grep('^\\s+Model:',model)
   model.end <- grep('^\\s+Output:',model) - 1
   
-  model <- paste(model[model.begin:model.end],collapse='\n')
-  out <- 'svalues'
+  analysis.options$model <- paste(model[model.begin:model.end],collapse='\n')
+  analysis.options$output <- 'svalues;'
   
   grouping <- selection$call$grouping
   
@@ -20,7 +21,7 @@ function(
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
     output.model=TRUE,factor.structure=selection$parameters$factor.structure,
     filename=paste0(filename,'_calibration'),cores=NULL,
-    analysis.options=list(model=model,output=out))
+    analysis.options=analysis.options)
   
   calib <- do.call('run.Mplus',args)  
   
@@ -69,7 +70,8 @@ function(
   args$filename <- paste0(filename,'_validation')
   args$data <- new.data
   args$auxi <- new.data[,NULL]
-  args$analysis.options <- list(model=paste(model,collapse='\n'))
+  args$analysis.options <- analysis.options
+  args$analysis.options$model <- paste(model,collapse='\n')
   args$output.model <- output.model
   args['grouping'] <- list(grouping)
   args$ignore.errors <- TRUE

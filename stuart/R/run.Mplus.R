@@ -29,13 +29,11 @@ function(
   input <- NULL
 
   #write Mplus "Title" section
-  input <- paste0('Title: Subtest Construction using STUART \n',
-    unlist(analysis.options[grepl('^titl*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
-  
+  input <- paste0('Title: Subtest Construction using STUART \n', analysis.options$title, '\n')
+
   #write Mplus "Data" section
-  input <- paste0(input,'Data: file=',filename,'_data.dat; \n',
-    unlist(analysis.options[grepl('^data*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
-  
+  input <- paste0(input,'Data: file=',filename,'_data.dat; \n', analysis.options$data, '\n')
+
   #write Mplus "Variable" section
   input <- paste0(input,'Variable: \n\tnames=')
   
@@ -52,10 +50,13 @@ function(
   
   input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
+  # Add Analysis options to "Variable" Section
+  input <- paste0(input, '\n', analysis.options$data, '\n')
+  
   #write Mplus "Analysis" section
   input <- paste0(input,'Analysis: \n\tprocessors=',cores,';\n')
   
-  input <- paste0(input,unlist(analysis.options[grepl('^anal*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
+  input <- paste0(input, analysis.options$analysis,'\n')
   
   #write Mplus "Model" section
   input <- paste0(input,'Model:\n')
@@ -213,22 +214,28 @@ function(
     }
   }
   
-  input <- paste0(input,unlist(analysis.options[grepl('^mode*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
+  input <- paste0(input, analysis.options$model, '\n')
+  
+  # Add model constraint section of analysis options
+  input <- paste0(input, analysis.options$constraints, '\n')
   
   #write Mplus "Output" section
   if (!output.model) {
-    input <- paste(input,'Output: STDYX Tech4 NOSERROR\n',
-                   unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
+    input <- paste(input,'Output: STDYX Tech4 NOSERROR;\n')
+
+    # Add Analysis Options Output section
+    input <- paste0(input, analysis.options$output, '\n')
+    
     #write Mplus "savedata" section
-    input <- paste(input,paste0('Savedata: estimates = ',filename,'_est.dat\n'),
-      unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
+    input <- paste(input,paste0('Savedata: estimates = ',filename,'_est.dat;\n'))
   }
   
   else {
-    input <- paste(input,'Output: STDYX Tech4 \n',
-                   unlist(analysis.options[grepl('^outp*',names(analysis.options),ignore.case=TRUE)][1]),';\n')
+    input <- paste(input,'Output: STDYX Tech4;\n')
+    # Add Analysis Options Output section
+    input <- paste0(input, analysis.options$output, '\n')
   }
-
+  
   
   #create Mplus input file
   cat(input,file=paste0(filename,'.inp'))
@@ -298,7 +305,9 @@ function(
   
     for (i in 1:length(locator)) {
       tmp <- MplusOut[grep(locator[i],MplusOut)+offset[i]]
-      output[name[i]] <- as.numeric(substr(tmp,nchar(tmp)-9,nchar(tmp)))
+      tmp <- substr(tmp,nchar(tmp)-9,nchar(tmp))
+      tmp <- gsub('[^[:digit:],.-]', '', tmp)
+      output[name[i]] <- as.numeric(tmp)
     }
     
     #extract latent correlations
