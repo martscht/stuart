@@ -1,8 +1,13 @@
-sanitycheck <- function(factor.structure,capacity,
+sanitycheck <- function(data, factor.structure,capacity,
   repeated.measures,mtmm,
   objective=NULL,localization) {
   
   #sanity check
+  if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {
+    stop('Currently only continuous and binary items are supported.', call. = FALSE)
+  }
+  
+  
   if (any(duplicated(names(factor.structure)))) {
     stop('You have provided duplicates in the name of factor.structure.',call.=FALSE)
   }

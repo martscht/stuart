@@ -61,9 +61,17 @@ function(
         paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
 
       #intercepts
-      input <- paste(input,
-        paste(tmp.sit,'~',tmp.inv$alp,'*1',sep='',collapse='\n'),sep='\n')
-      
+      for (j in seq_along(tmp.sit)) {
+        if (is.factor(data[, tmp.sit[j]])) {
+          input <- paste(input, 
+            paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
+        } else {
+          input <- paste(input,
+            paste(tmp.sit[j],'~',tmp.inv$alp[j],'*1',sep='',collapse='\n'),sep='\n')
+        }
+      }
+
+        
       #supress correlations between traits and methods (for CTC(M-1) structure)
 #       if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
 #         tmp <- mtmm[[which(unlist(lapply(mtmm, function(x) x[1]))%in%names(selected.items[i]))]][-1]
@@ -131,7 +139,7 @@ function(
   if (!is.null(grouping)) {
     analysis.options$group <- 'group'
   }
-  if (is.null(analysis.options$missing)) {
+  if (is.null(analysis.options$missing) & !any(sapply(data[, unlist(factor.structure)], is.factor))) {
     analysis.options$missing <- 'fiml'
   }
 
