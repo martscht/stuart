@@ -134,7 +134,7 @@ stuart.gene <-
         parents <- rep_len(parents, individuals)
         mating <- matrix(NA, ncol = 2, nrow = individuals)
         for (i in seq_along(parents)) {
-          partners <- sample(parents[-i], individuals*reproduction*mating.size)
+          partners <- sample(parents[-i], max(individuals*reproduction*mating.size, 1))
           if (mating.criterion == 'fitness') {
             mating[i,] <- c(parents[i], 
               partners[which(pheromones[partners] == 
