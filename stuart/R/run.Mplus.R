@@ -17,13 +17,21 @@ function(
   
   #prepare data for model fit
   model.data <- data[,unlist(selected.items)]
-  model.data$group <- data[,grouping]
+  if (!is.null(grouping)) model.data$group <- data[,grouping]
   model.data <- data.frame(model.data,auxi)
+  model.data <- data.frame(lapply(model.data, as.numeric))
   
   #writing the data file
   utils::write.table(model.data,paste(filename,'_data.dat',sep=''),
     col.names=FALSE,row.names=FALSE,na='-9999',
     sep='\t',dec='.')
+  
+  # Check for inappropriate analysis options
+  if (!is.null(analysis.options)) {
+    tmp <- c('title', 'data', 'variable', 'analysis', 'model', 'constraints', 'output', 'savedata')
+    names(analysis.options) <- tolower(names(analysis.options))
+    if (any(!names(analysis.options) %in% tmp)) stop(paste('The analysis options supplied to Mplus must be a list named according to the Mplus input sections.'), call. = FALSE)
+  }
   
   #define empty input
   input <- NULL
@@ -33,7 +41,10 @@ function(
 
   #write Mplus "Data" section
   input <- paste0(input,'Data: file=',filename,'_data.dat; \n', analysis.options$data, '\n')
-
+  
+  # Add Analysis options to "Data" Section
+  input <- paste0(input, '\n', analysis.options$data, '\n')
+  
   #write Mplus "Variable" section
   input <- paste0(input,'Variable: \n\tnames=')
   
@@ -44,17 +55,24 @@ function(
   
   input <- paste0(input,paste(unlist(selected.items),collapse=c('\n\t\t')),';\n')
   
+  if (any(sapply(data[, unlist(selected.items)], is.factor))) {
+    input <- paste0(input,'\tcategorical=', 
+      paste(unlist(selected.items)[sapply(data[, unlist(selected.items)], is.factor)],collapse=c('\n\t\t')),';\n')
+  }
+  
   if (!is.null(grouping)) {
     input <- paste(input,paste0('grouping = group (',paste(stats::na.omit(unique(model.data$group)),stats::na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
   }
   
   input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
   
-  # Add Analysis options to "Variable" Section
-  input <- paste0(input, '\n', analysis.options$data, '\n')
   
   #write Mplus "Analysis" section
   input <- paste0(input,'Analysis: \n\tprocessors=',cores,';\n')
+  
+  if (any(sapply(data[, unlist(selected.items)], is.factor))) {
+    input <- paste0(input,'\n\tparameterization=theta;\n')
+  }
   
   input <- paste0(input, analysis.options$analysis,'\n')
   
@@ -82,13 +100,23 @@ function(
                        names(selected.items[i]),'by',
                        paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
         
-        #residual variances
-        input <- paste(input,
-                       paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-        
-        #intercepts
-        input <- paste(input,
-                       paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
+        #residual variances & intercepts
+        for (j in seq_along(tmp.sit)) {
+          # for categorical
+          if (is.factor(data[, tmp.sit[j]])) {
+            input <- paste(input, 
+              paste0(tmp.sit[j],'@1 (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
+            input <- paste(input, 
+              paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
+          } 
+          # for continuous
+          else {
+            input <- paste(input,
+              paste0(tmp.sit[j],' (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
+            input <- paste(input,
+              paste0('[',tmp.sit[j],'] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
+          }
+        }
         
         #estimate latent regressions (MTMM)
         if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
@@ -138,13 +166,23 @@ function(
                        names(selected.items[i]),'by',
                        paste0(tmp.sit,collapse='\n\t\t'),';\n')
         
-        #residual variances (overall)
-        input <- paste(input,
-                       paste0(tmp.sit,';',collapse='\n'),sep='\n')
-        
-        #intercepts (overall)
-        input <- paste(input,
-                       paste0('[',tmp.sit,'];',collapse='\n'),'',sep='\n')
+        #residual variances & intercepts
+        for (j in seq_along(tmp.sit)) {
+          # for categorical
+          if (is.factor(data[, tmp.sit[j]])) {
+            input <- paste(input, 
+              paste0(tmp.sit[j],'@1;',collapse='\n'),sep='\n')
+            input <- paste(input, 
+              paste0('[',tmp.sit[j],'$1];', collapse = '\n'),sep='\n')
+          } 
+          # for continuous
+          else {
+            input <- paste(input,
+              paste0(tmp.sit[j],';',collapse='\n'),sep='\n')
+            input <- paste(input,
+              paste0('[',tmp.sit[j],'];', collapse = '\n'),sep='\n')
+          }
+        }
         
         #estimate latent regressions (MTMM)
         if (names(selected.items[i])%in%lapply(mtmm, function(x) x[1])) {
@@ -188,13 +226,23 @@ function(
                            paste0(tmp.sit[-1],' (',tmp.inv$lam[-1],')',collapse='\n\t\t'),';\n')
           input <- paste(input,'\n',tmp.lam)
           
-          #residual variances
-          input <- paste(input,
-                         paste0(tmp.sit,' (',tmp.inv$eps,');',collapse='\n'),sep='\n')
-          
-          #intercepts
-          input <- paste(input,
-                         paste0('[',tmp.sit,'] (',tmp.inv$alp,');',collapse='\n'),'',sep='\n')
+          #residual variances & intercepts
+          for (j in seq_along(tmp.sit)) {
+            # for categorical
+            if (is.factor(data[, tmp.sit[j]])) {
+              input <- paste(input, 
+                paste0(tmp.sit[j],'@1 (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
+              input <- paste(input, 
+                paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
+            } 
+            # for continuous
+            else {
+              input <- paste(input,
+                paste0(tmp.sit[j],' (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
+              input <- paste(input,
+                paste0('[',tmp.sit[j],'] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
+            }
+          }
         }
 
         #set latent means
@@ -226,8 +274,6 @@ function(
     # Add Analysis Options Output section
     input <- paste0(input, analysis.options$output, '\n')
     
-    #write Mplus "savedata" section
-    input <- paste(input,paste0('Savedata: estimates = ',filename,'_est.dat;\n'))
   }
   
   else {
@@ -236,162 +282,101 @@ function(
     input <- paste0(input, analysis.options$output, '\n')
   }
   
-  
+  # write "Savedata" section
+  input <- paste0(input, analysis.options$savedata, '\n')
+    
   #create Mplus input file
   cat(input,file=paste0(filename,'.inp'))
   
-  #run Mplus-Input (on windows)
-  if (Sys.info()[1]=='Windows') {
-    system(paste0('mplus ',filename,'.inp'),
-      wait=TRUE,show.output.on.console=FALSE)
-  }
-  #run Mplus-Input (on linux)
-  if (Sys.info()[1]=='Linux') {
-    #replace spaces in directories
-    working <- gsub(' ','\\ ',getwd())
-    
-    system(paste0('mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
-      wait=TRUE,ignore.stdout=TRUE)
-  }
-  #run Mplus-Input (on osx)
-  if (Sys.info()[1]=='Darwin') {
-    #replace spaces in directories
-    working <- gsub(' ','\\ ',getwd())
-    
-    system(paste0('/Applications/Mplus/mplus ',working,'/',filename,'.inp ',working,'/',filename,'.out'),
-      wait=TRUE,ignore.stdout=TRUE)
-  }
+  # Begin silencer (for noisy MplusAutomation)
+  tmp <- textConnection(NULL, 'w')
+  sink(tmp)
+  
+  # Run Model
+  MplusAutomation::runModels(paste0(filename, '.inp'))
   
   #import Mplus output
-  MplusOut <- readLines(paste0(filename,'.out'))
+  MplusOut <- try(suppressWarnings(MplusAutomation::readModels(paste0(filename, '.out'))), silent = TRUE)
+  
+  # end silencer
+  sink()
+  close(tmp) 
+
+  if (class(MplusOut)[1] == 'try-error') return(output = list(NA))
   
   if (output.model) return(MplusOut)
   
-  if (!any(grepl('MODEL FIT',MplusOut))) {
-    # if (any(grepl('NO CONVERGENCE.',MplusOut))) {
-    #   warning('The model did not converge.',call.=FALSE)
-    # } else {
-    #   warning('The Mplus input file generated an error.',call.=FALSE)
-    # }
-    exclusion <- TRUE
-  } else {
-    #exclude non-positive and non-converged models
-    #edit this for new Mplus versions!
-    if (ignore.errors) {
-      exclusion <- (any(grepl('NO CONVERGENCE',MplusOut))| 
-          any(grepl('CHECK YOUR MODEL',MplusOut)))
-    }
-    
-    else {
-      exclusion <- (any(grepl('POSITIVE',MplusOut))|
-          any(grepl('NO CONVERGENCE',MplusOut))| 
-          any(grepl('CHECK YOUR MODEL',MplusOut)))
-    }
+  exclusion <- FALSE
+  if (length(MplusOut$errors) > 0) exclusion <- TRUE
+  if (!ignore.errors) {
+    exclusion <- any(sapply(MplusOut$warnings, function(x) any(grepl('NOT POSITIVE|NO CONVERGENCE|CHECK YOUR MODEL', x))))
   }
-  
-  
+
   #return list of NA if errors occurred
   if (exclusion) {
     return(output=list(NA))
   } else {
+
     #extract the fit statistics reported by Mplus
     output <- list()
     
-    locator <- c('^RMSEA','^SRMR',rep('CFI/TLI',2),
-      rep('^Chi-Square Test of Model Fit$',3),
-      rep('^Information Criteria',3))
-    offset <- c(2,2,2,3,2,3,4,2,3,4)
     name <- c('rmsea','srmr','cfi','tli','chisq','df','pvalue','aic','bic','abic')
-  
-    for (i in 1:length(locator)) {
-      tmp <- MplusOut[grep(locator[i],MplusOut)+offset[i]]
-      tmp <- substr(tmp,nchar(tmp)-9,nchar(tmp))
-      tmp <- gsub('[^[:digit:],.-]', '', tmp)
-      output[name[i]] <- as.numeric(tmp)
+    locator <- c('RMSEA_Estimate', 'SRMR', 'CFI', 'TLI', 'ChiSqM_Value', 'ChiSqM_DF', 'ChiSqM_PValue', 'AIC', 'BIC', 'aBIC')
+    for (i in seq_along(name)) {
+      output[name[i]] <- ifelse(locator[i] %in% names(MplusOut$summaries), MplusOut$summaries[, locator[i]], NA)
     }
     
     #extract latent correlations
-    with_begin <- grep('^ +ESTIMATED COVARIANCE MATRIX FOR THE LATENT VARIABLES',MplusOut)
-    if (as.numeric(gsub('[a-zA-Z ()]','',MplusOut[1]))>7) {
-      with_end <- grep('^ +S.E. FOR ESTIMATED COVARIANCE MATRIX FOR THE LATENT VARIABLES',MplusOut)
-      with <- data.frame(with_begin,with_end)
-      with <- with[c(TRUE,!with_begin[-1]<with_end[-length(with_end)]),]
+    if (is.null(grouping)) {
+      lvcor <- list(MplusOut$tech4$latCorEst)
+      psi <- list(MplusOut$tech4$latCovEst)
     } else {
-      with_end <- grep('^ +ESTIMATES DERIVED FROM THE MODEL',MplusOut)[-1]
-      with_end <- c(with_end,grep('^ +Beginning Time:',MplusOut))
-      with <- matrix(c(with_begin[1],with_end[1]),ncol=2,nrow=length(with_end),byrow=TRUE)
-      if (length(with_end)>1) {
-        for (i in 2:length(with_end)) {
-          with[i,] <- c(with_begin[which(with_begin>with_end[i-1])][1],with_end[i])
-        } 
-      }
+      lvcor <- lapply(MplusOut$tech4, function(x) x$latCorEst)
+      psi <- lapply(MplusOut$tech4, function(x) x$latCovEst)
     }
-    
-    lvcov <- apply(with,1,function(x) MplusOut[(x[1]+3):(x[2]-2)])
-    size <- ifelse(any(lvcov==''),which(lvcov=='')[1]-1,1)
-    tmp <- lapply(seq_len(max(ncol(lvcov),1)),function(x) lvcov[,x])
-    if (size > 5) tmp <- lapply(tmp,function(y) y[-sapply(grep('(_)\\1+',y),function(x) (x-3):x)])
-    lvnames <- gsub(' +','',substr(tmp[[1]][1:size],2,9))
-    tmp <- lapply(tmp,function(x) gsub('[A-Z_a-z]','',x))
-    tmp <- lapply(tmp,function(x) gsub(' [0-9+] ',' ',x))
-    tmp <- lapply(tmp,function(x) gsub(' +',' ',x))
-    tmp <- lapply(tmp,function(x) gsub('^ ','',x))
-    tmp <- lapply(tmp,function(x) x[x!=''])
 
-    tmp <- lapply(tmp,strsplit,' ')
-    comA <- NULL
-    comB <- NULL
-    for (i in 0:(size%/%5)) {
-      comA <- c(comA,(((i*5)+1):size))
-      comB <- c(comB,rep(i,length((((i*5)+1):size)))*5+1)
-    }
+    lvcor <- lapply(lvcor, function(x) {
+      x[upper.tri(x)] <- t(x)[upper.tri(x)]
+      dimnames(x) <- list(names(selected.items), names(selected.items))
+      return(x)})
+    psi <- lapply(psi, function(x) {
+      x[upper.tri(x)] <- t(x)[upper.tri(x)]
+      dimnames(x) <- list(names(selected.items), names(selected.items))
+      return(x)})
+    names(psi) <- names(lvcor) <- NULL
     
-    psi <- list()
-    
-    for (i in 1:length(tmp)) {
-      tmp[[i]] <- lapply(tmp[[i]],as.numeric)
-      psi[[i]] <- matrix(1,ncol=size,nrow=size)
-      for (j in 1:length(tmp[[i]])) {
-        tmp2 <- tmp[[i]][[j]]
-        psi[[i]][comA[j],comB[j]:(comB[j]+(length(tmp2)-1))] <- tmp[[i]][[j]]
-      }
-      psi[[i]][upper.tri(psi[[i]])] <- t(psi[[i]])[upper.tri(psi[[i]])]
-    }
-    
-    for (i in 1:ncol(lvcov)) {
-      dimnames(psi[[i]]) <- list(names(selected.items),names(selected.items))
-    }
-    
-    output$lvcor <- lapply(psi,stats::cov2cor)
-    if (length(output$lvcor)==1) output$lvcor <- output$lvcor[[1]]
-    
+    output$lvcor <- lvcor
     
     # compute rho estimate of reliability
-    tmp <- scan(paste0('./',filename,'_est.dat'),quiet=TRUE)
+    esti <- MplusOut$parameters$unstandardized
+    if (is.null(grouping)) esti$Group <- 1
     
     nitems <- length(unlist(selected.items))
     nfacto <- length(selected.items)
     
-    alpha <- list()
-    lambda <- list()
-    theta <- list()
-    i <- 1
-    repeat {
-      alpha[[i]] <- tmp[1:nitems]
-      tmp <- tmp[-seq_along(alpha[[i]])]
-      lambda[[i]] <- matrix(tmp[1:(nitems*nfacto)],ncol=nfacto,nrow=nitems,byrow=TRUE)
-      tmp <- tmp[-seq_along(lambda[[i]])]
-      theta[[i]] <- matrix(NA,ncol=nitems,nrow=nitems)
-      theta[[i]][upper.tri(theta[[i]],diag=TRUE)] <-  tmp[1:(nitems*(nitems+1)/2)]
-      theta[[i]][lower.tri(theta[[i]])] <- t(theta[[i]])[lower.tri(theta[[i]])]
-      tmp <- tmp[-(1:((nitems*(nitems+1)/2)+nfacto+nfacto^2+(nfacto*(nfacto+1)/2)))]
-      
-      dimnames(lambda[[i]]) <- list(unlist(selected.items),names(selected.items))
-      
-      if (length(tmp)==0) break
-      i <- i + 1
-    }
+    # Extract lambda
+    lambda <- lapply(unique(esti$Group), function(x) {
+      tmp <- esti[grepl('.BY$', esti$paramHeader) & esti$Group == x, ]
+      tmp$lv <- gsub('.BY$', '', tmp[grep('.BY$', tmp$paramHeader), 'paramHeader'])
+      tmp <- reshape(tmp[, c('param', 'est', 'lv')], timevar = 'lv', idvar = 'param', direction = 'wide')
+      tmp <- tmp[, -1]
+      tmp[is.na(tmp)] <- 0
+      tmp <- as.matrix(tmp)
+      dimnames(tmp) <- list(unlist(selected.items), names(selected.items))
+      return(tmp)
+    })
     
+    # Extract alpha
+    tmp <- esti[grepl('Intercepts|Thresholds', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
+    alpha <- tapply(tmp$est, tmp$Group, identity, simplify = FALSE)
+
+    # Extract theta
+    tmp <- esti[grepl('Residual.Variances', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
+    theta <- tapply(tmp$est, tmp$Group, function(x) diag(x), simplify = FALSE)
+    
+    dimnames(alpha) <- dimnames(theta) <- names(lambda) <- NULL
+
+    # Compute Reliabilities and Composite Reliabilities    
     rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
     crel <- rep(NA,length(lambda))
     for (i in 1:length(rel)) {
@@ -426,23 +411,9 @@ function(
       output$rel <- rel
     }
     
-    
-    tmp <- MplusOut[grep('^R-SQUARE',MplusOut):grep('^QUALITY OF NUMERICAL',MplusOut)]
-    if (any(grepl('Latent',tmp))) {
-      con <- tmp[grep('Latent',tmp)[1]:length(tmp)]
-      con <- gsub('\\s+',' ',con)
-      con <- grep('\\.[0-9]{3}',con,value=TRUE)
-      con <- con[!grepl('Undefined',con)]
-      con <- as.numeric(sapply(strsplit(con,'\\s+'),rbind)[3,1:length(con)])
-      con <- mean(con)
-      
-      output$con <- con
-      
-      tmp <- tmp[1:grep('Latent',tmp)[1]]
-    }
-
-    
-    file.remove(paste0(filename,'_est.dat'))
+    tmp <- MplusOut$parameters$r2
+    tmp <- tmp[tmp$param %in% toupper(names(selected.items)), ]
+    con <- mean(tapply(tmp$est, tmp$Group, mean))
 
     return(output=output)
   }  

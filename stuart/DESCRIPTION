@@ -15,6 +15,7 @@ Imports:
 Suggests:
     parallel,
     lavaan (>= 0.5.18),
+    MplusAutomation (>= 0.7),
     graphics
 RoxygenNote: 6.0.1
 Encoding: UTF-8
