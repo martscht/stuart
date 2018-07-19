@@ -9,12 +9,12 @@ mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
   long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, ants = 16, colonies = 256,
-  evaporation = 0.95, alpha = 1, beta = 1, pheromones = NULL,
-  heuristics = NULL, deposit = "ib", localization = "nodes",
-  pbest = 0.005, tolerance = 0.5, schedule = "run",
-  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
-  filename = "stuart")
+  objective = objective.preset, ignore.errors = FALSE, ants = 16,
+  colonies = 256, evaporation = 0.95, alpha = 1, beta = 1,
+  pheromones = NULL, heuristics = NULL, deposit = "ib",
+  localization = "nodes", pbest = 0.005, tolerance = 0.5,
+  schedule = "run", analysis.options = NULL, suppress.model = FALSE,
+  seed = NULL, filename = "stuart")
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -88,6 +88,7 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \item{call }{The called function.}
 \item{software}{The software used to fit the CFA models.}
 \item{parameters}{A list of the ACO parameters used.}
+\item{analysis.options}{A list of the additional arguments passed to the estimation software.}
 \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 \item{log}{A \code{data.frame} containing the optimization history.}
 \item{solution}{A list of matrices with the choices made in the global-best solution.}

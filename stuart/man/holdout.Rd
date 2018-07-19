@@ -4,12 +4,14 @@
 \alias{holdout}
 \title{Data selection for holdout validation.}
 \usage{
-holdout(data, prop = 0.5, seed = NULL)
+holdout(data, prop = 0.5, grouping = NULL, seed = NULL)
 }
 \arguments{
 \item{data}{A \code{data.frame}.}
 
-\item{prop}{Proportion of data in calibration sample. Default to .5, for an even split.}
+\item{prop}{A single value or vector of proportions of data in calibration sample. Defaults to .5, for an even split.}
+
+\item{grouping}{Name of the grouping variable. Providing a grouping variable ensures that the provided proportion is selected within each group.}
 
 \item{seed}{A random seed. See \code{\link{Random}} for more details.}
 }

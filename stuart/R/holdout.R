@@ -9,7 +9,7 @@
 #' 
 ### Inputs ----
 #' @param data A \code{data.frame}.
-#' @param prop Proportion of data in calibration sample. Default to .5, for an even split.
+#' @param prop A single value or vector of proportions of data in calibration sample. Defaults to .5, for an even split.
 #' @param grouping Name of the grouping variable. Providing a grouping variable ensures that the provided proportion is selected within each group.
 #' @param seed A random seed. See \code{\link{Random}} for more details.
 #' 
@@ -39,6 +39,10 @@ holdout <- function(data, prop = .5, grouping = NULL, seed = NULL) {
   }
   
   if (!is.null(grouping)) {
+    if (length(prop) > 1 & length(prop) != nrow(unique(data[grouping]))) {
+      prop <- prop[1]
+      warning('The length of prop and the number of groups do not match. Only the first proportion is used.')
+    } 
     n_cali <- ceiling(table(data[grouping]) * prop)
     filter <- NULL
     for (i in unlist(unique(data[grouping]))) {

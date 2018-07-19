@@ -9,7 +9,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   long.invariance = "strict", mtmm = NULL, mtmm.invariance = "configural",
   grouping = NULL, group.invariance = "strict", auxiliary = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, generations = 128,
+  objective = objective.preset, ignore.errors = FALSE, generations = 128,
   individuals = 64, elitism = 1/individuals, reproduction = 0.5,
   mutation = 0.1, mating.index = 1, mating.size = 0.25,
   mating.criterion = "fitness", tolerance = 1e-04,
@@ -82,6 +82,7 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \item{call }{The called function.}
 \item{software}{The software used to fit the CFA models.}
 \item{parameters}{A list of the parameters used.}
+\item{analysis.options}{A list of the additional arguments passed to the estimation software.}
 \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 \item{log}{A \code{data.frame} containing the optimization history.}
 \item{solution}{A list of matrices with the choices made in the global-best solution.}
