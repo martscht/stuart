@@ -358,7 +358,7 @@ function(
     lambda <- lapply(unique(esti$Group), function(x) {
       tmp <- esti[grepl('.BY$', esti$paramHeader) & esti$Group == x, ]
       tmp$lv <- gsub('.BY$', '', tmp[grep('.BY$', tmp$paramHeader), 'paramHeader'])
-      tmp <- reshape(tmp[, c('param', 'est', 'lv')], timevar = 'lv', idvar = 'param', direction = 'wide')
+      tmp <- stats::reshape(tmp[, c('param', 'est', 'lv')], timevar = 'lv', idvar = 'param', direction = 'wide')
       tmp <- tmp[, -1]
       tmp[is.na(tmp)] <- 0
       tmp <- as.matrix(tmp)

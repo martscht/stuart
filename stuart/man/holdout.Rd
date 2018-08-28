@@ -25,7 +25,7 @@ Split a \code{data.frame} into two subsets for holdout validation.
 
 # seeded selection, 25\% validation sample
 data(fairplayer)
-split <- holdout(fairplayer, .75, 55635)
+split <- holdout(fairplayer, .75, seed = 55635)
 lapply(split, nrow) # check size of samples
 
 }
