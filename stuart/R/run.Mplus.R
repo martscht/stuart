@@ -10,9 +10,9 @@ function(
   
   analysis.options=NULL, suppress.model=FALSE,
   
-  output.model=FALSE,
+  output.model=FALSE, svalues=FALSE,
   ignore.errors=FALSE,
-  filename, cores
+  filename=NULL, cores
 ) { #begin function
   
   #prepare data for model fit
@@ -20,6 +20,9 @@ function(
   if (!is.null(grouping)) model.data$group <- data[,grouping]
   model.data <- data.frame(model.data,auxi)
   model.data <- data.frame(lapply(model.data, as.numeric))
+  
+  #file location
+  if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
   #writing the data file
   utils::write.table(model.data,paste(filename,'_data.dat',sep=''),
@@ -304,6 +307,11 @@ function(
 
   if (class(MplusOut)[1] == 'try-error') return(output = list(NA))
   
+  if (svalues) {
+    tmp <- readLines(paste0(filename, '.out'))
+    tmp <- tmp[(grep('USED AS STARTING VALUES',tmp)+1):(grep('^TECHNICAL',tmp)[1]-1)]
+    MplusOut$svalues <- tmp
+  }
   if (output.model) return(MplusOut)
   
   exclusion <- FALSE

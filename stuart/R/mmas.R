@@ -50,7 +50,7 @@
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
-#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
+#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.
 #' 
 #' 
 #' 
@@ -81,7 +81,7 @@
 #'   seed = 55635, cores = 1)
 #' summary(sel)
 #' 
-#' \dontrun{
+#' \donttest{
 #' # longitudinal example
 #' data(fairplayer)
 #' fs <- list(si1 = names(fairplayer)[83:92],
@@ -160,7 +160,7 @@ function(
   analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
   seed=NULL,
   
-  filename='stuart'                                                     #stem of filenames for Mplus
+  filename=NULL                                                         #stem of filenames for Mplus
 ) { #begin function
 
   #combine arguments

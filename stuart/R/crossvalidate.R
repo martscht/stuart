@@ -13,8 +13,7 @@
 #' @param new.data A \code{data.frame} of the validation sample.
 #' @param invariance The invariance between the calibration and the validation sample. Can be one of 'configural', 'weak', 'strong', 'strict', or 'full', with the first being the default. Currently 'full' is only functional when using Mplus.
 #' @param objective A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(stuart:::fitness)}.
-#' @param filename The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".
-#' @param file.remove A logical indicating whether to remove the generated Mplus input and output files. Ignored if lavaan is used.
+#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.
 #' 
 ### Outputs ----
 #' @return Returns a list containing the \code{data.frame} \code{comparison} and an object containing the model results of the validation sample. 
@@ -62,7 +61,7 @@ function(
   selection, old.data, new.data,
   invariance = 'configural',
   objective = NULL,
-  filename = 'stuart', file.remove=TRUE
+  filename = NULL
 ) { #begin function
   
   if (!invariance%in%c('configural','weak','strong','strict','full'))

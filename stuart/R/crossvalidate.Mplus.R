@@ -3,29 +3,28 @@ crossvalidate.Mplus <-
 function(
   selection,
   new.data, old.data,
-  invariance, filename, file.remove,
+  invariance, filename,
   objective = NULL, analysis.options = NULL,
   output.model=FALSE, ...
 ) { # begin function
   
   model <- selection$final
-  model.begin <- grep('^\\s+Model:',model)
-  model.end <- grep('^\\s+Output:',model) - 1
-  
-  analysis.options$model <- paste(model[model.begin:model.end],collapse='\n')
+
+  analysis.options$model <- paste(model$input$model,collapse='\n')
   analysis.options$output <- 'svalues;'
   
   grouping <- selection$call$grouping
+  if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
   args <- list(data=old.data,selected.items=selection$subtests,
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
-    output.model=TRUE,factor.structure=selection$parameters$factor.structure,
+    output.model=TRUE,svalues=TRUE,factor.structure=selection$parameters$factor.structure,
     filename=paste0(filename,'_calibration'),cores=NULL,
     analysis.options=analysis.options)
   
-  calib <- do.call('run.Mplus',args)  
+  calib <- do.call('run.Mplus',args)
   
-  model <- calib[(grep('USED AS STARTING VALUES',calib)+1):(grep('^TECHNICAL',calib)[1]-1)]
+  model <- calib$svalues
   
   # select parameters to be constrained
   equality <- character()
@@ -77,12 +76,6 @@ function(
   args$ignore.errors <- TRUE
 
   output <- do.call('run.Mplus',args)
-  
-  if (file.remove) {
-    file.remove(paste0(filename,'_calibration',c('.inp','.out')))
-    file.remove(paste0(filename,'_validation',c('.inp','.out')))
-    file.remove(paste0(filename,c('_calibration','_validation'),'_data.dat'))
-  }
   
   return(output)
   

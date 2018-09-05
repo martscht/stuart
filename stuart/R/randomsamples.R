@@ -31,7 +31,7 @@
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
 #' @param request.override The maximum number of combinations for which the estimation is performed immediately, without an additional override request.
-#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
+#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.
 #' @param n The number of random samples to be drawn.
 #' @param percentile The percentile of the final solution reported among the viable solutions. Defaults to 100 (the best solution found).
 #' 
@@ -84,7 +84,7 @@ randomsamples <-
     objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL, request.override=10000,
-    filename='randomsample', n=1000, percentile=100
+    filename=NULL, n=1000, percentile=100
   ) {#function begin
     
     #combine arguments

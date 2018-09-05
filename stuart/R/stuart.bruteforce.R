@@ -39,6 +39,7 @@ function(
   count.gb <- 0
 
   output.model <- FALSE
+  svalues <- FALSE
   bf.args <- mget(names(formals(bf.cycle))[-1])
   
   #parallel processing for R-internal estimations

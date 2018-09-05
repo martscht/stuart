@@ -14,7 +14,7 @@ mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
   pheromones = NULL, heuristics = NULL, deposit = "ib",
   localization = "nodes", pbest = 0.005, tolerance = 0.5,
   schedule = "run", analysis.options = NULL, suppress.model = FALSE,
-  seed = NULL, filename = "stuart")
+  seed = NULL, filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -81,7 +81,7 @@ mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{seed}{A random seed for the generation of random samples. See \code{\link{Random}} for more details.}
 
-\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".}
+\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.}
 }
 \value{
 Returns an object of the class \code{stuartOutput} for which specific \code{summary} and \code{plot} methods are available. The results are a list.
@@ -117,7 +117,7 @@ sel <- mmas(fairplayer, fs, 4,
   seed = 55635, cores = 1)
 summary(sel)
 
-\dontrun{
+\donttest{
 # longitudinal example
 data(fairplayer)
 fs <- list(si1 = names(fairplayer)[83:92],

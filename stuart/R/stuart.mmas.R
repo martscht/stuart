@@ -146,6 +146,7 @@ function(
     }
 
     output.model <- FALSE
+    svalues <- FALSE
     cons.args <- mget(names(formals(paste('construction',localization,sep='.'))))
     if (length(scheduled[scheduled%in%names(cons.args)])>0) {
       ant.args[scheduled[scheduled%in%names(cons.args)]] <- mget(paste(scheduled[scheduled%in%names(cons.args)],'cur',sep='_'))

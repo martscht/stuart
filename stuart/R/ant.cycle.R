@@ -10,7 +10,7 @@ function(
   item.invariance, long.invariance, mtmm.invariance, group.invariance, #invariance settings
   analysis.options, suppress.model,                             #additional analysis options
   objective,                                                 #fitness function to call
-  software,output.model=FALSE,
+  software,output.model=FALSE,svalues=FALSE,
   ignore.errors=FALSE,
   filename,cores
 ) { #begin function

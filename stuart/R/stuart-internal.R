@@ -1,4 +1,4 @@
 .onAttach <-
 function(libname,pkgname) {
-  packageStartupMessage('Warning: This is an alpha-build of stuart, so there may be (a lot of) bugs.')
+  packageStartupMessage('Warning: This is a beta-build of stuart. Please report any bugs you encounter.')
   }

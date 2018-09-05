@@ -61,6 +61,7 @@ stuart.gene <-
     repeat { #over generations
       
       output.model <- FALSE
+      svalues <- FALSE
       bf.args <- mget(names(formals(bf.cycle))[-1])
       combi_mat <- do.call(cbind, combi)
       

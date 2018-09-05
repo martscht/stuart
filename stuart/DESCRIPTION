@@ -8,7 +8,7 @@ Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
 Description: Construct subtests from a pool of items by using ant-colony-
     optimization, genetic algorithms, brute force, or random sampling.
 License: GPL-3
-Depends: R (>= 3.5.1)
+Depends: R (>= 3.5.0)
 Imports:
     stats,
     utils

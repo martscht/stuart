@@ -11,8 +11,7 @@ randomsamples(data, factor.structure, capacity = NULL,
   use.order = FALSE, software = "lavaan", cores = NULL,
   objective = objective.preset, ignore.errors = FALSE,
   analysis.options = NULL, suppress.model = FALSE, seed = NULL,
-  request.override = 10000, filename = "randomsample", n = 1000,
-  percentile = 100)
+  request.override = 10000, filename = NULL, n = 1000, percentile = 100)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -55,7 +54,7 @@ randomsamples(data, factor.structure, capacity = NULL,
 
 \item{request.override}{The maximum number of combinations for which the estimation is performed immediately, without an additional override request.}
 
-\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".}
+\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.}
 
 \item{n}{The number of random samples to be drawn.}
 

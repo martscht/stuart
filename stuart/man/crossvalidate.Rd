@@ -5,7 +5,7 @@
 \title{Cross-Validate a Measurement Model}
 \usage{
 crossvalidate(selection, old.data, new.data, invariance = "configural",
-  objective = NULL, filename = "stuart", file.remove = TRUE)
+  objective = NULL, filename = NULL)
 }
 \arguments{
 \item{selection}{An object of class \code{stuartOutput}.}
@@ -18,9 +18,7 @@ crossvalidate(selection, old.data, new.data, invariance = "configural",
 
 \item{objective}{A function that converts the results of model estimation into a pheromone. If none is provided the default function \code{fitness} is used. This can be examined with \code{body(stuart:::fitness)}.}
 
-\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when using Mplus. Defaults to "stuart".}
-
-\item{file.remove}{A logical indicating whether to remove the generated Mplus input and output files. Ignored if lavaan is used.}
+\item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.}
 }
 \value{
 Returns a list containing the \code{data.frame} \code{comparison} and an object containing the model results of the validation sample. 

@@ -31,7 +31,7 @@
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param request.override The maximum number of combinations for which the estimation is performed immediately, without an additional override request.
-#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. Dafaults to "stuart".
+#' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.
 #' 
 #' 
 ### Outputs ---- 
@@ -86,7 +86,7 @@ function(
 
   request.override=10000,
   
-  filename='bruteforce'
+  filename=NULL
 ) {#function begin
 
   #combine arguments
