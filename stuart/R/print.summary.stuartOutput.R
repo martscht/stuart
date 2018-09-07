@@ -2,7 +2,7 @@
 
 print.summary.stuartOutput <-
 function(x,...) {
-  message('Warning: This is an alpha-build, so there may be (a lot of) bugs.\n')
+  message('Warning: This is a beta-build of stuart. Please report any bugs you encounter.\n')
   cat('SUMMARY OF ANALYSIS:\n\n')
   cat('Analysis Type:',x$Type[1],'\n')
   cat('Estimation Software:',x$Software,'\n')
