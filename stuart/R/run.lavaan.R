@@ -183,29 +183,9 @@ function(
   if (!output.model & class(output)=='lavaan') {
 
     if (!ignore.errors) {
-      #check if psi is positive definite
-      pd_psi <- NULL
-      pd_the <- NULL
-      
-      if (!is.null(grouping)) {
-        for (i in 1:length(lavaan::inspect(output,'cov.lv'))) {
-          pd_psi[i] <- all(eigen(lavaan::inspect(output,'cov.lv')[[i]],TRUE,TRUE)$values>0) 
-          pd_the[i] <- all(diag(lavaan::inspect(output,'theta')[[i]])>=0)
-        }
-        pd_psi <- all(pd_psi)
-        pd_the <- all(pd_the)
-      } else {
-        pd_psi <- all(eigen(lavaan::inspect(output,'cov.lv'),TRUE,TRUE)$values>0)
-        pd_the <- all(diag(lavaan::inspect(output,'theta'))>=0)
-      }
-      
-      #return only NA if Psi or Theta are Not Positive Definite      
-      if (!pd_psi | !pd_the) {
-        return(output=list(NA)) 
-      }
+      if (!suppressWarnings(lavaan::inspect(output, 'post.check'))) return(output = list(NA))
     }
 
-    
     fit <- try(suppressWarnings(lavaan::fitMeasures(output, names(formals(objective)))),silent=TRUE)
     
     if (class(fit)[1]=='try-error') {
