@@ -326,13 +326,7 @@ function(
   } else {
 
     #extract the fit statistics reported by Mplus
-    output <- list()
-    
-    name <- c('rmsea','srmr','cfi','tli','chisq','df','pvalue','aic','bic','abic')
-    locator <- c('RMSEA_Estimate', 'SRMR', 'CFI', 'TLI', 'ChiSqM_Value', 'ChiSqM_DF', 'ChiSqM_PValue', 'AIC', 'BIC', 'aBIC')
-    for (i in seq_along(name)) {
-      output[name[i]] <- ifelse(locator[i] %in% names(MplusOut$summaries), MplusOut$summaries[, locator[i]], NA)
-    }
+    output <- as.list(MplusOut$summaries)
     
     #extract latent correlations
     if (is.null(grouping)) {
