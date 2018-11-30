@@ -24,11 +24,6 @@ function(
   #file location
   if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
-  #writing the data file
-  utils::write.table(model.data,paste(filename,'_data.dat',sep=''),
-    col.names=FALSE,row.names=FALSE,na='-9999',
-    sep='\t',dec='.')
-  
   # Check for inappropriate analysis options
   if (!is.null(analysis.options)) {
     tmp <- c('title', 'data', 'variable', 'analysis', 'model', 'constraints', 'output', 'savedata')
@@ -51,7 +46,7 @@ function(
   #write Mplus "Variable" section
   input <- paste0(input,'Variable: \n\tnames=')
   
-  input <- paste0(input,paste(names(model.data),collapse=c('\n\t\t')),';\n')
+  input <- paste0(input,paste(names(data),collapse=c('\n\t\t')),';\n')
   
   input <- paste0(input,'\tmissing=ALL(-9999);\n',
     '\tusevariables=')

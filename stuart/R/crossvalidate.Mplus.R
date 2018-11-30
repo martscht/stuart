@@ -16,6 +16,11 @@ function(
   grouping <- selection$call$grouping
   if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
+  #writing the data file
+  utils::write.table(old.data,paste(filename,'_data.dat',sep=''),
+    col.names=FALSE,row.names=FALSE,na='-9999',
+    sep='\t',dec='.')
+
   args <- list(data=old.data,selected.items=selection$subtests,
     grouping=grouping,auxi=old.data[,NULL],suppress.model=TRUE,
     output.model=TRUE,svalues=TRUE,factor.structure=selection$parameters$factor.structure,
@@ -65,6 +70,11 @@ function(
   } else {
     grouping  <- NULL
   }
+  
+  #writing the data file
+  utils::write.table(new.data,paste(filename,'_data.dat',sep=''),
+    col.names=FALSE,row.names=FALSE,na='-9999',
+    sep='\t',dec='.')
   
   args$filename <- paste0(filename,'_validation')
   args$data <- new.data
