@@ -89,6 +89,10 @@ function(
     }
   }
 
+  # stop with too few possible combinations
+  if (pbest_cur < 1/deci) {
+    stop(paste0('The target probability of constructing the final solution is less than random chance. Use bruteforce or increase pbest to at least ', 1/deci, '.'), call.=FALSE)
+  }
   
   #set random seed, if provided
   if (!is.null(seed)) {
