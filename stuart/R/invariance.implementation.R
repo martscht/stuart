@@ -30,9 +30,6 @@ function(
   
   #ordinal data indicator
   ordinal <- any(sapply(data[, unlist(factor.structure)], class) == 'ordered')
-  if (ordinal) {
-    #stop('Under construction.', call.=FALSE)
-  }
   nthresh <- list()
   
   
@@ -110,15 +107,14 @@ function(
     } else {
       #check for equal numbers of categories
       if (ordinal) {
+        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], nlevels)-1
+        
         #check for same number of categories
         if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
           if (any(nthresh[[i]] != nthresh[[i]][1])) {
             stop('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel.', .call=FALSE)
           }
         }
-        
-        
-        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], nlevels)-1
         
         if (mtmm.invariance[[locate.mtmm]]%in%c('strict', 'strong') | 
             long.invariance[[locate.long]]%in%c('strict', 'strong')) {

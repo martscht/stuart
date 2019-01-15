@@ -35,11 +35,21 @@ function(
       tmp.sel <- selected[[tmp.fil]]
       tmp.sit <- selected.items[[i]]
 
+      locate <- which(unlist(lapply(short,
+        function(x) is.element(names(factor.structure)[i],x))))
+      if (ordinal) {
+        nthresh <- sapply(data[, factor.structure[[i]]], nlevels)-1
+        cthresh <- c(0, cumsum(nthresh))+1
+      }
+      
       #write the labels (no grouping)
       if (is.null(grouping)) {
         tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
         if (ordinal) {
-          tmp.inv$alp <- long.equal[[i]]$alp[substr(long.equal[[i]]$alp, 4, 4)%in%tmp.sel]
+          tmp.inv$alp <- array(dim=0)
+          for (l in tmp.sel) { #across selected items
+            tmp.inv$alp <- c(tmp.inv$alp, long.equal[[i]]$alp[cthresh[l]:(cthresh[l]+(nthresh[l]-1))])
+          }
         }
       }
 
@@ -73,15 +83,9 @@ function(
       #intercepts
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
-          if (is.ordered(data[, tmp.sit[j]])) {
-            if (is.null(grouping)) {
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', tmp.inv$alp[substr(tmp.inv$alp, 4, 4)%in%tmp.sel[j]], '*t', substr(tmp.inv$alp[substr(tmp.inv$alp, 4, 4)%in%tmp.sel[j]], 8, 8), sep = '', collapse = '\n'), sep = '\n') 
-            } else {
-              tmp.thr <- grep(paste0('alp', tmp.sel[j]), tmp.inv$alp, value = TRUE)
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', tmp.thr, '*t', seq_along(tmp.thr), sep = '', collapse = '\n'), sep = '\n')
-            }
+          if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators
+            input <- paste(input, 
+              paste(tmp.sit[j], '|', long.equal[[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n')
           } else {
             input <- paste(input, 
               paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
