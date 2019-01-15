@@ -162,6 +162,15 @@ function(
     for (i in 2:length(levels(group))) {
       equal[[i]] <- equal[[1]] }
 
+    #check for same levels of ordinals
+    if (ordinal) {
+      for (i in unlist(factor.structure)) {
+        if (diff(tapply(data[, i], group, nlevels)) != 0) {
+          stop('The number of observed categories must be the same across multiple groups.', call. = FALSE)
+        }
+      }
+    }
+    
     #add variable residuals
     if (group.invariance!='strict') {
       for (i in 2:length(levels(group))) {
