@@ -59,7 +59,10 @@ function(
         for (k in 1:length(long.equal)) { #over groups
           tmp.inv[[k]] <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
           if (ordinal) {
-            tmp.inv[[k]]$alp <- long.equal[[k]][[i]]$alp[substr(long.equal[[k]][[i]]$alp, 4, 4)%in%tmp.sel]
+            tmp.inv[[k]]$alp <- character()
+            for (j in seq_along(tmp.sel)) {
+              tmp.inv[[k]]$alp <- c(tmp.inv[[k]]$alp, long.equal[[k]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))])
+            }
           }
           tmp.inv[[k]] <- unlist(tmp.inv[[k]])
         }
@@ -84,8 +87,13 @@ function(
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
           if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators
-            input <- paste(input, 
-              paste(tmp.sit[j], '|', long.equal[[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n')
+            if (is.null(grouping)) {
+              input <- paste(input, 
+                paste(tmp.sit[j], '|', long.equal[[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n') 
+            } else {
+              input <- paste(input, 
+                paste(tmp.sit[j], '|', long.equal[[1]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n')
+            }
           } else {
             input <- paste(input, 
               paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')

@@ -161,8 +161,9 @@ function(
     #check for same levels of ordinals
     if (ordinal) {
       for (i in unlist(factor.structure)) {
-        if (diff(tapply(data[, i], group, nlevels)) != 0) {
-          stop('The number of observed categories must be the same across multiple groups.', call. = FALSE)
+        lev <- sapply(tapply(data[, i], group, droplevels), nlevels)
+        if (min(lev)-max(lev) != 0) {
+          stop(paste0('The number of observed categories must be the same across multiple groups. Problem with ', i, '.'), call. = FALSE)
         }
       }
     }
