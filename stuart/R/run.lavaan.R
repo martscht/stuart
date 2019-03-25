@@ -221,6 +221,7 @@ function(
         psi <- tmp$psi
         lambda <- tmp$lambda
         alpha <- tmp$alpha
+        nu <- tmp$nu
         beta <- tmp$beta
         
         tmp <- lavaan::inspect(output,'rsquare')
@@ -254,6 +255,7 @@ function(
 
         # pass matrices from lavaan to output
         alpha <- lapply(tmp,function(x) x$alpha)
+        nu <- lapply(tmp,function(x) x$nu)
         beta <- lapply(tmp,function(x) x$beta)
         theta <- lapply(tmp,function(x) x$theta)
         lambda <- lapply(tmp,function(x) x$lambda)
@@ -275,6 +277,7 @@ function(
       output$theta <- theta
       output$psi <- psi
       output$alpha <- alpha
+      output$nu <- nu
       output$beta <- beta
       if (!is.na(con)) output$con <- con
 
