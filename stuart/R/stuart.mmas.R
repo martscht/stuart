@@ -90,7 +90,7 @@ function(
   }
 
   # stop with too few possible combinations
-  if (pbest_cur < 1/deci) {
+  if (pbest_cur < 1/compute.combinations(short.factor.structure, capacity, use.order)) {
     stop(paste0('The target probability of constructing the final solution is less than random chance. Use bruteforce or increase pbest to at least ', 1/deci, '.'), call.=FALSE)
   }
   
