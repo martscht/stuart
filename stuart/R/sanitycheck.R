@@ -3,10 +3,8 @@ sanitycheck <- function(data, factor.structure,capacity,
   objective=NULL,localization) {
   
   #sanity check
-  if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
-    if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {
-      stop('Currently only binary, ordinal, and continuous items are supported.', call. = FALSE)
-    }
+  if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {
+    stop('Currently only continuous and binary items are supported.', call. = FALSE)
   }
   
   
@@ -19,12 +17,12 @@ sanitycheck <- function(data, factor.structure,capacity,
   } 
 
   if (any(!unlist(repeated.measures)%in%names(factor.structure))) {
-    stop(paste('One or more factors appearing in repeated.measures is not present in the factor.structure:',
+    stop(paste('One or more factors appearing in repeated.measures is not present the factor.structure:',
       paste(unlist(repeated.measures)[!unlist(repeated.measures)%in%names(factor.structure)],collapse=', ')),call.=FALSE)
   }
   
   if (any(!unlist(mtmm)%in%names(factor.structure))) {
-    stop(paste('One or more factors appearing in mtmm is not present in the factor.structure:',
+    stop(paste('One or more factors appearing in mtmm is not present the factor.structure:',
       unlist(mtmm)[!unlist(mtmm)%in%names(factor.structure)]),call.=FALSE)
   }
   

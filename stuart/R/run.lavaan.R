@@ -22,11 +22,7 @@ function(
   #define empty lavaan input
   input <- NULL
 
-  #check for ordinal items
-  ordinal <- any(sapply(data[, unlist(factor.structure)], class) == 'ordered')
-  
   if (!suppress.model) {
-    
     #write the (item) factor structure
     for (i in 1:length(selected.items)) { #over factors
       #shorten the writing by creating tmp-data
@@ -35,22 +31,9 @@ function(
       tmp.sel <- selected[[tmp.fil]]
       tmp.sit <- selected.items[[i]]
 
-      locate <- which(unlist(lapply(short,
-        function(x) is.element(names(factor.structure)[i],x))))
-      if (ordinal) {
-        nthresh <- sapply(data[, factor.structure[[i]]], nlevels)-1
-        cthresh <- c(0, cumsum(nthresh))+1
-      }
-      
       #write the labels (no grouping)
       if (is.null(grouping)) {
         tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
-        if (ordinal) {
-          tmp.inv$alp <- array(dim=0)
-          for (l in tmp.sel) { #across selected items
-            tmp.inv$alp <- c(tmp.inv$alp, long.equal[[i]]$alp[cthresh[l]:(cthresh[l]+(nthresh[l]-1))])
-          }
-        }
       }
 
       #write the labels (grouping)
@@ -58,20 +41,14 @@ function(
         tmp.inv <- list(NA)
         for (k in 1:length(long.equal)) { #over groups
           tmp.inv[[k]] <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
-          if (ordinal) {
-            tmp.inv[[k]]$alp <- character()
-            for (j in seq_along(tmp.sel)) {
-              tmp.inv[[k]]$alp <- c(tmp.inv[[k]]$alp, long.equal[[k]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))])
-            }
-          }
           tmp.inv[[k]] <- unlist(tmp.inv[[k]])
         }
         tmp.inv <- data.frame(lapply(tmp.inv,data.frame))
         tmp.inv <- apply(tmp.inv,1,paste,collapse=',')
         tmp.inv <- paste('c(',tmp.inv,')',sep='')
-        tmp.inv <- list(lam=grep('lam', tmp.inv, value = TRUE),
-          alp=grep('alp', tmp.inv, value = TRUE),
-          eps=grep('eps', tmp.inv, value = TRUE))
+        tmp.inv <- list(lam=tmp.inv[1:capacity[[tmp.fil]]],
+          alp=tmp.inv[(capacity[[tmp.fil]]+1):(capacity[[tmp.fil]]*2)],
+          eps=tmp.inv[(capacity[[tmp.fil]]*2+1):(capacity[[tmp.fil]]*3)])
       }
 
       #factor loadings
@@ -86,18 +63,8 @@ function(
       #intercepts
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
-          if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators
-            if (is.null(grouping)) {
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', long.equal[[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n') 
-            } else {
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', long.equal[[1]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n')
-            }
-          } else {
-            input <- paste(input, 
-              paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
-          }
+          input <- paste(input, 
+            paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
         } else {
           input <- paste(input,
             paste(tmp.sit[j],'~',tmp.inv$alp[j],'*1',sep='',collapse='\n'),sep='\n')
@@ -256,10 +223,6 @@ function(
         alpha <- tmp$alpha
         nu <- tmp$nu
         beta <- tmp$beta
-        if (ordinal) {
-          tau <- tmp$tau
-          delta <- tmp$delta
-        }
         
         tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(tmp[names(tmp)%in%names(factor.structure)])
@@ -297,10 +260,6 @@ function(
         theta <- lapply(tmp,function(x) x$theta)
         lambda <- lapply(tmp,function(x) x$lambda)
         psi <- lapply(tmp,function(x) x$psi)
-        if (ordinal) {
-          tau <- lapply(tmp,function(x) x$tau)
-          delta <- lapply(tmp,function(x) x$delta)
-        }
         
         tmp <- lavaan::inspect(output,'rsquare')
         con <- mean(sapply(tmp,function(x) mean(x[!names(x)%in%names(model.data)])))
@@ -310,7 +269,6 @@ function(
       # Export the latent variable correlation matrix
       lvcor <- lavaan::inspect(output,'cor.lv')
 
-      #Listed in detail for quick overview of exported output
       output <- as.list(fit)
       output$crel <- crel
       output$rel <- rel
@@ -322,10 +280,6 @@ function(
       output$nu <- nu
       output$beta <- beta
       if (!is.na(con)) output$con <- con
-      if (ordinal) {
-        output$tau <- tau
-        output$delta <- delta
-      }
 
       return(output=output)
     }
