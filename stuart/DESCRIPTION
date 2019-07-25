@@ -1,7 +1,7 @@
 Package: stuart
 Type: Package
 Title: Subtests Using Algorithmic Rummaging Techniques
-Version: 0.7.3-9001
+Version: 0.7.3-9002
 Date: 2018-09-11
 Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
   role=c('aut','cre'))
@@ -17,5 +17,5 @@ Suggests:
     lavaan (>= 0.5.18),
     MplusAutomation (>= 0.7-2),
     graphics
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Encoding: UTF-8
