@@ -207,7 +207,6 @@ function(
         }
         # workaround for absence of short.factor.structure when crossvalidating
         if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
-          warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
           short.factor.structure <- as.list(rep(NA,ncol(lambda)))
           names(short.factor.structure) <- colnames(lambda)
         }
@@ -242,7 +241,6 @@ function(
           }
           # workaround for absence of short.factor.structure when crossvalidating
           if (class(try(short.factor.structure,silent=TRUE))=='try-error' & !output.model) {
-            warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
             short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
             names(short.factor.structure) <- colnames(lambda[[i]])
           }

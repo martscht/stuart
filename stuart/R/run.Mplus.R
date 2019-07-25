@@ -59,7 +59,7 @@ function(
   }
   
   if (!is.null(grouping)) {
-    input <- paste(input,paste0('grouping = group (',paste(stats::na.omit(unique(model.data$group)),stats::na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
+    input <- paste(input,paste0('grouping = ', grouping, ' (',paste(stats::na.omit(unique(model.data$group)),stats::na.omit(unique(model.data$group)),sep='=',collapse=' '),')'),';\n')
   }
   
   input <- paste0(input,unlist(analysis.options[grepl('^vari*',names(analysis.options),ignore.case=TRUE)][1]),'\n')
@@ -310,7 +310,7 @@ function(
   if (output.model) return(MplusOut)
   
   exclusion <- FALSE
-  if (length(MplusOut$errors) > 0) exclusion <- TRUE
+  if (length(MplusOut$errors) > 0) return(output=list(NA))
   if (!ignore.errors) {
     exclusion <- any(sapply(MplusOut$warnings, function(x) any(grepl('NOT POSITIVE|NO CONVERGENCE|CHECK YOUR MODEL', x))))
   }
@@ -383,7 +383,6 @@ function(
       }
       # workaround for absence of short.factor.structure when crossvalidating
       if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
-        warning('Estimates of crel are inflated when crossvalidating longitudinal or MTMM settings.',call.=FALSE)
         short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
         names(short.factor.structure) <- colnames(lambda[[i]])
       }
