@@ -32,6 +32,12 @@ function(
   ordinal <- any(sapply(data[, unlist(factor.structure)], class) == 'ordered')
   nthresh <- list()
   
+  #warning about residuals with ordinal
+  if (ordinal) {
+    if (any(c(unlist(long.invariance), unlist(mtmm.invariance), unlist(group.invariance)) == 'strict') | any(unlist(invariance) %in% c('parallel', 'ess.parallel'))) {
+      warning('Invariance assumptions regarding residual variances of ordinal indicators are not possible in the current approach and are ignored.', call. = FALSE)
+    }
+  }
   
   #equality constraints
   for (i in 1:length(factor.structure)) {
@@ -61,7 +67,7 @@ function(
         #check for same number of categories
         if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
           if (any(nthresh[[i]] != nthresh[[i]][1])) {
-            stop('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel.', .call=FALSE)
+            stop(paste0('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel. Problem with ', paste(factor.structure[[i]][(nthresh[[i]]!=nthresh[[i]][1])], collapse = ', '), '.'), .call=FALSE)
           }
         }
         equal[[i]]$alp <- array(NA, c(sum(nthresh[[i]]), 5))
@@ -112,14 +118,14 @@ function(
         #check for same number of categories
         if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
           if (any(nthresh[[i]] != nthresh[[i]][1])) {
-            stop('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel.', .call=FALSE)
+            stop(paste0('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel. Problem with ', paste(factor.structure[[i]][(nthresh[[i]]!=nthresh[[i]][1])], collapse = ', '), '.'), .call=FALSE)
           }
         }
         
         if (mtmm.invariance[[locate.mtmm]]%in%c('strict', 'strong') | 
             long.invariance[[locate.long]]%in%c('strict', 'strong')) {
           if (any(nthresh[[i]]!=nthresh[[locate]])) {
-            stop('The number of observed categories must be the same when using strict or strong invariance.', call. = FALSE)
+            stop(paste0('The number of observed categories must be the same when using strict or strong invariance. Problem with ', paste(factor.structure[[i]][(nthresh[[i]]!=nthresh[[locate]])], collapse = ', '), '.'), call. = FALSE)
           }
         }
       }

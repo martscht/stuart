@@ -80,20 +80,19 @@ function(
         paste(tmp.inv$lam,'*',tmp.sit,sep='',collapse=' + '),sep='')
 
       #residual variances
-      input <- paste(input,
-        paste(tmp.sit,'~~',tmp.inv$eps,'*',tmp.sit,sep='',collapse='\n'),sep='\n')
+      tmp_filt <- sapply(data[, tmp.sit], is.numeric)
+      if (any(tmp_filt)) {
+        input <- paste(input, '\n',
+          tmp.sit[tmp_filt], '~~', tmp.inv$eps[tmp_filt], '*', tmp.sit[tmp_filt], sep = '', collapse = '\n')
+      }
 
       #intercepts
+      tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
           if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators
-            if (is.null(grouping)) {
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', long.equal[[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n') 
-            } else {
-              input <- paste(input, 
-                paste(tmp.sit[j], '|', long.equal[[1]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))], '*t', 1:nthresh[tmp.sel[j]], sep = '', collapse = '\n'), sep = '\n')
-            }
+            input <- paste(input, 
+              paste(tmp.sit[j], '|', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], '*t', 1:nthresh[tmp.sit[j]], sep = '', collapse = '\n'), sep = '\n')
           } else {
             input <- paste(input, 
               paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
