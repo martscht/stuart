@@ -17,10 +17,14 @@ function(
   
   #prepare data for model fit
   model.data <- data[,unlist(selected.items)]
-  if (!is.null(grouping)) model.data$group <- data[,grouping]
+  if (!is.null(grouping)) {
+    model.data$group <- data[,grouping]
+    if (!is.numeric(data[, grouping])) {
+      stop('Mplus requires numerical variables. Your grouping variable is not numeric.', call. = FALSE)
+    }
+  }
   model.data <- data.frame(model.data,auxi)
-  model.data <- data.frame(lapply(model.data, as.numeric))
-  
+
   #file location
   if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
@@ -68,10 +72,6 @@ function(
   #write Mplus "Analysis" section
   input <- paste0(input,'Analysis: \n\tprocessors=',cores,';\n')
   
-  if (any(sapply(data[, unlist(selected.items)], is.factor))) {
-    input <- paste0(input,'\n\tparameterization=theta;\n')
-  }
-  
   input <- paste0(input, analysis.options$analysis,'\n')
   
   #write Mplus "Model" section
@@ -102,8 +102,6 @@ function(
         for (j in seq_along(tmp.sit)) {
           # for categorical
           if (is.factor(data[, tmp.sit[j]])) {
-            input <- paste(input, 
-              paste0(tmp.sit[j],'@1 (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
             input <- paste(input, 
               paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
           } 
@@ -169,8 +167,6 @@ function(
           # for categorical
           if (is.factor(data[, tmp.sit[j]])) {
             input <- paste(input, 
-              paste0(tmp.sit[j],'@1;',collapse='\n'),sep='\n')
-            input <- paste(input, 
               paste0('[',tmp.sit[j],'$1];', collapse = '\n'),sep='\n')
           } 
           # for continuous
@@ -228,8 +224,6 @@ function(
           for (j in seq_along(tmp.sit)) {
             # for categorical
             if (is.factor(data[, tmp.sit[j]])) {
-              input <- paste(input, 
-                paste0(tmp.sit[j],'@1 (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
               input <- paste(input, 
                 paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
             } 
@@ -312,7 +306,7 @@ function(
   exclusion <- FALSE
   if (length(MplusOut$errors) > 0) return(output=list(NA))
   if (!ignore.errors) {
-    exclusion <- any(sapply(MplusOut$warnings, function(x) any(grepl('NOT POSITIVE|NO CONVERGENCE|CHECK YOUR MODEL', x))))
+    exclusion <- any(sapply(MplusOut$warnings, function(x) any(grepl('POSITIVE DEFINITE|NO CONVERGENCE|CHECK YOUR MODEL', x))))
   }
 
   #return list of NA if errors occurred
@@ -364,12 +358,28 @@ function(
     })
     
     # Extract alpha
-    tmp <- esti[grepl('Intercepts|Thresholds', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
+    tmp <- esti[(grepl('Intercepts', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items))) | grepl('Thresholds', esti$paramHeader), ]
     alpha <- tapply(tmp$est, tmp$Group, identity, simplify = FALSE)
 
     # Extract theta
-    tmp <- esti[grepl('Residual.Variances', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
-    theta <- tapply(tmp$est, tmp$Group, function(x) diag(x), simplify = FALSE)
+    var_types <- sapply(model.data, function(x) class(x)[1])
+    var_types <- var_types[names(var_types)!='group']
+    
+    if (all(var_types%in%c('numeric','integer'))) {
+      tmp <- esti[grepl('Residual.Variances', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
+      theta <- tapply(tmp$est, tmp$Group, function(x) diag(x), simplify = FALSE)
+    } else {
+      tmp <- MplusOut$parameters$r2
+      theta <- tapply(tmp$resid_var, tmp$Group, function(x) diag(x), simplify = FALSE)
+      
+      if (any(var_types%in%c('numeric','integer'))) {
+        for (i in seq_along(theta)) {
+          tmp <- esti[grepl('Residual.Variances', esti$paramHeader) & esti$param %in% toupper(unlist(selected.items)), ]
+          tmp <- tmp[tmp$Group == unique(tmp$Group)[i], 'est']
+          theta[[i]][is.na(theta[[i]])] <- tmp
+        } 
+      }
+    }
     
     dimnames(alpha) <- dimnames(theta) <- names(lambda) <- NULL
 

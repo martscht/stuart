@@ -23,7 +23,7 @@ function(
   input <- NULL
 
   #check for ordinal items
-  ordinal <- any(sapply(data[, unlist(factor.structure)], class) == 'ordered')
+  ordinal <- any(sapply(data[, unlist(factor.structure)], function(x) class(x)[1]) == 'ordered')
   
   if (!suppress.model) {
     
@@ -87,7 +87,9 @@ function(
       }
 
       #intercepts
-      tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
+      if (ordinal) {
+        tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
+      }
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
           if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators

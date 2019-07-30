@@ -1,6 +1,6 @@
 sanitycheck <- function(data, factor.structure,capacity,
   repeated.measures,mtmm,
-  objective=NULL,localization) {
+  objective=NULL,localization,software) {
   
   #sanity check
   if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
@@ -9,6 +9,9 @@ sanitycheck <- function(data, factor.structure,capacity,
     }
   }
   
+  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & any(names(formals(objective))=='srmr') & software == 'Mplus') {
+    stop('Mplus does not provide estimates for the SRMR when handling ordinal variables. Please change your objective function.', call. = FALSE)
+  }
   
   if (any(duplicated(names(factor.structure)))) {
     stop('You have provided duplicates in the name of factor.structure.',call.=FALSE)
