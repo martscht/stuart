@@ -90,8 +90,9 @@ function(
   }
 
   # stop with too few possible combinations
-  if (pbest_cur < 1/compute.combinations(short.factor.structure, capacity, use.order)) {
-    stop(paste0('The target probability of constructing the final solution is less than random chance. Use bruteforce or increase pbest to at least ', 1/deci, '.'), call.=FALSE)
+  p_random <-  1/compute.combinations(short.factor.structure, capacity, use.order)
+  if (pbest_cur < p_random) {
+    stop(paste0('The target probability of constructing the final solution is less than random chance. Use bruteforce or increase pbest to at least ', round(p_random, 5), '.'), call.=FALSE)
   }
   
   #set random seed, if provided

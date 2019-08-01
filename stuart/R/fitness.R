@@ -6,8 +6,8 @@ function(objective = NULL, solution.fit, software
   
   # translate basic fit components, if necessary
   if (software == 'Mplus') {
-    name <- c('rmsea','srmr','cfi','tli','chisq','df','pvalue','aic','bic','abic')
-    locator <- c('RMSEA_Estimate', 'SRMR', 'CFI', 'TLI', 'ChiSqM_Value', 'ChiSqM_DF', 'ChiSqM_PValue', 'AIC', 'BIC', 'aBIC')
+    name <- c('rmsea','srmr','wrmr','cfi','tli','chisq','df','pvalue','aic','bic','abic')
+    locator <- c('RMSEA_Estimate', 'SRMR', 'WRMR', 'CFI', 'TLI', 'ChiSqM_Value', 'ChiSqM_DF', 'ChiSqM_PValue', 'AIC', 'BIC', 'aBIC')
     
     locator <- locator[which(name%in%criteria)]
     name <- name[which(name%in%criteria)]
