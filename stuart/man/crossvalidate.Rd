@@ -15,6 +15,12 @@ crossvalidate(selection, old.data, new.data, filename = NULL)
 
 \item{filename}{The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.}
 }
+\value{
+Returns a list containing the \code{data.frame} \code{comparison} and an object containing the model results of the four different invariance assumptions. 
+
+\item{comparison}{A \code{data.frame} with 4 observations, each observation representing a level of measurement invariance. The number of columns depends on the arguments of the \code{objective} used in the original selection. In addition to those columns, three additional columns with the (corrected) Likelihood-Ratio-Tests are reported.}
+\item{models}{A list of the four model results either of class \code{lavaan} or \code{mplus.model}, depending on the \code{software}-setting of the original selection.}
+}
 \description{
 Cross-validate a measurement model obtained from STUART.
 }

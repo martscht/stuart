@@ -2,7 +2,7 @@ sanitycheck <- function(data, factor.structure,capacity,
   repeated.measures,mtmm,
   objective=NULL,localization,software='lavaan') {
   
-  if (is.null(objective)) objective <- stuart:::objective.preset
+  if (is.null(objective)) objective <- objective.preset
   #sanity check
   if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
     if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {

@@ -16,7 +16,7 @@
 ### Outputs ----
 #' @return Returns a list containing the \code{data.frame} \code{comparison} and an object containing the model results of the four different invariance assumptions. 
 #' 
-#' \item{comparison}{A \code{data.frame} with 4 observations, each observation representing a level of measurement invariance. The number of columns depends on the arguments of the \code{objective} used in the original selection. In addition to those columns, three additional columns with the (corrected) Likelihood-Ratio-Tests are reported.
+#' \item{comparison}{A \code{data.frame} with 4 observations, each observation representing a level of measurement invariance. The number of columns depends on the arguments of the \code{objective} used in the original selection. In addition to those columns, three additional columns with the (corrected) Likelihood-Ratio-Tests are reported.}
 #' \item{models}{A list of the four model results either of class \code{lavaan} or \code{mplus.model}, depending on the \code{software}-setting of the original selection.}
 #' 
 #' @concept ACO subtests
