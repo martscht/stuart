@@ -1,6 +1,6 @@
 sanitycheck <- function(data, factor.structure,capacity,
   repeated.measures,mtmm,
-  objective=NULL,localization,software) {
+  objective=NULL,localization,software='lavaan') {
   
   #sanity check
   if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
