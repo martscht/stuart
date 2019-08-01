@@ -37,18 +37,16 @@ function(
 
       locate <- which(unlist(lapply(short,
         function(x) is.element(names(factor.structure)[i],x))))
-      if (ordinal) {
-        nthresh <- sapply(data[, factor.structure[[i]]], nlevels)-1
-        cthresh <- c(0, cumsum(nthresh))+1
-      }
-      
+      nthresh <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
+      cthresh <- c(0, cumsum(nthresh))+1
+
       #write the labels (no grouping)
       if (is.null(grouping)) {
         tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
         if (ordinal) {
           tmp.inv$alp <- array(dim=0)
           for (l in tmp.sel) { #across selected items
-            tmp.inv$alp <- c(tmp.inv$alp, long.equal[[i]]$alp[cthresh[l]:(cthresh[l]+(nthresh[l]-1))])
+            tmp.inv$alp <- c(tmp.inv$alp, long.equal[[i]]$alp[cthresh[l]:(cthresh[l+1]-1)])
           }
         }
       }
@@ -82,26 +80,19 @@ function(
       #residual variances
       tmp_filt <- sapply(data[, tmp.sit], is.numeric)
       if (any(tmp_filt)) {
-        input <- paste(input, '\n',
-          tmp.sit[tmp_filt], '~~', tmp.inv$eps[tmp_filt], '*', tmp.sit[tmp_filt], sep = '', collapse = '\n')
+        input <- paste0(input, '\n',
+          paste0(tmp.sit[tmp_filt], '~~', tmp.inv$eps[tmp_filt], '*', tmp.sit[tmp_filt], sep = '', collapse = '\n'))
       }
 
       #intercepts
-      if (ordinal) {
-        tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
-      }
+      tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
       for (j in seq_along(tmp.sit)) {
         if (is.factor(data[, tmp.sit[j]])) {
-          if (is.ordered(data[, tmp.sit[j]])) { #for ordinal indicators
-            input <- paste(input, 
-              paste(tmp.sit[j], '|', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], '*t', 1:nthresh[tmp.sit[j]], sep = '', collapse = '\n'), sep = '\n')
-          } else {
-            input <- paste(input, 
-              paste(tmp.sit[j], '|', tmp.inv$alp[j], '*t1', sep = ''), sep = '\n')
-          }
+          input <- paste(input, 
+            paste(tmp.sit[j], '|', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], '*t', 1:nthresh[tmp.sit[j]], sep = '', collapse = '\n'), sep = '\n')
         } else {
-          input <- paste(input,
-            paste(tmp.sit[j],'~',tmp.inv$alp[j],'*1',sep='',collapse='\n'),sep='\n')
+          input <- paste(input, 
+            paste(tmp.sit[j], '~', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], '*1', sep = '', collapse = '\n'), sep = '\n')
         }
       }
 
@@ -147,7 +138,7 @@ function(
         }
       }
       
-      if (!is.null(grouping) & is.null(repeated.measures)) {
+      if (!is.null(grouping) & length(repeated.measures[[locate]])==1) {
         if (group.invariance %in% c('strong', 'strict')) {
           input <- paste(input,
             paste0(names(selected.items[i]),'~c(', paste(c(0,rep(NA,nlevels(as.factor(model.data$group))-1)),collapse=','),')*1',collapse='\n'),sep='\n')
@@ -187,7 +178,7 @@ function(
   
   #imply sem() presets
   presets <- list(int.ov.free=TRUE,int.lv.free=FALSE,auto.fix.first=TRUE,std.lv=FALSE,
-    auto.fix.single=TRUE,auto.var=TRUE,auto.cov.lv.x=TRUE,auto.th=TRUE,auto.delta=TRUE,auto.cov.y=TRUE)
+    auto.fix.single=TRUE,auto.var=TRUE,auto.cov.lv.x=TRUE,auto.th=TRUE,auto.delta=TRUE,auto.cov.y=TRUE,parameterization='delta')
   for (i in names(presets)) {
     if (!i %in% names(analysis.options)) analysis.options[i] <- presets[i]
   }

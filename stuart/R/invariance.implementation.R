@@ -29,7 +29,7 @@ function(
   names(equal) <- names(factor.structure)
   
   #ordinal data indicator
-  ordinal <- any(sapply(data[, unlist(factor.structure)], class) == 'ordered')
+  ordinal <- any(sapply(data[, unlist(factor.structure)], function(x) class(x)[1]) == 'ordered')
   nthresh <- list()
   
   #warning about residuals with ordinal
@@ -62,7 +62,7 @@ function(
       
       #add index for threshold number
       if (ordinal) {
-        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], nlevels)-1
+        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
         
         #check for same number of categories
         if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
@@ -113,7 +113,7 @@ function(
     } else {
       #check for equal numbers of categories
       if (ordinal) {
-        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], nlevels)-1
+        nthresh[[i]] <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
         
         #check for same number of categories
         if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
@@ -167,7 +167,7 @@ function(
     #check for same levels of ordinals
     if (ordinal) {
       for (i in unlist(factor.structure)) {
-        lev <- sapply(tapply(data[, i], group, droplevels), nlevels)
+        lev <- sapply(tapply(data[, i], group, function(x) ifelse(is.numeric(x), x, droplevels(x))), nlevels)
         if (min(lev)-max(lev) != 0) {
           stop(paste0('The number of observed categories must be the same across multiple groups. Problem with ', i, '.'), call. = FALSE)
         }

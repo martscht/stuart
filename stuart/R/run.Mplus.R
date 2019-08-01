@@ -25,6 +25,9 @@ function(
   }
   model.data <- data.frame(model.data,auxi)
 
+  #check for ordinal items
+  ordinal <- any(sapply(data[, unlist(factor.structure)], function(x) class(x)[1]) == 'ordered')
+  
   #file location
   if (is.null(filename)) filename <- paste0(tempdir(), '/stuart')
   
@@ -90,27 +93,36 @@ function(
         tmp.sel <- selected[[tmp.fil]]
         tmp.sit <- selected.items[[i]]
         
+        locate <- which(unlist(lapply(short,
+          function(x) is.element(names(factor.structure)[i],x))))
+        nthresh <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
+        cthresh <- c(0, cumsum(nthresh))+1
+
         #write the labels (no grouping)
         tmp.inv <- lapply(long.equal[[i]],function(x) return(x[tmp.sel]))
-        
+        if (ordinal) {
+          tmp.inv$alp <- array(dim=0)
+          for (l in tmp.sel) { #across selected items
+            tmp.inv$alp <- c(tmp.inv$alp, long.equal[[i]]$alp[cthresh[l]:(cthresh[l+1]-1)])
+          }
+        }
+
         #factor loadings
         input <- paste(input,'\n',
                        names(selected.items[i]),'by',
                        paste0(tmp.sit,' (',tmp.inv$lam,')',collapse='\n\t\t'),';\n')
         
         #residual variances & intercepts
+        tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
         for (j in seq_along(tmp.sit)) {
-          # for categorical
-          if (is.factor(data[, tmp.sit[j]])) {
+          if (is.factor(data[, tmp.sit[j]])) { #categorical
             input <- paste(input, 
-              paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
-          } 
-          # for continuous
-          else {
+              paste0('[', tmp.sit[j], '$', 1:nthresh[tmp.sit[j]], '] (', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], ');', sep = '', collapse = '\n'), sep = '\n')
+          } else {
+            input <- paste(input, 
+              paste0('[', tmp.sit[j], '] (', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], ');', sep = '', collapse = '\n'), sep = '\n')
             input <- paste(input,
               paste0(tmp.sit[j],' (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
-            input <- paste(input,
-              paste0('[',tmp.sit[j],'] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
           }
         }
         
@@ -198,21 +210,36 @@ function(
 
       #group specific models
       for (k in 1:length(long.equal)) { #over groups
-
+        
         #write grouping header
         input <- paste(input,'\n',
                        'Model',stats::na.omit(unique(model.data$group))[k],':\n')
         
         #write the (item) factor structure
         for (i in 1:length(selected.items)) { #over factors
+          
           #shorten the writing by creating tmp-data
           tmp.fil <- which(unlist(lapply(short,
             function(x) is.element(names(factor.structure)[i],x))))
           tmp.sel <- selected[[tmp.fil]]
           tmp.sit <- selected.items[[i]]
-
-          tmp.inv <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
           
+          locate <- which(unlist(lapply(short,
+            function(x) is.element(names(factor.structure)[i],x))))
+          nthresh <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
+          cthresh <- c(0, cumsum(nthresh))+1
+          
+          tmp.thr <- c(0, cumsum(nthresh[tmp.sit]))
+
+          tmp.inv <- list(NA)
+          tmp.inv <- lapply(long.equal[[k]][[i]],function(x) return(x[tmp.sel]))
+          if (ordinal) {
+            tmp.inv$alp <- character()
+            for (j in seq_along(tmp.sel)) {
+              tmp.inv$alp <- c(tmp.inv$alp, long.equal[[k]][[i]]$alp[cthresh[tmp.sel[j]]:(cthresh[tmp.sel[j]]+(nthresh[tmp.sel[j]]-1))])
+            }
+          }
+
           #factor loadings
           tmp.lam <- paste(names(selected.items[i]),'by',
                            paste0(tmp.sit[1],'@1\n\t\t'))
@@ -222,17 +249,14 @@ function(
           
           #residual variances & intercepts
           for (j in seq_along(tmp.sit)) {
-            # for categorical
-            if (is.factor(data[, tmp.sit[j]])) {
+            if (is.factor(data[, tmp.sit[j]])) { #categorical
               input <- paste(input, 
-                paste0('[',tmp.sit[j],'$1] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
-            } 
-            # for continuous
-            else {
+                paste0('[', tmp.sit[j], '$', 1:nthresh[tmp.sit[j]], '] (', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], ');', sep = '', collapse = '\n'), sep = '\n')
+            } else {
+              input <- paste(input, 
+                paste0('[', tmp.sit[j], '] (', tmp.inv$alp[(tmp.thr[j] + 1):tmp.thr[j+1]], ');', sep = '', collapse = '\n'), sep = '\n')
               input <- paste(input,
                 paste0(tmp.sit[j],' (',tmp.inv$eps[j],');',collapse='\n'),sep='\n')
-              input <- paste(input,
-                paste0('[',tmp.sit[j],'] (',tmp.inv$alp[j],');', collapse = '\n'),sep='\n')
             }
           }
         }
@@ -370,6 +394,9 @@ function(
       theta <- tapply(tmp$est, tmp$Group, function(x) diag(x), simplify = FALSE)
     } else {
       tmp <- MplusOut$parameters$r2
+      if (is.null(grouping)) {
+        tmp$Group <- 1
+      }
       theta <- tapply(tmp$resid_var, tmp$Group, function(x) diag(x), simplify = FALSE)
       
       if (any(var_types%in%c('numeric','integer'))) {
@@ -418,6 +445,7 @@ function(
     }
     
     tmp <- MplusOut$parameters$r2
+    if (is.null(grouping)) tmp$Group <- 1
     tmp <- tmp[tmp$param %in% toupper(names(selected.items)), ]
     con <- mean(tapply(tmp$est, tmp$Group, mean))
 
