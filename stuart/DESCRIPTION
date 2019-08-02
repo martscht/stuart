@@ -3,7 +3,7 @@ Type: Package
 Title: Subtests Using Algorithmic Rummaging Techniques
 Version: 0.8.0
 Date: 2019-08-01
-Authors@R: person("Martin", "Schultze", email="martin.schultze@fu-berlin.de",
+Authors@R: person("Martin", "Schultze", email="schultze@psych.uni-frankfurt.de",
   role=c('aut','cre'))
 Description: Construct subtests from a pool of items by using ant-colony-optimization, genetic algorithms, brute force, or random sampling.
   Schultze (2017) <doi:10.17169/refubium-622>.
