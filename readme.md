@@ -130,14 +130,62 @@ examples use the `fairplayer` dataset provided in the package:
 
     data(fairplayer)
 
-This dataset contains information about `{r} nrow(fairplayer)` students
-on `{r} ncol(fairplayer)` variables. The bulk of these variables are
-items regarding empathy (EM), social intelligence (SI), and relational
-aggression (RA). Each item was presented to the students themselves (s)
-as well as their teacher (t) at three separate occasions (t1, t2, t3).
-Thus the names of the variables in the dataset encode this information,
-for example `sRA03t2` is the self-rated relational aggression on the
-third item at the second measurement occasion.
+This dataset contains information about 143 students on 142 variables.
+The bulk of these variables are items regarding empathy (EM), social
+intelligence (SI), and relational aggression (RA). Each item was
+presented to the students themselves (s) as well as their teacher (t) at
+three separate occasions (t1, t2, t3). Thus the names of the variables
+in the dataset encode this information, for example `sRA03t2` is the
+self-rated relational aggression on the third item at the second
+measurement occasion.
+
+The currently available examples are shown in the following table. If
+there is a specific example you would like to see, please either contact
+me directly or simply [file an
+issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
+
+<table style="width:100%;">
+<colgroup>
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+<col style="width: 14%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Example</th>
+<th>Approach</th>
+<th>Multiple Facets</th>
+<th>Multiple Occasions</th>
+<th>Multiple Groups</th>
+<th>Multiple Sources</th>
+<th>Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><a href="#ex1_minimal">Minimal</a></td>
+<td><code>bruteforce</code></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><a href="#ex2_gene">Multiple Facets</a></td>
+<td><code>gene</code></td>
+<td>X</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
 
 ### A minimal example
 
@@ -217,7 +265,7 @@ information about what happened:
     ## Estimation Software: lavaan 
     ## Models estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 0.617 seconds
+    ## Time Required: 1.068 seconds
     ## 
     ## Optimization History:
     ##   run pheromone chisq df pvalue rmsea         srmr      crel
@@ -248,7 +296,7 @@ look at the preset:
     ##     1/(1 + exp(6 - 10 * (crel))) + 0.5 * (1 - (1/(1 + exp(5 - 
     ##         100 * rmsea)))) + 0.5 * (1 - (1/(1 + exp(6 - 100 * srmr))))
     ## }
-    ## <bytecode: 0x563e822a7178>
+    ## <bytecode: 0x561b8148ab60>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -288,3 +336,224 @@ estimation (e.g. non-convergence) or problems with estimated paramaters
 (e.g. negative variances). Such solutions are excluded by default, but
 the latter type of solutions can be included by using
 `ignore.errors = TRUE`.
+
+### Multiple Facets
+
+The previous example was limited to a single facet. In this example, we
+will take a look at something a bit more complex, which likely
+constitutes the most common situation. In this example we will look at
+empathy, relational aggression, and social intelligence simultaneously.
+The example is a bit lacking, because these three constitute different
+constructs and not different facets of a single construct, as would most
+often be the case in scale construction.
+
+As was the case in the previous example, the first thing we need to do
+is set up the factor structure in a list that links items to their
+facets:
+
+    fs <- list(EM = names(fairplayer)[5:12],
+      RA = names(fairplayer)[53:57],
+      SI = names(fairplayer)[83:92])
+    fs
+
+    ## $EM
+    ## [1] "sEM01t1" "sEM02t1" "sEM03t1" "sEM04t1" "sEM05t1" "sEM06t1" "sEM07t1"
+    ## [8] "sEM08t1"
+    ## 
+    ## $RA
+    ## [1] "sRA01t1" "sRA02t1" "sRA03t1" "sRA04t1" "sRA05t1"
+    ## 
+    ## $SI
+    ##  [1] "sSI01t1" "sSI02t1" "sSI03t1" "sSI04t1" "sSI05t1" "sSI06t1" "sSI07t1"
+    ##  [8] "sSI08t1" "sSI09t1" "sSI10t1"
+
+In this case we use all items measured via self-reports at the first
+measurement occasion. The `fs`-object is a list of 3, where each element
+of the list represents a facet of the questionnaire. For example, the
+first element is named `EM` to represent the assessment of Empathy and
+contains the names of the 8 items that were used in this case.
+
+Say we wanted 3 items for empathy, 3 items for relational, and 4 items
+for social intelligence to have a ten-item questionnaire at the end of
+item selection. This can be achieved by defining a list with the number
+of items per facet. Of course, these numbers must be in the same order
+as the factor structure, so they can be aligned.
+
+    ni <- list(3, 3, 4)
+
+To compute the number of possible combinations, we can use the
+convenience function `combinations()`:
+
+    combinations(fairplayer, fs, ni)
+
+    ## [1] 117600
+
+In a real-world setting I would recommend running `bruteforce()` with
+this number of possible combinations. However, because this is an
+example, we will try something different than in the last example, by
+using the genetic algorithm that is implemented in `gene()`.
+
+Just like in the previous example, only three arguments are strictly
+necessary: the dataset, the factor structure, and the number of items.
+To generate reproducible results we can also use the additional argument
+`seed` to provide a random seed:
+
+    sel <- gene(fairplayer, fs, ni, seed = 35355)
+
+    Running STUART with Genetic Algorithm.
+
+      |==============================================                                   |  55%
+
+    Search ended. Algorithm converged.
+
+An important piece of information here is that the algorithm converged.
+In this approach this means that the quality of the best solutions per
+generation showed minimal variation after some time. The alternative
+would have been for the algorithm to abort after 128 generations (per
+default), if convergence would not have been reached by then. Again, let
+us take a look at the summary to view the results in detail:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: gene 
+    ## Estimation Software: lavaan 
+    ## Models estimated: 4544 
+    ## Replications of final solution: 2307 
+    ## Time Required: 42.297 seconds
+    ## 
+    ## Optimization History:
+    ##     run ind pheromone    chisq df       pvalue      rmsea       srmr
+    ## 1     1   1 0.9714857 67.74143 32 0.0002288957 0.09415116 0.07756107
+    ## 3     1   3 1.0069370 63.16413 32 0.0008310642 0.08791586 0.07190684
+    ## 5     1   5 1.4117306 43.02228 32 0.0923156853 0.05228479 0.05556138
+    ## 12    1  12 1.7310307 28.20980 32 0.6589455342 0.00000000 0.04848657
+    ## 51    1  51 1.7379274 30.93543 32 0.5202934365 0.00000000 0.04694889
+    ## 73    2   9 1.7526648 23.94351 32 0.8464530294 0.00000000 0.04651070
+    ## 111   2  47 1.7914778 28.90732 32 0.6238659074 0.00000000 0.04620266
+    ## 149   3  21 1.8175800 26.60508 32 0.7362439152 0.00000000 0.04508053
+    ## 187   3  59 1.8200085 28.65614 32 0.6365675485 0.00000000 0.04319827
+    ## 300   5  44 1.8377925 23.35948 32 0.8666563405 0.00000000 0.03650133
+    ## 324   6   4 1.8404997 28.88624 32 0.6249343199 0.00000000 0.04410038
+    ## 352   6  32 1.8562645 19.46001 32 0.9600125185 0.00000000 0.03740006
+    ## 395   7  11 1.8579455 17.42704 32 0.9830191354 0.00000000 0.03811721
+    ##          crel
+    ## 1   0.8110008
+    ## 3   0.7986173
+    ## 5   0.8046341
+    ## 12  0.7770333
+    ## 51  0.7718433
+    ## 73  0.7807289
+    ## 111 0.8146595
+    ## 149 0.8347574
+    ## 187 0.8218417
+    ## 300 0.8037487
+    ## 324 0.8564487
+    ## 352 0.8275841
+    ## 395 0.8334521
+    ## 
+    ## Constructed Subtests:
+    ## EM: sEM01t1 sEM02t1 sEM07t1
+    ## RA: sRA02t1 sRA04t1 sRA05t1
+    ## SI: sSI01t1 sSI02t1 sSI07t1 sSI08t1
+
+As you can see, the search took 42.297 seconds and estimated 4544
+models. As is bound to happen in this specific genetic approach, the
+final solution was replicated quite often. Replications of solutions are
+not estimated again, which is why you should have been able to observe
+the search process speeding up towards the end. The final solution
+(again, in terms of the preset objective function, which you can view
+via `stuart:::objective.preset`) had a pheromone of 1.858 stemming from
+an RMSEA of 0 and a composite reliability of 0.833.
+
+You can, of course, also take a more detailed look at the final
+soultion. Per default, lavaan is used for CFA estimation, so the lavaan
+object of the final model is return in the `stuartOutput` object,
+specifically in the slot `final`. If you want to take an in-depth look
+at the lavaan results of this model, you can simply use the `summary`
+method implemented in lavaan:
+
+    lavaan::summary(sel$final)
+
+    ## lavaan 0.6-4 ended normally after 52 iterations
+    ## 
+    ##   Optimization method                           NLMINB
+    ##   Number of free parameters                         33
+    ## 
+    ##                                                   Used       Total
+    ##   Number of observations                           126         143
+    ##   Number of missing patterns                         9
+    ## 
+    ##   Estimator                                         ML
+    ##   Model Fit Test Statistic                      17.427
+    ##   Degrees of freedom                                32
+    ##   P-value (Chi-square)                           0.983
+    ## 
+    ## Parameter Estimates:
+    ## 
+    ##   Information                                 Observed
+    ##   Observed information based on                Hessian
+    ##   Standard Errors                             Standard
+    ## 
+    ## Latent Variables:
+    ##                    Estimate  Std.Err  z-value  P(>|z|)
+    ##   EM =~                                               
+    ##     sEM01t1 (l111)    1.000                           
+    ##     sEM02t1 (l211)    1.786    0.300    5.957    0.000
+    ##     sEM07t1 (l711)    1.156    0.211    5.480    0.000
+    ##   RA =~                                               
+    ##     sRA02t1 (l221)    1.000                           
+    ##     sRA04t1 (l421)    1.578    0.242    6.529    0.000
+    ##     sRA05t1 (l521)    0.666    0.104    6.411    0.000
+    ##   SI =~                                               
+    ##     sSI01t1 (l131)    1.000                           
+    ##     sSI02t1 (l231)    0.936    0.209    4.470    0.000
+    ##     sSI07t1 (l731)    1.029    0.235    4.369    0.000
+    ##     sSI08t1 (l831)    0.990    0.240    4.124    0.000
+    ## 
+    ## Covariances:
+    ##                    Estimate  Std.Err  z-value  P(>|z|)
+    ##   EM ~~                                               
+    ##     RA                0.082    0.040    2.053    0.040
+    ##     SI                0.191    0.055    3.460    0.001
+    ##   RA ~~                                               
+    ##     SI                0.041    0.046    0.887    0.375
+    ## 
+    ## Intercepts:
+    ##                    Estimate  Std.Err  z-value  P(>|z|)
+    ##    .sEM01t1 (a111)    4.148    0.076   54.685    0.000
+    ##    .sEM02t1 (a211)    3.937    0.086   45.759    0.000
+    ##    .sEM07t1 (a711)    3.822    0.086   44.216    0.000
+    ##    .sRA02t1 (a221)    1.693    0.084   20.252    0.000
+    ##    .sRA04t1 (a421)    2.260    0.112   20.190    0.000
+    ##    .sRA05t1 (a521)    1.422    0.069   20.472    0.000
+    ##    .sSI01t1 (a131)    3.747    0.084   44.715    0.000
+    ##    .sSI02t1 (a231)    4.007    0.071   56.151    0.000
+    ##    .sSI07t1 (a731)    3.930    0.085   46.228    0.000
+    ##    .sSI08t1 (a831)    2.875    0.090   31.820    0.000
+    ##     EM                0.000                           
+    ##     RA                0.000                           
+    ##     SI                0.000                           
+    ## 
+    ## Variances:
+    ##                    Estimate  Std.Err  z-value  P(>|z|)
+    ##    .sEM01t1 (e111)    0.468    0.067    6.939    0.000
+    ##    .sEM02t1 (e211)    0.126    0.089    1.406    0.160
+    ##    .sEM07t1 (e711)    0.598    0.085    7.047    0.000
+    ##    .sRA02t1 (e221)    0.367    0.079    4.661    0.000
+    ##    .sRA04t1 (e421)    0.308    0.161    1.912    0.056
+    ##    .sRA05t1 (e521)    0.377    0.055    6.789    0.000
+    ##    .sSI01t1 (e131)    0.596    0.092    6.495    0.000
+    ##    .sSI02t1 (e231)    0.378    0.064    5.880    0.000
+    ##    .sSI07t1 (e731)    0.588    0.093    6.322    0.000
+    ##    .sSI08t1 (e831)    0.737    0.109    6.781    0.000
+    ##     EM                0.253    0.077    3.305    0.001
+    ##     RA                0.503    0.121    4.169    0.000
+    ##     SI                0.283    0.097    2.914    0.004
+
+As you can see, a lot of parameters are labeled automatically. This is
+because these labels are used to implement invariance assumptions in
+more complex situations.
