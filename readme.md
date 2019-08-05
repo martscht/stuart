@@ -19,16 +19,22 @@ The easiest way to install the current version of STUART is via the use
 of the `install_bitbucket()`-function included in the `devtools`
 package. To install the *stable* version use:
 
-    devtools::install_bitbucket('martscht/stuart/stuart')
+``` r
+devtools::install_bitbucket('martscht/stuart/stuart')
+```
 
 I will do my very best to ensure that this version is the same as the
 one that you can find on CRAN. If you’re feeling a bit more
 experimental, you can install the development build by setting
 `ref='develop'`, like so:
 
-    devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
+``` r
+devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
+```
 
-    library(stuart)
+``` r
+library(stuart)
+```
 
     ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
 
@@ -56,7 +62,11 @@ install the [R-Package
 MplusAutomation](https://cran.r-project.org/web/packages/MplusAutomation/index.html),
 so STUART can interface with the Mplus output.
 
-#### WARNING: While both software solutions are implemented, as of STUART Version 0.8.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus is much slower than the current lavaan implementation (by factors of around 20).
+**WARNING: While both software solutions are implemented, as of STUART
+Version 0.8.0 it is highly recommended to use lavaan, if possible. This
+is due to the current MplusAutomation-based implementation of using
+Mplus is much slower than the current lavaan implementation (by factors
+of around 20).**
 
 Features
 --------
@@ -128,7 +138,9 @@ exhaustive for all possible strategies which can be employed with
 STUART, but should provide some insight into using its features. All
 examples use the `fairplayer` dataset provided in the package:
 
-    data(fairplayer)
+``` r
+data(fairplayer)
+```
 
 This dataset contains information about 143 students on 142 variables.
 The bulk of these variables are items regarding empathy (EM), social
@@ -144,48 +156,10 @@ there is a specific example you would like to see, please either contact
 me directly or simply [file an
 issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-<table style="width:100%;">
-<colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th>Example</th>
-<th>Approach</th>
-<th>Multiple Facets</th>
-<th>Multiple Occasions</th>
-<th>Multiple Groups</th>
-<th>Multiple Sources</th>
-<th>Comments</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><a href="#ex1_minimal">Minimal</a></td>
-<td><code>bruteforce</code></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-<tr class="even">
-<td><a href="#ex2_gene">Multiple Facets</a></td>
-<td><code>gene</code></td>
-<td>X</td>
-<td></td>
-<td></td>
-<td></td>
-<td></td>
-</tr>
-</tbody>
-</table>
+Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
+--- | --- | --- |--- | --- | --- | --- |
+[Minimal](#ex1_minimal) | `bruteforce` |  |  |  |  |  |  |
+[Multiple Facets](#ex2_gene) | `gene` | X |  |  |  |  |  |
 
 ### A minimal example
 
@@ -197,7 +171,9 @@ item-pool from which to choose. This information is stored in a `list`
 and prodvided to any STUART-function as the `factor.structure` argument.
 In this case:
 
-    fs <- list(RA = c('sRA01t1', 'sRA02t1', 'sRA03t1', 'sRA04t1', 'sRA05t1'))
+``` r
+fs <- list(RA = c('sRA01t1', 'sRA02t1', 'sRA03t1', 'sRA04t1', 'sRA05t1'))
+```
 
 This list contains only a single vector (because we are looking at only
 one facet at only occasion measured by only one source of information).
@@ -215,7 +191,9 @@ items (the order is irrelevant, because simple CFA models are covariance
 equivalent across all orders of the indicators). This means, that this
 consitutes an appropriate time to use the `bruteforce()` function:
 
-    sel <- bruteforce(data = fairplayer, factor.structure = fs, capacity = 3)
+``` r
+sel <- bruteforce(data = fairplayer, factor.structure = fs, capacity = 3)
+```
 
     ## Loading required namespace: lavaan
 
@@ -246,7 +224,9 @@ absolutely necessary. What this function should return is the three
 items contained in what is deemed the optimal solution in accordance to
 the preset objective:
 
-    sel
+``` r
+sel
+```
 
     ## $RA
     ## [1] "sRA02t1" "sRA04t1" "sRA05t1"
@@ -255,7 +235,9 @@ This object is of the class `stuartOutput` and contains seven elements.
 As with so many objects in R, `summary()` provides us with some more
 information about what happened:
 
-    summary(sel)
+``` r
+summary(sel)
+```
 
     ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
 
@@ -265,7 +247,7 @@ information about what happened:
     ## Estimation Software: lavaan 
     ## Models estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.068 seconds
+    ## Time Required: 0.834 seconds
     ## 
     ## Optimization History:
     ##   run pheromone chisq df pvalue rmsea         srmr      crel
@@ -289,14 +271,16 @@ included in the arguments of the objective function. Because we did not
 provide a specific objective in this case, the preset was used. Take a
 look at the preset:
 
-    stuart:::objective.preset
+``` r
+stuart:::objective.preset
+```
 
     ## function (chisq, df, pvalue, rmsea, srmr, crel) 
     ## {
     ##     1/(1 + exp(6 - 10 * (crel))) + 0.5 * (1 - (1/(1 + exp(5 - 
     ##         100 * rmsea)))) + 0.5 * (1 - (1/(1 + exp(6 - 100 * srmr))))
     ## }
-    ## <bytecode: 0x561b8148ab60>
+    ## <bytecode: 0x557c4dd5dac0>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -316,7 +300,9 @@ better than all those previously listed.
 If you want to see the full list of solutions that were generated, one
 of the seven elements of `stuartOutput`s is the `log`:
 
-    sel$log
+``` r
+sel$log
+```
 
     ##    run pheromone        chisq df pvalue rmsea         srmr      crel
     ## 1    1  1.867268 0.000000e+00  0     NA     0 3.325637e-09 0.7917421
@@ -351,10 +337,12 @@ As was the case in the previous example, the first thing we need to do
 is set up the factor structure in a list that links items to their
 facets:
 
-    fs <- list(EM = names(fairplayer)[5:12],
-      RA = names(fairplayer)[53:57],
-      SI = names(fairplayer)[83:92])
-    fs
+``` r
+fs <- list(EM = names(fairplayer)[5:12],
+  RA = names(fairplayer)[53:57],
+  SI = names(fairplayer)[83:92])
+fs
+```
 
     ## $EM
     ## [1] "sEM01t1" "sEM02t1" "sEM03t1" "sEM04t1" "sEM05t1" "sEM06t1" "sEM07t1"
@@ -379,12 +367,16 @@ item selection. This can be achieved by defining a list with the number
 of items per facet. Of course, these numbers must be in the same order
 as the factor structure, so they can be aligned.
 
-    ni <- list(3, 3, 4)
+``` r
+ni <- list(3, 3, 4)
+```
 
 To compute the number of possible combinations, we can use the
 convenience function `combinations()`:
 
-    combinations(fairplayer, fs, ni)
+``` r
+combinations(fairplayer, fs, ni)
+```
 
     ## [1] 117600
 
@@ -398,13 +390,17 @@ necessary: the dataset, the factor structure, and the number of items.
 To generate reproducible results we can also use the additional argument
 `seed` to provide a random seed:
 
-    sel <- gene(fairplayer, fs, ni, seed = 35355)
+``` r
+sel <- gene(fairplayer, fs, ni, seed = 35355)
+```
 
-    Running STUART with Genetic Algorithm.
+``` r
+Running STUART with Genetic Algorithm.
 
-      |==============================================                                   |  55%
+  |==============================================                                   |  55%
 
-    Search ended. Algorithm converged.
+Search ended. Algorithm converged.
+```
 
 An important piece of information here is that the algorithm converged.
 In this approach this means that the quality of the best solutions per
@@ -413,7 +409,9 @@ would have been for the algorithm to abort after 128 generations (per
 default), if convergence would not have been reached by then. Again, let
 us take a look at the summary to view the results in detail:
 
-    summary(sel)
+``` r
+summary(sel)
+```
 
     ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
 
@@ -476,7 +474,9 @@ specifically in the slot `final`. If you want to take an in-depth look
 at the lavaan results of this model, you can simply use the `summary`
 method implemented in lavaan:
 
-    lavaan::summary(sel$final)
+``` r
+lavaan::summary(sel$final)
+```
 
     ## lavaan 0.6-4 ended normally after 52 iterations
     ## 
