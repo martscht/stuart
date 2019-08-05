@@ -11,7 +11,10 @@ load('./stuart/data/sups.rda')
 devtools::document('./stuart')
 
 # Check package
-check('./stuart')
+check('./stuart', incoming = TRUE, cran = TRUE)
 
 # build packages
 build('./stuart')
+
+# check built package
+check_built('./stuart_0.8.0.tar.gz')
