@@ -91,8 +91,23 @@ function(
 
   #create vectors of invariance assumptions
   item.invariance <- as.list(array(item.invariance,length(short.factor.structure)))
+  item.invariance <- lapply(item.invariance, function(x) ordered(x, levels = c('congeneric', 'ess.equivalent', 'equivalent', 'ess.parallel', 'parallel')))
+
+  inv.ordering <- function(x) ordered(x, levels = c('none', 'configural', 'weak', 'strong', 'strict'))
   long.invariance <- as.list(array(long.invariance,length(long.factor.structure)))
+  long.invariance <- lapply(long.invariance, inv.ordering)
   mtmm.invariance <- as.list(array(mtmm.invariance,length(mtmm.factor.structure)))
+  mtmm.invariance <- lapply(mtmm.invariance, inv.ordering)
+  group.invariance <- lapply(group.invariance, inv.ordering)
+  
+  #errors for wrong invariance settings
+  if (any(is.na(c(unlist(long.invariance), unlist(mtmm.invariance), unlist(group.invariance))))) {
+    stop(paste0('Invariance levels across repeated measurements, groups, and sources of information must be one of ',paste(levels(long.invariance[[1]]),collapse=', '),'.'),call.=FALSE)
+  }
+  
+  if (any(is.na(unlist(item.invariance)))) {
+    stop(paste0('Item invariance must be one of ',paste(levels(item.invariance[[1]]),collapse=', '),'.'),call.=FALSE)
+  }
   
   # Expanding the capacity
   if (is.numeric(capacity)) {

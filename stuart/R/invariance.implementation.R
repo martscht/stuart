@@ -13,17 +13,6 @@ function(
   label.change=FALSE                                            #replace label names?
 ) { #begin function
 
-  #errors for wrong invariance settings
-  tmp.inv <- c('none','configural','weak','strong','strict')
-  if (any(c((!unlist(long.invariance)%in%tmp.inv),(!unlist(mtmm.invariance)%in%tmp.inv),(!unlist(group.invariance)%in%tmp.inv)))) {
-    stop(paste0('Invariance levels across repeated measurements, groups, and sources of information must be one of ',paste(tmp.inv,collapse=', '),'.'),call.=FALSE)
-  }
-  
-  tmp.inv <- c('congeneric','ess.equivalent','equivalent','ess.parallel','parallel')
-  if (any(!unlist(invariance%in%tmp.inv))) {
-    stop(paste0('Item invariance must be one of ',paste(tmp.inv,collapse=', '),'.'),call.=FALSE)
-  }
-  
   #invariance parameters
   equal <- rep(list(list(lam=NA,alp=NA,eps=NA)),length(factor.structure))
   names(equal) <- names(factor.structure)
