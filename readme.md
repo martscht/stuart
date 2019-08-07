@@ -67,10 +67,10 @@ The currently available examples are shown in the following table. If there is a
 
 Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
 --- | --- | --- |--- | --- | --- | --- |
-[Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |  |  |
-[Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |  |  |
-[Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |  |  |
-
+[Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |
+[Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |
+[Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |
+[Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |
 
 
 ### A minimal example
@@ -152,7 +152,7 @@ summary(sel)
 ## Estimation Software: lavaan 
 ## Models estimated: 10 
 ## Replications of final solution: 1 
-## Time Required: 0.295 seconds
+## Time Required: 0.298 seconds
 ## 
 ## Optimization History:
 ##   run pheromone chisq df pvalue rmsea         srmr      crel
@@ -422,7 +422,7 @@ lavaan::summary(sel$final)
 As you can see, a lot of parameters are labeled automatically. This is because these labels are used to implement invariance assumptions in more complex situations.
 
 
-### Setting Anchor Items {#ex3_mmas}
+### Setting Anchor Items
 
 In many situations, specific items are so central to the definition of a construct that they must be included in the final questionnaire. In such cases it is best to select items which fit around these anchor items. When using the `mmas()` approach to item selection this can be handled via *heuristics*. In the ACO approach underlying the `mmas()` function the probability of selecting an item when a potential solution is constructed is dependent on two factors: the pheromone (i.e. the extent to which an item has proven itself useful in prior solutions) and the heuristic information (i.e. information that is provided before beginning the construction of solutions). Per default, each item has its own pheromone and its own heuristic information - this is called *node localization*. A [later example]() shows the alternative - *arc localization* - but let us focus on the default case for now. To incorporate anchor items, we need to provide heuristic information that makes the selection of these items basically certain.
 
@@ -602,3 +602,116 @@ summary(sel)
 ```
 
 As you can see, the anchored items are all included in the final selection. In my case a total of 4816 models were estimated amounting to a runtime of close to 90 seconds. The final solution also seems to work quite nicely in terms of the objective: the RMSEA is 0, the SRMR is below any reasonable threshold for model fit and the composite reliability is quite high for such a short measure.
+
+
+### Crossvalidation
+
+In any type of scale construction validation is a key concept. The same is true for many algorithm-driven analyses, where *k*-Folds crossvalidation is extremely popular. In STUART there are two functions which can aide the crossvalidation of solutions: `holdout()` which splits a dataset into two subsamples and `crossvalidate()` which applies the solution found by one of the four approaches and uses multiple-group SEM to investigate, whether the solution holds in the holdout-sample.
+
+Take the [minimal example](#a-minimal-example), where we searched for three items out of the five items meant to assess relational aggression using `bruteforce()`. Prior to this search we can use `holdout()` to split the sample into two subsamples:
+
+
+```r
+cv <- holdout(fairplayer, seed = 35355)
+names(cv)
+```
+
+```
+## [1] "calibrate" "validate"
+```
+
+```r
+sapply(cv, nrow)
+```
+
+```
+## calibrate  validate 
+##        72        71
+```
+
+Per default `holdout()` will split the sample into two evenly sized halves called `calibrate` and `validate`. As the names suggest, the first subsample is used for the item selection procedure, while the second is used as the validation sample. You can change the split-proportions using the `prop` argument and providing a variable name to `grouping` will ensure that the proportions of the groups are evenly distributed across the two subsamples.
+
+With the `stuartHoldout` object, the four types of item selection will be performed only on the `calibrate` subsample. The rest is analogous to all other usages of the STUART functionalities:
+
+
+```r
+fs <- list(RA = c('sRA01t1', 'sRA02t1', 'sRA03t1', 'sRA04t1', 'sRA05t1'))
+sel <- bruteforce(cv, fs, 3)
+```
+
+```
+## There are 10 combinations that need to be tested.
+```
+
+```
+## Generating all possible combinations.
+```
+
+```
+## Running STUART with Brute-Force.
+```
+
+```
+##   |                                                                         |                                                                 |   0%
+```
+
+```
+## Progressbars are not functional when utilizing multiple cores for bruteforce in RStudio.
+```
+
+```
+## 
+## Search ended.
+```
+
+The summary object also looks the same:
+
+
+```r
+summary(sel)
+```
+
+```
+## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+```
+
+```
+## SUMMARY OF ANALYSIS:
+## 
+## Analysis Type: bruteforce 
+## Estimation Software: lavaan 
+## Models estimated: 10 
+## Replications of final solution: 1 
+## Time Required: 0.413 seconds
+## 
+## Optimization History:
+##   run pheromone        chisq df pvalue rmsea         srmr      crel
+## 1   1  1.804314 0.000000e+00  0     NA     0 4.491913e-09 0.7442857
+## 2   2  1.887900 1.119105e-13  0     NA     0 2.444315e-08 0.8116355
+## 9   9  1.916549 2.797762e-14  0     NA     0 1.381517e-08 0.8457823
+## 
+## Constructed Subtests:
+## RA: sRA02t1 sRA04t1 sRA05t1
+```
+
+Now, if you want to check the measurement invariance across the two samples, you can simply use `crossvalidate()`:
+
+
+```r
+crossvalidate(sel, cv)
+```
+
+```
+##            pheromone        chisq df    pvalue rmsea         srmr
+## configural  1.907973 5.315748e-13  0        NA     0 9.548165e-08
+## weak        1.872723 1.609005e+00  2 0.4473104     0 3.401333e-02
+## strong      1.787365 2.466910e+00  5 0.7814700     0 4.851177e-02
+## strict      1.828272 3.330870e+00  8 0.9119122     0 4.318741e-02
+##                 crel Chisq diff Df diff Pr(>Chisq)
+## configural 0.8345252         NA      NA         NA
+## weak       0.8321989  1.6090051       2  0.4473104
+## strong     0.8326695  0.8579050       3  0.8355725
+## strict     0.8314649  0.8639601       3  0.8341152
+```
+
+The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.
