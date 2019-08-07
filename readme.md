@@ -1,7 +1,5 @@
 ---
-output: 
-  md_document: 
-    variant: markdown_github
+output: github_document
 ---
 
 # README #
@@ -35,7 +33,7 @@ After installation the easiest way to get an overview of STUARTs functions and c
 
 The core idea behind STUART is to perform item-selection not based on univariate propoerties of the items, but to instead use information about the quality of a constructed solution for this task. In this sense, all constructed solutions are viewed through the lense of confirmatory factor analysis (CFA) which is used to relate the items to latent constructs which are assumed to be the cause of observable behavior. To perform CFA on of two additional software components is required: either the [R-Package lavaan](http://lavaan.ugent.be/) or the [commercial software Mplus](http://statmodel.com/). Because the choice which of these to use is yours, neither of them installed when installing STUART, so you will need to do so manually, befor being able to use this package. If you intend to use Mplus, you will also need to install the [R-Package MplusAutomation](https://cran.r-project.org/web/packages/MplusAutomation/index.html), so STUART can interface with the Mplus output.
 
-**WARNING: While both software solutions are implemented, as of STUART Version 0.8.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus is much slower than the current lavaan implementation (by factors of around 20).**
+**WARNING: While both software solutions are implemented, as of STUART Version 0.8.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus, which is much slower than the current lavaan implementation (by factors of around 20).**
 
 ## Features
 
@@ -69,13 +67,13 @@ The currently available examples are shown in the following table. If there is a
 
 Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
 --- | --- | --- |--- | --- | --- | --- |
-[Minimal](#ex1_minimal) | `bruteforce` |  |  |  |  |  |  |
-[Multiple Facets](#ex2_gene) | `gene` | X |  |  |  |  |  |
-[Setting Anchors](#ex3_mmas) | `mmas` | X |  |  |  |  |  |
+[Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |  |  |
+[Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |  |  |
+[Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |  |  |
 
 
 
-### A minimal example {#ex1_minimal}
+### A minimal example
 
 In the `fairplayer` dataset, relational aggression was measured with five items. Let's say (as a minimal example) we want to find the optimal three-item short version of this scale. For this we need to provide STUART with some information about which items constitute the original item-pool from which to choose. This information is stored in a `list` and prodvided to any STUART-function as the `factor.structure` argument. In this case:
 
@@ -154,7 +152,7 @@ summary(sel)
 ## Estimation Software: lavaan 
 ## Models estimated: 10 
 ## Replications of final solution: 1 
-## Time Required: 0.341 seconds
+## Time Required: 0.295 seconds
 ## 
 ## Optimization History:
 ##   run pheromone chisq df pvalue rmsea         srmr      crel
@@ -211,7 +209,7 @@ sel$log
 The solutions that contain `NA` on all variables were deemed inadmissable solutions. This occurs when the CFA leads to errors in estimation (e.g. non-convergence) or problems with estimated paramaters (e.g. negative variances). Such solutions are excluded by default, but the latter type of solutions can be included by using `ignore.errors = TRUE`.
 
 
-### Multiple Facets {#ex2_gene}
+### Multiple Facets
 
 The previous example was limited to a single facet. In this example, we will take a look at something a bit more complex, which likely constitutes the most common situation. In this example we will look at empathy, relational aggression, and social intelligence simultaneously. The example is a bit lacking, because these three constitute different constructs and not different facets of a single construct, as would most often be the case in scale construction.
 
