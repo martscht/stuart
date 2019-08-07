@@ -193,7 +193,7 @@ gene <-
     output$solution <- solution$solution.gb
     output$pheromones <- NULL
     output$subtests <- solution$selected.items
-    output$final <- final.model
+    output$final <- final.model$model
     
     class(output) <- 'stuartOutput'
     return(output)

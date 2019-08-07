@@ -325,8 +325,7 @@ function(
     tmp <- tmp[(grep('USED AS STARTING VALUES',tmp)+1):(grep('^TECHNICAL',tmp)[1]-1)]
     MplusOut$svalues <- tmp
   }
-  if (output.model) return(MplusOut)
-  
+
   exclusion <- FALSE
   if (length(MplusOut$errors) > 0) return(output=list(NA))
   if (!ignore.errors) {
@@ -449,6 +448,8 @@ function(
     tmp <- tmp[tmp$param %in% toupper(names(selected.items)), ]
     con <- mean(tapply(tmp$est, tmp$Group, mean))
 
+    if (output.model) output$model <- MplusOut
+    
     return(output=output)
   }  
   

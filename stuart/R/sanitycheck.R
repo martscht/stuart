@@ -14,6 +14,10 @@ sanitycheck <- function(data, factor.structure,capacity,
     stop('Mplus does not provide estimates for the SRMR when handling ordinal variables. Please change your objective function.', call. = FALSE)
   }
   
+  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & !any(grepl('.scaled|.robust', names(formals(objective)))) & software == 'lavaan') {
+    warning('It is highly recommended to used either scaled or robust versions of model fit criteria in your objective function when modeling ordinal indicators with lavaan.', call. = FALSE)
+  }
+  
   if (any(duplicated(names(factor.structure)))) {
     stop('You have provided duplicates in the name of factor.structure.',call.=FALSE)
   }

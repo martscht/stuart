@@ -86,7 +86,7 @@ function(
     results[[invariance]] <- as.data.frame(fitness(selection$parameters$objective, results[[invariance]], 'lavaan'))
     
     args$output.model <- TRUE
-    models[[invariance]] <- do.call('run.lavaan',args)
+    models[[invariance]] <- do.call('run.lavaan',args)$model
     
     
   }

@@ -201,11 +201,7 @@ function(
     return(output=list(NA))
   }
 
-  if (output.model & class(output)=='lavaan') {
-    return(output=output)
-  }
-  
-  if (!output.model & class(output)=='lavaan') {
+  if (class(output)=='lavaan') {
 
     if (!ignore.errors) {
       if (!suppressWarnings(lavaan::inspect(output, 'post.check'))) return(output = list(NA))
@@ -301,23 +297,27 @@ function(
       lvcor <- lavaan::inspect(output,'cor.lv')
 
       #Listed in detail for quick overview of exported output
-      output <- as.list(fit)
-      output$crel <- crel
-      output$rel <- rel
-      output$lvcor <- lvcor
-      output$lambda <- lambda
-      output$theta <- theta
-      output$psi <- psi
-      output$alpha <- alpha
-      output$nu <- nu
-      output$beta <- beta
-      if (!is.na(con)) output$con <- con
+      results <- as.list(fit)
+      results$crel <- crel
+      results$rel <- rel
+      results$lvcor <- lvcor
+      results$lambda <- lambda
+      results$theta <- theta
+      results$psi <- psi
+      results$alpha <- alpha
+      results$nu <- nu
+      results$beta <- beta
+      if (!is.na(con)) results$con <- con
       if (ordinal) {
-        output$tau <- tau
-        output$delta <- delta
+        results$tau <- tau
+        results$delta <- delta
+      }
+      
+      if (output.model) {
+        results$model <- output
       }
 
-      return(output=output)
+      return(output=results)
     }
   }
 
