@@ -340,6 +340,13 @@ function(
     #extract the fit statistics reported by Mplus
     output <- as.list(MplusOut$summaries)
     
+    name <- c('rmsea','srmr','wrmr','cfi','tli','chisq','df','pvalue','aic','bic','abic','npar')
+    locator <- c('RMSEA_Estimate', 'SRMR', 'WRMR', 'CFI', 'TLI', 'ChiSqM_Value', 'ChiSqM_DF', 'ChiSqM_PValue', 'AIC', 'BIC', 'aBIC', 'Parameters')
+    
+    for (i in seq_along(locator)) {
+      names(output)[which(names(output)==locator[i])] <- name[i]
+    }
+    
     #extract latent correlations
     if (is.null(grouping)) {
       lvcor <- list(MplusOut$tech4$latCorEst)
