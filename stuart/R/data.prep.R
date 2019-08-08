@@ -6,7 +6,7 @@ function(
   repeated.measures=NULL, long.invariance='strict',                     #longitudinal relations
   mtmm=NULL, mtmm.invariance='configural',                              #mtmm relations
   grouping=NULL, group.invariance='strict',                             #grouping relations
-
+  comparisons=NULL,
   auxiliary=NULL,                                                       #add variables
   ...
 ) { #function begin
@@ -122,21 +122,38 @@ function(
   # }
   # 
   # item.group.invariance <- as.list(array(item.group.invariance,length(mtmm.factor.structure)))
+  number.of.some <- lapply(short.factor.structure,length)
+  label.change <- FALSE
+  inv.args <- mget(names(formals(invariance.implementation)))
   
   #implement invariances of items
-  long.equal <- invariance.implementation(data,
-    factor.structure,short.factor.structure,short,
-    long.factor.structure,repeated.measures,
-    mtmm.factor.structure,mtmm,
-    lapply(short.factor.structure,length),
-    item.invariance,long.invariance,mtmm.invariance,
-    group.invariance,
-    grouping)
+  long.equal <- do.call(invariance.implementation, inv.args)
+  #implement invariances for comparison models
+  comparisons.equal <- list()
+  comparisons.invariance <- list()
+  for (i in comparisons) {
+    cur.inv <- mget(paste0(i,'.invariance'))
+    tmp.args <- inv.args
+    if (i == 'item') {
+      if (all(unlist(tmp.args[[paste0(i,'.invariance')]])=='congeneric')) {
+        stop('The assumed item invariance is congeneric for all facets. Invariance testing via comparisons is not possible in this case.', call.=FALSE)
+      }
+      tmp.args[[paste0(i,'.invariance')]] <- lapply(tmp.args[[paste0(i,'.invariance')]], function(x) ordered(levels(x)[max(as.numeric(x)-1, 1)], levels = c('congeneric', 'ess.equivalent', 'equivalent', 'ess.parallel', 'parallel')))
+    } else {
+      tmp.args[[paste0(i,'.invariance')]] <- lapply(tmp.args[[paste0(i,'.invariance')]], function(x) {
+        if (as.numeric(x)>2) inv.ordering(levels(x)[as.numeric(x)-1])
+        else x
+      })
+    }
+    comparisons.equal[[i]] <- do.call(invariance.implementation, tmp.args)
+    comparisons.invariance[[i]] <- tmp.args[grep('invariance', names(tmp.args))]
+    
+  }
   
-  output <- list(short.factor.structure,short,long.equal,
+  output <- list(short.factor.structure,short,long.equal,comparisons.equal,comparisons.invariance,
       capacity,data,factor.structure,auxi,item.invariance,
       repeated.measures,long.invariance,mtmm,mtmm.invariance,grouping,group.invariance)
-  names(output) <- c('short.factor.structure','short','long.equal',
+  names(output) <- c('short.factor.structure','short','long.equal','comparisons.equal','comparisons.invariance',
       'capacity','data','factor.structure','auxi','item.invariance',
       'repeated.measures','long.invariance','mtmm','mtmm.invariance','grouping','group.invariance')
 

@@ -207,7 +207,11 @@ function(
       if (!suppressWarnings(lavaan::inspect(output, 'post.check'))) return(output = list(NA))
     }
 
-    fit <- try(suppressWarnings(lavaan::fitMeasures(output, names(formals(objective)))),silent=TRUE)
+    fits <- names(formals(objective))
+    fits <- gsub('delta\\.', '', fits)
+    fits <- gsub('\\.items|\\.long|\\.mtmm|\\.group', '', fits)
+    fits <- unique(fits)
+    fit <- try(suppressWarnings(lavaan::fitMeasures(output, fits)),silent=TRUE)
     
     if (class(fit)[1]=='try-error') {
       return(output=list(NA))

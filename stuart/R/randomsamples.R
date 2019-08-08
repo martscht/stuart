@@ -21,6 +21,7 @@
 #' @param mtmm.invariance A character vector of length 1 or the same length as \code{mtmm} containing the invariance level of MTMM items. Currently there are five options: 'none', 'configural', 'weak', 'strong', and 'strict'. Defaults to 'configural'. With 'none' differing items are allowed for different methods. When \code{mtmm=NULL} this argument is ignored.
 #' @param grouping The name of the grouping variable. The grouping variable must be part of \code{data} provided and must be a numeric variable.
 #' @param group.invariance A single value describing the assumed invariance of items across groups. Currently there are four options: 'configural', 'weak', 'strong', and 'strict'. Defaults to 'strict'. When \code{grouping=NULL} this argument is ignored.
+#' @param comparisons A character vector containing any combination of 'item', 'long', 'mtmm', and 'group' indicating which invariance should be assessed via model comparisons. The order of the vector dictates the sequence in which model comparisons are performed. Defaults to \code{NULL} meaning that no model comparisons are performed. 
 #' @param auxiliary The names of auxiliary variables in \code{data}. These can be used in additional modeling steps that may be provided in \code{analysis.options$model}.
 #' @param use.order A logical indicating whether or not to take the selection order of the items into account. Defaults to \code{FALSE}.
 #' @param software The name of the estimation software. Can currently be 'lavaan' (the default), 'Mplus', or 'Mplus Demo'. Each option requires the software to be installed.
@@ -78,7 +79,7 @@ randomsamples <-
     repeated.measures=NULL, long.invariance='strict', #long structure
     mtmm=NULL, mtmm.invariance='configural', #MTMM structure
     grouping=NULL, group.invariance='strict', #grouping structure
-    
+    comparisons=NULL,
     auxiliary=NULL, use.order=FALSE,
     software='lavaan', cores=NULL,                                        #run settings
     objective=objective.preset, ignore.errors=FALSE,                      #fitness specs

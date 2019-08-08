@@ -7,7 +7,7 @@ function(
   
   number.of.some,
 
-  invariance, long.invariance, mtmm.invariance, group.invariance, #invariances
+  item.invariance, long.invariance, mtmm.invariance, group.invariance, #invariances
 
   grouping,                                                     #additional data
   label.change=FALSE                                            #replace label names?
@@ -23,7 +23,7 @@ function(
   
   #warning about residuals with ordinal
   if (ordinal) {
-    if (any(c(unlist(long.invariance), unlist(mtmm.invariance), unlist(group.invariance)) == 'strict') | any(unlist(invariance) %in% c('parallel', 'ess.parallel'))) {
+    if (any(c(unlist(long.invariance), unlist(mtmm.invariance), unlist(group.invariance)) == 'strict') | any(unlist(item.invariance) %in% c('parallel', 'ess.parallel'))) {
       warning('Invariance assumptions regarding residual variances of ordinal indicators are not possible in the current approach and are ignored.', call. = FALSE)
     }
   }
@@ -54,7 +54,7 @@ function(
         nthresh[[i]] <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
         
         #check for same number of categories
-        if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
+        if (item.invariance[[locate]]%in%c('equivalent', 'parallel')) {
           if (any(nthresh[[i]] != nthresh[[i]][1])) {
             stop(paste0('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel. Problem with ', paste(factor.structure[[i]][(nthresh[[i]]!=nthresh[[i]][1])], collapse = ', '), '.'), .call=FALSE)
           }
@@ -66,19 +66,19 @@ function(
       }
       
       #item/subtest indices
-      if (invariance[[locate]]=='congeneric') {
+      if (item.invariance[[locate]]=='congeneric') {
         equal[[i]]$lam[,1] <- 1:nrow(equal[[i]]$lam)
       } else {
         equal[[i]]$lam[,1] <- 1
       }
       
-      if (invariance[[locate]]%in%c('equivalent','parallel')) {
+      if (item.invariance[[locate]]%in%c('equivalent','parallel')) {
         equal[[i]]$alp[,1] <- 1
       } else {
         equal[[i]]$alp[,1] <- rep(1:length(factor.structure[[i]]), nthresh[[i]])
       }
       
-      if (invariance[[locate]]%in%c('ess.parallel','parallel')) {
+      if (item.invariance[[locate]]%in%c('ess.parallel','parallel')) {
         equal[[i]]$eps[,1] <- 1
       } else {
         equal[[i]]$eps[,1] <- 1:nrow(equal[[i]]$eps)
@@ -105,7 +105,7 @@ function(
         nthresh[[i]] <- sapply(data[, factor.structure[[i]]], function(x) max(nlevels(x), 2))-1
         
         #check for same number of categories
-        if (invariance[[locate]]%in%c('equivalent', 'parallel')) {
+        if (item.invariance[[locate]]%in%c('equivalent', 'parallel')) {
           if (any(nthresh[[i]] != nthresh[[i]][1])) {
             stop(paste0('The number of categories must be the same for all items assumed to be tau-equivalent or tau-parallel. Problem with ', paste(factor.structure[[i]][(nthresh[[i]]!=nthresh[[i]][1])], collapse = ', '), '.'), .call=FALSE)
           }
