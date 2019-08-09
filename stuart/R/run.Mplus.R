@@ -356,15 +356,18 @@ function(
       psi <- lapply(MplusOut$tech4, function(x) x$latCovEst)
     }
 
-    lvcor <- lapply(lvcor, function(x) {
-      x[upper.tri(x)] <- t(x)[upper.tri(x)]
-      dimnames(x) <- list(names(selected.items), names(selected.items))
-      return(x)})
-    psi <- lapply(psi, function(x) {
-      x[upper.tri(x)] <- t(x)[upper.tri(x)]
-      dimnames(x) <- list(names(selected.items), names(selected.items))
-      return(x)})
-    names(psi) <- names(lvcor) <- NULL
+    # workaround for WLSMV bug in MplusAutomation
+    if (!is.null(lvcor)) {
+      lvcor <- lapply(lvcor, function(x) {
+        x[upper.tri(x)] <- t(x)[upper.tri(x)]
+        dimnames(x) <- list(names(selected.items), names(selected.items))
+        return(x)})
+      psi <- lapply(psi, function(x) {
+        x[upper.tri(x)] <- t(x)[upper.tri(x)]
+        dimnames(x) <- list(names(selected.items), names(selected.items))
+        return(x)})
+      names(psi) <- names(lvcor) <- NULL
+    }
     
     output$lvcor <- lvcor
     
