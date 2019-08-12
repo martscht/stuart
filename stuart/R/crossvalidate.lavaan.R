@@ -83,7 +83,8 @@ function(
       output.model=TRUE,factor.structure=selection$parameters$factor.structure)
     
     results[[invariance]] <- do.call('run.lavaan',args)
-    models[[invariance]] <- ifelse(is.null(results[[invariance]]$model), NA, results[[invariance]]$model) 
+    models[[invariance]] <- results[[invariance]]$model
+    if (is.null(models[[invariance]])) models[[invariance]] <- NA
     
     results[[invariance]] <- as.data.frame(fitness(selection$parameters$objective, results[[invariance]], 'lavaan'))
     
@@ -91,7 +92,7 @@ function(
 
   results <- do.call(rbind, results)
   comps <- try(do.call(lavaan::lavTestLRT, c(object=models[[1]], models[-1])), silent = TRUE)
-  if (class(comps)=='try-error') {
+  if (class(comps)[1]=='try-error') {
     comps <- matrix(NA, ncol = 7, nrow = 4)
     colnames(comps)[5:7] <- c('Chisq diff', 'Df diff', 'Pr(>Chisq)')
     warning('One or more of the models resulted in an error. The LRT cannot be computed.', call. = FALSE)

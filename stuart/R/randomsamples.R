@@ -3,6 +3,11 @@
 #' 
 #' Construct a defined number of random subtests from a given pool of items.
 #' 
+### Details ----
+#' The pheromone function provided via \code{objective} is used to assess the quality of the solutions. These functions can contain any combination of the fit indices provided by the estimation software. When using Mplus these fit indices are 'rmsea', 'srmr', 'cfi', 'tli', 'chisq' (with 'df' and 'pvalue'), 'aic', 'bic', and 'abic'. With lavaan any fit index provided by \code{\link[lavaan]{inspect}} can be used. Additionally 'crel' provides an aggregate of composite reliabilites, 'rel' provides a vector or a list of reliability coefficients for the latent variables, 'con' provides an aggregate consistency estimate for MTMM analyses, and 'lvcor' provides a list of the latent variable correlation matrices. For more detailed objective functions 'lambda', 'theta', 'psi', 'alpha', and 'nu' provide the model-implied matrices. Per default a pheromone function using 'crel', 'rmsea', and 'srmr' is used. Please be aware that the \code{objective} must be a function with the required fit indices as (correctly named) arguments.
+#' 
+#' Using model comparisons via the \code{comparisons} argument compares the target model to a model with one less degree of assumed invariance (e.g. if your target model contains strong invariance, the comparison model contain weak invariance). Adding comparisons will change the preset for the objective function to include model differences. With comparisons, a custom objective function (the recommended approach) can also include all model fit indices with a preceding \code{delta.} to indicate the difference in this index between the two models. If more than one type of comparison is used, the argument of the objective function should end in the type of comparison requested (e.g. \code{delta.cfi.group} to use the difference in CFI between the model comparison of invariance across groups).
+#' 
 #' @author Martin Schultze
 #' 
 #' @seealso \code{\link{bruteforce}}, \code{\link{mmas}}, \code{\link{gene}} 
@@ -82,7 +87,7 @@ randomsamples <-
     comparisons=NULL,
     auxiliary=NULL, use.order=FALSE,
     software='lavaan', cores=NULL,                                        #run settings
-    objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
+    objective=NULL, ignore.errors=FALSE,                      #fitness specs
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL, request.override=10000,
     filename=NULL, n=1000, percentile=100

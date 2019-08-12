@@ -8,6 +8,7 @@ function(
   grouping=NULL, group.invariance='strict',                             #grouping relations
   comparisons=NULL,
   auxiliary=NULL,                                                       #add variables
+  objective=NULL,
   ...
 ) { #function begin
 
@@ -150,12 +151,24 @@ function(
     
   }
   
+  #set preset for objective functions
+  if (is.null(objective)) {
+    if (is.null(comparisons)) objective <- objective.preset
+    else {
+      if (length(comparisons)==1) objective <- objective.preset.comparisons
+      else stop(paste0('Currently, there is no preset objective for multiple comparisons across ',
+        paste(comparisons, collapse = ' and '), '.'), call.=FALSE)
+    }
+  }
+  
   output <- list(short.factor.structure,short,long.equal,comparisons.equal,comparisons.invariance,
       capacity,data,factor.structure,auxi,item.invariance,
-      repeated.measures,long.invariance,mtmm,mtmm.invariance,grouping,group.invariance)
+      repeated.measures,long.invariance,mtmm,mtmm.invariance,grouping,group.invariance,
+      objective)
   names(output) <- c('short.factor.structure','short','long.equal','comparisons.equal','comparisons.invariance',
       'capacity','data','factor.structure','auxi','item.invariance',
-      'repeated.measures','long.invariance','mtmm','mtmm.invariance','grouping','group.invariance')
+      'repeated.measures','long.invariance','mtmm','mtmm.invariance','grouping','group.invariance',
+      'objective')
 
   return(output)
 

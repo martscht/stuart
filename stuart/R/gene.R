@@ -6,6 +6,8 @@
 ### Details ----
 #' The pheromone function provided via \code{objective} is used to assess the quality of the solutions. These functions can contain any combination of the fit indices provided by the estimation software. When using Mplus these fit indices are 'rmsea', 'srmr', 'cfi', 'tli', 'chisq' (with 'df' and 'pvalue'), 'aic', 'bic', and 'abic'. With lavaan any fit index provided by \code{\link[lavaan]{inspect}} can be used. Additionally 'crel' provides an aggregate of composite reliabilites, 'rel' provides a vector or a list of reliability coefficients for the latent variables, 'con' provides an aggregate consistency estimate for MTMM analyses, and 'lvcor' provides a list of the latent variable correlation matrices. For more detailed objective functions 'lambda', 'theta', 'psi', and 'alpha' provide the model-implied matrices. Per default a pheromone function using 'crel', 'rmsea', and 'srmr' is used. Please be aware that the \code{objective} must be a function with the required fit indices as (correctly named) arguments.
 #' 
+#' Using model comparisons via the \code{comparisons} argument compares the target model to a model with one less degree of assumed invariance (e.g. if your target model contains strong invariance, the comparison model contain weak invariance). Adding comparisons will change the preset for the objective function to include model differences. With comparisons, a custom objective function (the recommended approach) can also include all model fit indices with a preceding \code{delta.} to indicate the difference in this index between the two models. If more than one type of comparison is used, the argument of the objective function should end in the type of comparison requested (e.g. \code{delta.cfi.group} to use the difference in CFI between the model comparison of invariance across groups).
+#' 
 #' The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation. Convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. For generalizability over different functions provided to \code{objective}, these are scaled to the first global-best found.
 #' 
 #' @author Martin Schultze
@@ -133,7 +135,7 @@ gene <-
     
     software='lavaan', cores=NULL,                                        #run settings
     
-    objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
+    objective=NULL, ignore.errors=FALSE,                      #fitness specs
     
     generations = 128, individuals = 64,                                  #algorithm specs
     elitism = 1/individuals, reproduction = .5, mutation = .1,
