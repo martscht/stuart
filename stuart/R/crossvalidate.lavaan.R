@@ -80,19 +80,22 @@ function(
     args <- list(data=all.data,selected.items=selection$subtests,
       grouping=grouping,auxi=all.data[,NULL],suppress.model=TRUE,
       analysis.options=analysis.options,objective=selection$parameters$objective,ignore.errors=TRUE,
-      output.model=FALSE,factor.structure=selection$parameters$factor.structure)
+      output.model=TRUE,factor.structure=selection$parameters$factor.structure)
     
     results[[invariance]] <- do.call('run.lavaan',args)
+    models[[invariance]] <- ifelse(is.null(results[[invariance]]$model), NA, results[[invariance]]$model) 
+    
     results[[invariance]] <- as.data.frame(fitness(selection$parameters$objective, results[[invariance]], 'lavaan'))
-    
-    args$output.model <- TRUE
-    models[[invariance]] <- do.call('run.lavaan',args)$model
-    
     
   }
 
   results <- do.call(rbind, results)
-  comps <- do.call(lavaan::lavTestLRT, c(object=models[[1]], models[-1]))
+  comps <- try(do.call(lavaan::lavTestLRT, c(object=models[[1]], models[-1])), silent = TRUE)
+  if (class(comps)=='try-error') {
+    comps <- matrix(NA, ncol = 7, nrow = 4)
+    colnames(comps)[5:7] <- c('Chisq diff', 'Df diff', 'Pr(>Chisq)')
+    warning('One or more of the models resulted in an error. The LRT cannot be computed.', call. = FALSE)
+  }
   rownames(comps) <- names(models)
   results <- cbind(results, comps[, 5:7])
   output <- list(comparison = results, models = models)

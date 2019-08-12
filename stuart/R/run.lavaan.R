@@ -269,7 +269,7 @@ function(
             rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
           }
           # workaround for absence of short.factor.structure when crossvalidating
-          if (class(try(short.factor.structure,silent=TRUE))=='try-error' & !output.model) {
+          if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
             short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
             names(short.factor.structure) <- colnames(lambda[[i]])
           }

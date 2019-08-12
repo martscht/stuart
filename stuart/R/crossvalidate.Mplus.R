@@ -57,15 +57,15 @@ function(
    
       args <- list(data=full.data,selected.items=selection$subtests,
         grouping=grouping,auxi=full.data[,NULL],suppress.model=TRUE,
-        output.model=FALSE,svalues=FALSE,factor.structure=selection$parameters$factor.structure,
+        output.model=TRUE,svalues=FALSE,factor.structure=selection$parameters$factor.structure,
         filename=filename,cores=NULL,
         analysis.options=analysis.options)
 
       results[[invariance]] <- do.call('run.Mplus',args)
+      models[[invariance]] <- results[[invariance]]$model
       results[[invariance]] <- as.data.frame(fitness(selection$parameters$objective, results[[invariance]], 'Mplus'))
       
-      args$output.model <- TRUE
-      models[[invariance]] <- do.call('run.Mplus',args)
+
     }
   }
 
