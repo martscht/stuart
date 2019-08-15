@@ -44,15 +44,19 @@ function(
   
   all.data <- rbind(new.data, old.data)
 
-  results <- list(configural = NA, weak = NA, strong = NA, strict = NA)
-  models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
-  
+  results <- models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
+
+  if (all(sapply(all.data[, unlist(selection$subtests)], is.ordered))) {
+    results$strict <- models$strict <- NULL
+    warning('Strict measurement invariance is not implemented for exclusively ordinal indicators.', call. = FALSE)
+  }
+    
   for (invariance in names(results)) {
     pars <- parameters
     
     equality <- character()
     if (invariance%in%c('weak','strong','strict')) equality <- c(equality,'=~')
-    if (invariance%in%c('strong','strict')) equality <- c(equality,'~1')
+    if (invariance%in%c('strong','strict')) equality <- c(equality,'~1', '|')
     if (invariance%in%c('strict')) equality <- c(equality,'~~')
     
     tmp <- pars[pars$label != '' & !pars$op%in%equality, ]

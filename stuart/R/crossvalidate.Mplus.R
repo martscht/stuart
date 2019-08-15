@@ -26,8 +26,13 @@ function(
 
     all.data <- rbind(new.data, old.data)
     
-    results <- list(configural = NA, weak = NA, strong = NA, strict = NA)
-    models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
+    results <- models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
+    
+    if (all(sapply(all.data[, unlist(selection$subtests)], is.ordered))) {
+      results$strict <- models$strict <- NULL
+      warning('Strict measurement invariance is not implemented for exclusively ordinal indicators.', call. = FALSE)
+    }
+    
     
     for (invariance in names(results)) {
       equality <- character()
@@ -49,6 +54,16 @@ function(
         tmp_labs <- gsub('\\)', '\\\\)', tmp_labs)
         model_a <- gsub(tmp_labs[i], parlabs_a[i], model_a)
       }
+      
+      if (invariance %in% c('configural', 'weak')) {
+        for (i in names(selection$subtests)) {
+          if (!grepl(paste0('\\[',i), model_a)) {
+            model_a <- paste0(model_a, '\n[', i, '@0];')
+          }
+        }
+      }
+      
+      model_a <- paste(model_a, paste0('{', unlist(selection$subtests), '@1};', collapse = '\n'), sep = '\n')
       
       model_b <- gsub('A\\)', 'B\\)', model_a)
       
