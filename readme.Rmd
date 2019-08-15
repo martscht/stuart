@@ -1,0 +1,302 @@
+---
+output: pdf_document
+---
+
+```{r, echo = FALSE}
+set.seed(1)
+```
+
+
+# README #
+
+This repository contains the current alpha-build of the STUART package for R. The name suggests, what the package is made for: *s*ub*t*ests *u*sing *a*lgorithmic *r*ummaging *t*echniques. It is intended for the creation of short-forms of questionnaires in a multitude of situations including multiple facets, multiple groups, multiple measurement occasions, and multiple sources of information. A full vignette is currently in the works - for some of the theoretical and technical stuff you can [take a look at the dissertation I wrote](https://refubium.fu-berlin.de/handle/fub188/2951) - but this readme will provide a short guide on using the package.
+
+## Installation ##
+
+The easiest way to install the current version of STUART is via the use of the `install_bitbucket()`-function included in the `devtools` package. To install the *stable* version use:
+
+```{r, eval=FALSE}
+devtools::install_bitbucket('martscht/stuart/stuart')
+```
+
+I will do my very best to ensure that this version is the same as the one that you can find on CRAN. If you're feeling a bit more experimental, you can install the development build by setting `ref='develop'`, like so:
+
+```{r, eval=FALSE}
+devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
+```
+
+```{r}
+library(stuart)
+```
+
+After installation the easiest way to get an overview of STUARTs functions and capabilities is to use `?stuart` to open the package help-file. You could also read the rest of this README for an introduction and some examples.
+
+## Prerequisites
+
+The core idea behind STUART is to perform item-selection not based on univariate propoerties of the items, but to instead use information about the quality of a constructed solution for this task. In this sense, all constructed solutions are viewed through the lense of confirmatory factor analysis (CFA) which is used to relate the items to latent constructs which are assumed to be the cause of observable behavior. To perform CFA on of two additional software components is required: either the [R-Package lavaan](http://lavaan.ugent.be/) or the [commercial software Mplus](http://statmodel.com/). Because the choice which of these to use is yours, neither of them installed when installing STUART, so you will need to do so manually, befor being able to use this package. If you intend to use Mplus, you will also need to install the [R-Package MplusAutomation](https://cran.r-project.org/web/packages/MplusAutomation/index.html), so STUART can interface with the Mplus output.
+
+**WARNING: While both software solutions are implemented, as of STUART Version 0.8.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus, which is much slower than the current lavaan implementation (by factors of around 20).**
+
+## Features
+
+The current STUART version (0.8.0) provides four approaches to item selection, each in its own function:
+
+  * `mmas()`, an adaptation of Stützle's (1998) $\mathcal{MAX}-\mathcal{MIN}$-Ant-System,
+  * `gene()`, a basic genetic algorithm based on the ideas of Galán, Mengshoel, \& Pinter (2013),
+  * `bruteforce()`, the brute-force approach of simply trying all possible combinations, and
+  * `randomsamples()`, a simple random sample of all possible combinations.
+
+Before picking any of these, it is best to think about what it is that you are trying to achieve and what kind of situation you are in. If you are simply tring to determine what an average solution might look like (in terms of scale properties) it is best to use `randomsamples()`. If you are trying to find the best possible solution your next depends primarily on the number of possible solutions. You can determine this with `combinations()`. If the number is sufficiently small (or you are willing wait sufficiently long) it is recommended to use `bruteforce()`, because this guarantess that you will find the optimal solution in your data. Which number passes as "sufficiently small" is up to you and depends primarily on how long the estimation of a single CFA takes on your computer. My ballpark recommendation is about 200 000 for a regular CFA model with multiple facets. If one of these takes about a quarter second to run, this should be done in about 2 hours on a decently performing 8-core machine. If there are substantially more possible combinations of items that could be tested in the process of item selection, it is advisable to use either `mmas()` or `gene()`. The `mmas()` approach has been thoroughly scrutinized ([by me](https://refubium.fu-berlin.de/handle/fub188/2951)), while the `gene()` approach is currently going through this process. Preliminary results suggest that there is little difference in the performance of these two approaches, so my current recommendation would be to use the one you feel more comfortable with - Ant Colony Optimzation or Genetic Algorithms.
+
+Because all of these approaches to item selection require some form of empirical data, there is bound to be uncertainty associated with the final solutions. To remedy the resulting insecurities about your solution a bit, there is also `crossvalidate()`, which allows you to check the quality of the final solution in a holdout sample by checking measurement invariance between the initial (calibration) sample and the second (validation) sample. To help you with splitting your data into these two sub-samples, STUART comes with the `holdout()` function.
+
+If you have experience with older versions of STUART, the main new feature in 0.8.0 is the possibility of using ordinal indicators - either as the only type of items, or in combination with metric indicators. Thus, you should be able to use STUART for item selection with almost any type of questionnaire item-pool and have it generate the models, which include your assumptions about measurement invariance across time, groups, sources of information, and items automatically.
+
+If you have not yet collected your own data, or simply want to play around with the features of STUART, there are also two example datasets: `fairplayer` and `sups`. The former includes multiple groups, multiple occasions, multiple constructs, and multiple sources of information, making it a perfect toy-example.
+
+## Examples
+
+In this section I will provide some small examples. These are not exhaustive for all possible strategies which can be employed with STUART, but should provide some insight into using its features. All examples use the `fairplayer` dataset provided in the package:
+
+```{r}
+data(fairplayer)
+```
+
+This dataset contains information about `r nrow(fairplayer)` students on `r ncol(fairplayer)` variables. The bulk of these variables are items regarding empathy (EM), social intelligence (SI), and relational aggression (RA). Each item was presented to the students themselves (s) as well as their teacher (t) at three separate occasions (t1, t2, t3). Thus the names of the variables in the dataset encode this information, for example `sRA03t2` is the self-rated relational aggression on the third item at the second measurement occasion.
+
+The currently available examples are shown in the following table. If there is a specific example you would like to see, please either contact me directly or simply [file an issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
+
+Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
+--- | --- | --- |--- | --- | --- | --- |
+[Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |  |
+[Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |  |
+[Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |  |
+[Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |  |
+
+
+### A minimal example
+
+In the `fairplayer` dataset, relational aggression was measured with five items. Let's say (as a minimal example) we want to find the optimal three-item short version of this scale. For this we need to provide STUART with some information about which items constitute the original item-pool from which to choose. This information is stored in a `list` and prodvided to any STUART-function as the `factor.structure` argument. In this case:
+
+```{r}
+fs <- list(RA = c('sRA01t1', 'sRA02t1', 'sRA03t1', 'sRA04t1', 'sRA05t1'))
+```
+
+This list contains only a single vector (because we are looking at only one facet at only occasion measured by only one source of information). Each element of the list needs to be named, because this name is used in the CFA models as the name of the latent variable. In this case I chose "RA" to indicate that we're looking at relational aggression. The content of each element of the list is a character vector containing the names of the items that constitute the item-pool for this latent variable.
+
+A quick glance at your scribbled notes from the intro to stats course and some quick calculating tells you that there are 10 possible combinations in this case, where we are drawing 3 items from a pool of 5 items (the order is irrelevant, because simple CFA models are covariance equivalent across all orders of the indicators). This means, that this consitutes an appropriate time to use the `bruteforce()` function:
+
+```{r}
+sel <- bruteforce(data = fairplayer, factor.structure = fs, capacity = 3)
+```
+
+The `bruteforce()`-function (as do the other three item-selection functions of STUART) requires a minimum of three arguments:
+
+  * `data`: the dataset you are using,
+  * `factor.structure`: the list assigning items to their facets, and
+  * `capacity`: the number of items you want to select.
+
+There are (many) more arguments you *can* use, but these three are absolutely necessary. What this function should return is the three items contained in what is deemed the optimal solution in accordance to the preset objective:
+
+```{r}
+sel
+```
+
+This object is of the class `stuartOutput` and contains seven elements. As with so many objects in R, `summary()` provides us with some more information about what happened:
+
+```{r}
+summary(sel)
+```
+
+The summary provides us with information about the approach we used (`bruteforce` in this case), the software that was used to estimate the CFAs (`lavaan`, per default) the total number of models that was estimated (`10`), the number of times the best solution was replicated (when using `bruteforce` this should always be `1`), and the total time it took to perform the selection. The next section is a table containing the optimization history. This table shows the value a solution achieved on the objective function (labeled `pheromone`, because of the packages ACO roots) and the values these solutions had on all the components included in the arguments of the objective function. Because we did not provide a specific objective in this case, the preset was used. Take a look at the preset:
+
+```{r}
+stuart:::objective.preset
+```
+
+As you can see, per default the quality of a solution is determined by a sum of logistic functions incorporating `crel` (composite reliability, which is computed as McDonald's $\omega$), the RMSEA, and the SRMR. Because our scale has one latent variable and only three items, model fit will always be perfect, so it the objective simplified to the search for the most reliable three-item scale.
+
+Note that the optimization history contains only three solutions and not all ten. That is because the optimization will report a solution only if it is the best solution found at that point in the optimization process. This means that the first solution will (almost) always be the first in this list, while any subsequent solution will only be listed if it is better than all those previously listed.
+
+If you want to see the full list of solutions that were generated, one of the seven elements of `stuartOutput`s is the `log`:
+
+```{r}
+sel$log
+```
+
+The solutions that contain `NA` on all variables were deemed inadmissable solutions. This occurs when the CFA leads to errors in estimation (e.g. non-convergence) or problems with estimated paramaters (e.g. negative variances). Such solutions are excluded by default, but the latter type of solutions can be included by using `ignore.errors = TRUE`.
+
+
+### Multiple Facets
+
+The previous example was limited to a single facet. In this example, we will take a look at something a bit more complex, which likely constitutes the most common situation. In this example we will look at empathy, relational aggression, and social intelligence simultaneously. The example is a bit lacking, because these three constitute different constructs and not different facets of a single construct, as would most often be the case in scale construction.
+
+As was the case in the previous example, the first thing we need to do is set up the factor structure in a list that links items to their facets:
+
+```{r}
+fs <- list(EM = names(fairplayer)[5:12],
+  RA = names(fairplayer)[53:57],
+  SI = names(fairplayer)[83:92])
+fs
+```
+
+In this case we use all items measured via self-reports at the first measurement occasion. The `fs`-object is a list of 3, where each element of the list represents a facet of the questionnaire. For example, the first element is named `EM` to represent the assessment of Empathy and contains the names of the 8 items that were used in this case.
+
+Say we wanted 3 items for empathy, 3 items for relational, and 4 items for social intelligence to have a ten-item questionnaire at the end of item selection. This can be achieved by defining a list with the number of items per facet. Of course, these numbers must be in the same order as the factor structure, so they can be aligned.
+
+```{r}
+ni <- list(3, 3, 4)
+```
+
+To compute the number of possible combinations, we can use the convenience function `combinations()`:
+
+```{r}
+combinations(fairplayer, fs, ni)
+```
+
+In a real-world setting I would recommend running `bruteforce()` with this number of possible combinations. However, because this is an example, we will try something different than in the last example, by using the genetic algorithm that is implemented in `gene()`.
+
+Just like in the previous example, only three arguments are strictly necessary: the dataset, the factor structure, and the number of items. To generate reproducible results we can also use the additional argument `seed` to provide a random seed:
+
+```{r, eval = FALSE}
+sel <- gene(fairplayer, fs, ni, seed = 35355)
+```
+
+```{R, eval = FALSE}
+Running STUART with Genetic Algorithm.
+
+  |==============================================                                   |  55%
+
+Search ended. Algorithm converged.
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/ex2_gene.rds')
+```
+
+An important piece of information here is that the algorithm converged. In this approach this means that the quality of the best solutions per generation showed minimal variation after some time. The alternative would have been for the algorithm to abort after 128 generations (per default), if convergence would not have been reached by then. Again, let us take a look at the summary to view the results in detail:
+
+```{r}
+summary(sel)
+```
+
+As you can see, the search took `r sel$timer[3]` seconds and estimated `r nrow(sel$log)` models. As is bound to happen in this specific genetic approach, the final solution was replicated quite often. Replications of solutions are not estimated again, which is why you should have been able to observe the search process speeding up towards the end. The final solution (again, in terms of the preset objective function, which you can view via `stuart:::objective.preset`) had a pheromone of `r round(max(sel$log$pheromone, na.rm = TRUE), 3)` stemming from an RMSEA of `r round(sel$log$rmsea[which.max(sel$log$pheromone)], 3)` and a composite reliability of `r round(sel$log$crel[which.max(sel$log$pheromone)], 3)`.
+
+You can, of course, also take a more detailed look at the final soultion. Per default, lavaan is used for CFA estimation, so the lavaan object of the final model is return in the `stuartOutput` object, specifically in the slot `final`. If you want to take an in-depth look at the lavaan results of this model, you can simply use the `summary` method implemented in lavaan:
+
+```{r}
+lavaan::summary(sel$final)
+```
+
+As you can see, a lot of parameters are labeled automatically. This is because these labels are used to implement invariance assumptions in more complex situations.
+
+
+### Setting Anchor Items
+
+In many situations, specific items are so central to the definition of a construct that they must be included in the final questionnaire. In such cases it is best to select items which fit around these anchor items. When using the `mmas()` approach to item selection this can be handled via *heuristics*. In the ACO approach underlying the `mmas()` function the probability of selecting an item when a potential solution is constructed is dependent on two factors: the pheromone (i.e. the extent to which an item has proven itself useful in prior solutions) and the heuristic information (i.e. information that is provided before beginning the construction of solutions). Per default, each item has its own pheromone and its own heuristic information - this is called *node localization*. A [later example]() shows the alternative - *arc localization* - but let us focus on the default case for now. To incorporate anchor items, we need to provide heuristic information that makes the selection of these items basically certain.
+
+Let us look at a situation in which we are interested in selecting items for three separate facets of the same questionnaire. As described in [Example 2](#ex2_gene) this requires a factor structure with three elements linking items to their respective facets:
+
+```{r}
+fs <- list(EM = names(fairplayer)[5:12],
+  RA = names(fairplayer)[53:57],
+  SI = names(fairplayer)[83:92])
+fs
+```
+
+Assuming we want to select three items for each of the facets, we can compute the number of possible combinations:
+
+```{r}
+combinations(fairplayer, fs, 3)
+```
+
+To use the `mmas()` function it is necessary to provide values to the arguments `data`, `factor.structure`, and `capacity` - much like in the previous examples. To use heuristics, we also need to provide those to the `heuristics` argument. These heuristics need to have a specific format for `mmas()` to understand what is happening, but thankfully there is a `heuristics()` function, which generates a preset in the correct format:
+
+```{r}
+heu <- heuristics(fairplayer, fs, 3)
+heu
+```
+
+This object is of the class `stuartHeuristics`. As you can see, every item has `1` as its heuristic information. This information is multiplied with the items pheromone to generate the selection probability, so `1` means the selection procedure is based exclusively on pheromones. Using a `0` would exclude an item from the selection procedure completely (though it would probably be easier to simply not include it in the first place). Any number larger than 1 makes the selection of the item more probable than it would be based purely on its merit encoded in the pheromone. Thus, to use anchor items we need to set the heuristic information of those items to a very large number.
+
+Let's say we want item 3 to be an anchor for empathy, we don't want any anchors for relational aggression, and we want items 1 and 8 as anchors for social intelligence. In this case we simply overwrite the default heuristic information with a very large number, say 1 million:
+
+```{r}
+heu$EM[3] <- 1e+6
+heu$SI[1] <- heu$SI[8] <- 1e+6
+heu
+```
+
+This makes those items 1 million times more likely to be selected than items with equal pheromone. Because these items are always selected, their pheromone cannot evaporate, thus (practically) guaranteeing that these items will always be included. To run the `mmas()` algorithm we then need to include these updated heuristics in the function:
+
+```{r, eval = FALSE}
+sel <- mmas(fairplayer, fs, 3, heuristics = heu)
+```
+
+```{r, eval = FALSE}
+Running STUART with MMAS.
+
+  |                                                                                       |   0%
+Global best no. 1 found. Colony counter reset.
+
+Global best no. 2 found. Colony counter reset.
+  |=====                                                                                  |   6%
+Global best no. 3 found. Colony counter reset.
+  |==                                                                                     |   3%
+Global best no. 4 found. Colony counter reset.
+  |====                                                                                   |   4%
+Global best no. 5 found. Colony counter reset.
+  |===                                                                                    |   4%
+Global best no. 6 found. Colony counter reset.
+  |=======================================================================================| 100%
+
+Search ended. Maximum number of colonies exceeded.
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/ex3_mmas.rds')
+```
+
+In this case the algorithm did not converge, but reached its abort criterion. This is not necessarily a bad thing and we will look at potential reasons in a [later example](). For now, let's take a look at the solution for this case:
+
+```{r}
+summary(sel)
+```
+
+As you can see, the anchored items are all included in the final selection. In my case a total of 4816 models were estimated amounting to a runtime of close to 90 seconds. The final solution also seems to work quite nicely in terms of the objective: the RMSEA is 0, the SRMR is below any reasonable threshold for model fit and the composite reliability is quite high for such a short measure.
+
+
+### Crossvalidation
+
+In any type of scale construction validation is a key concept. The same is true for many algorithm-driven analyses, where *k*-Folds crossvalidation is extremely popular. In STUART there are two functions which can aide the crossvalidation of solutions: `holdout()` which splits a dataset into two subsamples and `crossvalidate()` which applies the solution found by one of the four approaches and uses multiple-group SEM to investigate, whether the solution holds in the holdout-sample.
+
+Take the [minimal example](#a-minimal-example), where we searched for three items out of the five items meant to assess relational aggression using `bruteforce()`. Prior to this search we can use `holdout()` to split the sample into two subsamples:
+
+```{r}
+cv <- holdout(fairplayer, seed = 35355)
+names(cv)
+sapply(cv, nrow)
+```
+
+Per default `holdout()` will split the sample into two evenly sized halves called `calibrate` and `validate`. As the names suggest, the first subsample is used for the item selection procedure, while the second is used as the validation sample. You can change the split-proportions using the `prop` argument and providing a variable name to `grouping` will ensure that the proportions of the groups are evenly distributed across the two subsamples.
+
+With the `stuartHoldout` object, the four types of item selection will be performed only on the `calibrate` subsample. The rest is analogous to all other usages of the STUART functionalities:
+
+```{r}
+fs <- list(RA = c('sRA01t1', 'sRA02t1', 'sRA03t1', 'sRA04t1', 'sRA05t1'))
+sel <- bruteforce(cv, fs, 3)
+```
+
+The summary object also looks the same:
+
+```{r}
+summary(sel)
+```
+
+Now, if you want to check the measurement invariance across the two samples, you can simply use `crossvalidate()`:
+
+```{r}
+crossvalidate(sel, cv)
+```
+
+The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.

@@ -1,7 +1,7 @@
 Package: stuart
 Type: Package
 Title: Subtests Using Algorithmic Rummaging Techniques
-Version: 0.8.0
+Version: 0.8.1
 Date: 2019-08-01
 Authors@R: person("Martin", "Schultze", email="schultze@psych.uni-frankfurt.de",
   role=c('aut','cre'))
