@@ -8,6 +8,8 @@
 #' 
 #' The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation. Convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. For generalizability over different functions provided to \code{objective}, these are scaled to the first global-best found.
 #' 
+#' A reinitialization procedure can be used to avoid premature convergence. The behavior is controlled via the arguments starting in \code{reinit}. The argument \code{reinit.n} determines the maximum number of possible reinitializations. After each reinitialization, the generation counter is reset, allowing for the maximum number of generations before the search is aborted. The \code{reinit.criterion} and \code{reinit.tolerance} relate to convergence criteria which are checked to determine the necessity of reinitialization. It is recommended to use a higher tolerance on reinitialization than on final convergence to avoid long periods of stagnant search. The \code{reinit.prop} determines the proportion of the population to be replaced by random individuals when reinitializing. Note that even when \code{reinit.prop = 1}, the number of individuals kept due to \code{elitism} is not discarded.
+#' 
 #' @author Martin Schultze
 #' 
 #' @seealso \code{\link{bruteforce}}, \code{\link{mmas}}, \code{\link{randomsamples}}
@@ -45,6 +47,10 @@
 #' @param mating.size The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.
 #' @param mating.criterion The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.
 #' @param tolerance The tolerance for deteriming convergence. Defaults to .0001. See 'details'.
+#' @param reinit.n The maximum number of reinitilizations to be performed. Defaults to 0. See 'details'.
+#' @param reinit.criterion The convergence criterion used to determine whether the population should be reinitialized. Defaults to 'variance', currently the only implemented convergence criterion.
+#' @param reinit.tolerance The tolerance for determining the necessity of reinitialization. Defaults to 10-times the setting of \code{tolerance}.
+#' @param reinit.prop The proportion of the population to be discarded and replaced by random individuals when reinitializing. Defaults to .75. See 'details'.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
@@ -137,6 +143,9 @@ gene <-
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
     tolerance = .0001,
+    
+    reinit.n = 0, reinit.criterion = 'variance',
+    reinit.tolerance = tolerance*10, reinit.prop = .75,
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL,

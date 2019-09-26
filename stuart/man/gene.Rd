@@ -13,8 +13,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   ignore.errors = FALSE, generations = 128, individuals = 64,
   elitism = 1/individuals, reproduction = 0.5, mutation = 0.1,
   mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
-  tolerance = 1e-04, analysis.options = NULL, suppress.model = FALSE,
-  seed = NULL, filename = NULL)
+  tolerance = 1e-04, reinit.n = 0, reinit.criterion = "variance",
+  reinit.tolerance = tolerance * 10, reinit.prop = 0.75,
+  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
+  filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -69,6 +71,14 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{tolerance}{The tolerance for deteriming convergence. Defaults to .0001. See 'details'.}
 
+\item{reinit.n}{The maximum number of reinitilizations to be performed. Defaults to 0. See 'details'.}
+
+\item{reinit.criterion}{The convergence criterion used to determine whether the population should be reinitialized. Defaults to 'variance', currently the only implemented convergence criterion.}
+
+\item{reinit.tolerance}{The tolerance for determining the necessity of reinitialization. Defaults to 10-times the setting of \code{tolerance}.}
+
+\item{reinit.prop}{The proportion of the population to be discarded and replaced by random individuals when reinitializing. Defaults to .75. See 'details'.}
+
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
 \item{suppress.model}{A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.}
@@ -97,6 +107,8 @@ Construct subtests from a given pool of items using a simple genetic algorithm. 
 The pheromone function provided via \code{objective} is used to assess the quality of the solutions. These functions can contain any combination of the fit indices provided by the estimation software. When using Mplus these fit indices are 'rmsea', 'srmr', 'cfi', 'tli', 'chisq' (with 'df' and 'pvalue'), 'aic', 'bic', and 'abic'. With lavaan any fit index provided by \code{\link[lavaan]{inspect}} can be used. Additionally 'crel' provides an aggregate of composite reliabilites, 'rel' provides a vector or a list of reliability coefficients for the latent variables, 'con' provides an aggregate consistency estimate for MTMM analyses, and 'lvcor' provides a list of the latent variable correlation matrices. For more detailed objective functions 'lambda', 'theta', 'psi', and 'alpha' provide the model-implied matrices. Per default a pheromone function using 'crel', 'rmsea', and 'srmr' is used. Please be aware that the \code{objective} must be a function with the required fit indices as (correctly named) arguments.
 
 The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation. Convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. For generalizability over different functions provided to \code{objective}, these are scaled to the first global-best found.
+
+A reinitialization procedure can be used to avoid premature convergence. The behavior is controlled via the arguments starting in \code{reinit}. The argument \code{reinit.n} determines the maximum number of possible reinitializations. After each reinitialization, the generation counter is reset, allowing for the maximum number of generations before the search is aborted. The \code{reinit.criterion} and \code{reinit.tolerance} relate to convergence criteria which are checked to determine the necessity of reinitialization. It is recommended to use a higher tolerance on reinitialization than on final convergence to avoid long periods of stagnant search. The \code{reinit.prop} determines the proportion of the population to be replaced by random individuals when reinitializing. Note that even when \code{reinit.prop = 1}, the number of individuals kept due to \code{elitism} is not discarded.
 }
 \examples{
 

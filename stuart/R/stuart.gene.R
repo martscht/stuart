@@ -18,6 +18,9 @@ stuart.gene <-
     mating.criterion = 'fitness',
     tolerance = .0001,
     
+    reinit.n = 0, reinit.criterion = 'variance',
+    reinit.tolerance = tolerance*10, reinit.prop = .75,
+    
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
     filename,
@@ -39,10 +42,15 @@ stuart.gene <-
 
     #counting
     generation <- 1
+    run <- 1
+    
+    # reinitialization indicator
+    reinit <- FALSE
         
     ### Loops ###
     log <- list()
     conv <- NULL
+    cur_reinit.n <- reinit.n
     
     #creating user feedback
     message('Running STUART with Genetic Algorithm.\n')
@@ -114,7 +122,7 @@ stuart.gene <-
       #fill in results for duplicates
       tmp <- vector('list', individuals)
       tmp[filter[,1]] <- bf.results
-      if (generation == 1) {
+      if (run == 1) {
         bf.results <- tmp[duplicate]
       } else {
         tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
@@ -177,10 +185,11 @@ stuart.gene <-
           tmp <- which(cumsum(dif_solution) == 0)
           crossover <- ifelse(length(tmp)>1, sample(tmp, 1), tmp)
           if (is.na(crossover) | crossover == length(dad_solution)) {
-            crossover <- sample(c(0, length(dad_solution)),1)
+            kid_solution <- get(sample(c('mom_solution', 'dad_solution'), 1))
+          } else {
+            kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
           }
-          
-          kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
+
           if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
             tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
             kid_solution[tmp] <- kid_solution[rev(tmp)]
@@ -210,32 +219,56 @@ stuart.gene <-
       #create matrix of combinations already evaluated
       tried <- rbind(tried, combi_mat)
       
+      #create log
+      log <- c(log, bf.results)
+      utils::setTxtProgressBar(progress,generation)
+
+      # check for convergence
+      conv <- c(conv, phe.ib)
+      if (generation >= generations) {
+        end.reason <- 'Maximum number of generations exceeded.'
+        break
+      }
+      
+      reinit <- FALSE
+      if (cur_reinit.n > 0) {
+        if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= reinit.tolerance) {
+          reinit <- TRUE
+        }
+      }
+    
+      
+      # reinitialization
+      if (reinit) {
+        keep <- max(round(individuals * (1 - reinit.prop)), round(individuals * elitism))
+        n <- individuals - keep
+        combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
+        for (i in 1:length(factor.structure)) {
+          nextgen[[i]] <- rbind(nextgen[[i]][1:keep, ], combinations$combi[[i]])
+        }
+        cur_reinit.n <- cur_reinit.n - 1
+        message('\nReinitialized population. Generation counter reset.')
+        generation <- 1
+        utils::setTxtProgressBar(progress,generation)
+      } else { # convergence
+        if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= tolerance) {
+          end.reason <- 'Algorithm converged.'
+          break
+        } else {
+          generation <- generation + 1
+        }
+      }
+      
       #check for duplication in nextgen
       duplicate <- match(data.frame(t(do.call(cbind, nextgen))), data.frame(t(tried)))
       filter <- data.frame(matrix(which(is.na(duplicate)),
         nrow=sum(is.na(duplicate)),
         ncol=length(short.factor.structure)))
       
-      #create log
-      log <- c(log, bf.results)
-      utils::setTxtProgressBar(progress,generation)
-      
-      # check for convergence
-      conv <- c(conv, phe.ib)
-      if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= tolerance) {
-        end.reason <- 'Algorithm converged.'
-        break
-      }
-      if (generation >= generations) {
-        end.reason <- 'Maximum number of generations exceeded.'
-        break
-      }
-      else {
-        #go on to next generation
-        combi <- nextgen
-        generation <- generation + 1
-      }
-      
+      #go on to next generation
+      combi <- nextgen
+      run <- run + 1
+
     } # end loop
      
     #feedback
@@ -243,7 +276,7 @@ stuart.gene <-
     message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
-    log <- cbind(rep(1:generation,each = individuals),rep(1:individuals, generation),t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+    log <- cbind(rep(1:run,each = individuals),rep(1:individuals, run),t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
     log <- data.frame(log)
     names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
     
@@ -260,11 +293,16 @@ stuart.gene <-
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log
     results$pheromones <- pheromones
-    results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size, 
-      mating.criterion, tolerance, var.gb = stats::var(conv/conv[1]),
+    results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size,
+      mating.criterion, tolerance, 
+      reinit.n, reinit.criterion,
+      reinit.tolerance, reinit.prop,
+      var.gb = stats::var(conv/conv[1]),
       seed, objective, factor.structure)
     names(results$parameters) <- c('generations', 'individuals', 'elitism', 'mutation', 
-      'mating.index', 'mating.size', 'mating.criterion', 'tolerance', 'var.gb',
+      'mating.index', 'mating.size', 'mating.criterion', 'tolerance', 
+      'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop',
+      'var.gb',
       'seed', 'objective', 'factor.structure')
     return(results)
     
