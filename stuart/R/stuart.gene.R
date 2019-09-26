@@ -219,7 +219,7 @@ stuart.gene <-
       utils::setTxtProgressBar(progress,generation)
       
       # check for convergence
-      conv <- c(conv, phe.gb)
+      conv <- c(conv, phe.ib)
       if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= tolerance) {
         end.reason <- 'Algorithm converged.'
         break
