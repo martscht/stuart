@@ -176,7 +176,9 @@ stuart.gene <-
           dif_solution <- dad_solution - mom_solution
           tmp <- which(cumsum(dif_solution) == 0)
           crossover <- ifelse(length(tmp)>1, sample(tmp, 1), tmp)
-          if (is.na(crossover) | crossover == length(dad_solution)) crossover <- 0
+          if (is.na(crossover) | crossover == length(dad_solution)) {
+            crossover <- sample(c(0, length(dad_solution)),1)
+          }
           
           kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
           if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
