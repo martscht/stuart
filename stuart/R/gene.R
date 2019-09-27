@@ -46,6 +46,7 @@
 #' @param mating.index The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.
 #' @param mating.size The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.
 #' @param mating.criterion The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.
+#' @param immigration The proportion of individuals per generation that are randomly generated immigrants. Defaults to 0.
 #' @param tolerance The tolerance for deteriming convergence. Defaults to .0001. See 'details'.
 #' @param reinit.n The maximum number of reinitilizations to be performed. Defaults to 0. See 'details'.
 #' @param reinit.criterion The convergence criterion used to determine whether the population should be reinitialized. Defaults to 'variance', currently the only implemented convergence criterion.
@@ -142,6 +143,7 @@ gene <-
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
+    immigration = 0,
     tolerance = .0001,
     
     reinit.n = 0, reinit.criterion = 'variance',

@@ -13,10 +13,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   ignore.errors = FALSE, generations = 128, individuals = 64,
   elitism = 1/individuals, reproduction = 0.5, mutation = 0.1,
   mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
-  tolerance = 1e-04, reinit.n = 0, reinit.criterion = "variance",
-  reinit.tolerance = tolerance * 10, reinit.prop = 0.75,
-  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
-  filename = NULL)
+  immigration = 0, tolerance = 1e-04, reinit.n = 0,
+  reinit.criterion = "variance", reinit.tolerance = tolerance * 10,
+  reinit.prop = 0.75, analysis.options = NULL,
+  suppress.model = FALSE, seed = NULL, filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -68,6 +68,8 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 \item{mating.size}{The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.}
 
 \item{mating.criterion}{The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.}
+
+\item{immigration}{The proportion of individuals per generation that are randomly generated immigrants. Defaults to 0.}
 
 \item{tolerance}{The tolerance for deteriming convergence. Defaults to .0001. See 'details'.}
 

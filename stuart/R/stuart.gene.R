@@ -16,6 +16,7 @@ stuart.gene <-
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
+    immigration = 0,
     tolerance = .0001,
     
     reinit.n = 0, reinit.criterion = 'variance',
@@ -173,7 +174,17 @@ stuart.gene <-
       if (nrow(nextgen[[1]]) > 0) {
         nextgen <- lapply(nextgen, function(x) x[!duplicated(do.call(cbind, nextgen)), , drop = FALSE])
       }
-
+      
+      # immigration
+      if (immigration > 0) {
+        n <- round(individuals * immigration)
+        combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
+        for (i in 1:length(factor.structure)) {
+          nextgen[[i]] <- rbind(nextgen[[i]], combinations$combi[[i]])
+        }
+      }
+      
+      # mating
       for (i in 1:nrow(mating)) {
         dad <- lapply(combi, function(x) x[mating[i,1],])
         mom <- lapply(combi, function(x) x[mating[i,2],])
@@ -294,13 +305,13 @@ stuart.gene <-
     results$log <- log
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size,
-      mating.criterion, tolerance, 
+      mating.criterion, immigration, tolerance, 
       reinit.n, reinit.criterion,
       reinit.tolerance, reinit.prop,
       var.gb = stats::var(conv/conv[1]),
       seed, objective, factor.structure)
     names(results$parameters) <- c('generations', 'individuals', 'elitism', 'mutation', 
-      'mating.index', 'mating.size', 'mating.criterion', 'tolerance', 
+      'mating.index', 'mating.size', 'mating.criterion', 'immigration', 'tolerance', 
       'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop',
       'var.gb',
       'seed', 'objective', 'factor.structure')
