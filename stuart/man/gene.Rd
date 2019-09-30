@@ -11,12 +11,14 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   group.invariance = "strict", auxiliary = NULL, use.order = FALSE,
   software = "lavaan", cores = NULL, objective = objective.preset,
   ignore.errors = FALSE, generations = 128, individuals = 64,
-  elitism = 1/individuals, reproduction = 0.5, mutation = 0.1,
-  mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
-  immigration = 0, tolerance = 1e-04, reinit.n = 0,
-  reinit.criterion = "variance", reinit.tolerance = tolerance * 10,
-  reinit.prop = 0.75, analysis.options = NULL,
-  suppress.model = FALSE, seed = NULL, filename = NULL)
+  selection = "proportional", selection.pressure = ifelse(selection ==
+  "tournament", 5, 1), elitism = 1/individuals, reproduction = 0.5,
+  mutation = 0.1, mating.index = 1, mating.size = 0.25,
+  mating.criterion = "fitness", immigration = 0, tolerance = 1e-04,
+  reinit.n = 0, reinit.criterion = "variance",
+  reinit.tolerance = tolerance * 10, reinit.prop = 0.75,
+  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
+  filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -56,6 +58,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 \item{generations}{Maximum number of generations to run. Defaults to 128.}
 
 \item{individuals}{The number of individuals per generation. Defaults to 64.}
+
+\item{selection}{The method used for selecting possible parents. Can be either \code{'proportional'} (the default) for fitness proportional random selection or \code{'tournament'} for a semi-deterministic selection.}
+
+\item{selection.pressure}{The pressure exerted during the selection process, depending on the \code{selection}: if \code{selection = 'proportional'} the non-linearity coefficient of the pheromone when determining selection probability (the default is 1); if \code{selection = 'proportional'} the number of randomly selected individuals from which to choose the best (the default is 5).}
 
 \item{elitism}{The proportion of individuals from the last generation to carry over to the next generation. Defaults to 1/individuals, meaning that the best individual is retained into the next generation.}
 

@@ -13,6 +13,7 @@ stuart.gene <-
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
     generations = 128, individuals = 64,                            #settings of the algorithm
+    selection = 'proportional', selection.pressure = ifelse(selection == 'tournament', 5, 1),
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
@@ -142,7 +143,21 @@ stuart.gene <-
         parents <- c(parents, sample((1:individuals)[-parents], round(individuals * reproduction)-length(parents)))
       }
       else {
-        parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones / sum(pheromones))
+        if (!(selection %in% c('proportional', 'tournament'))) {
+          stop(paste0('The selection must be either proportional or tournament. You provided ', selection, '.'), call. = FALSE)
+        }
+        if (selection == 'proportional') {
+          parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones^selection.pressure / sum(pheromones^selection.pressure))
+        }
+        if (selection == 'tournament') {
+          parents <- rep(NA, round(individuals * reproduction))
+          pool <- 1:individuals
+          for (i in 1:round(individuals * reproduction)) {
+            tmp <- sample(pool, selection.pressure)
+            parents[i] <- tmp[which.max(pheromones[tmp])]
+            pool <- pool[pool!=parents[i]]
+          }
+        }
       }
       
       # random mating
@@ -304,13 +319,13 @@ stuart.gene <-
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log
     results$pheromones <- pheromones
-    results$parameters <- list(generations, individuals, elitism, mutation, mating.index, mating.size,
+    results$parameters <- list(generations, individuals, selection, selection.pressure, elitism, mutation, mating.index, mating.size,
       mating.criterion, immigration, tolerance, 
       reinit.n, reinit.criterion,
       reinit.tolerance, reinit.prop,
       var.gb = stats::var(conv/conv[1]),
       seed, objective, factor.structure)
-    names(results$parameters) <- c('generations', 'individuals', 'elitism', 'mutation', 
+    names(results$parameters) <- c('generations', 'individuals', 'selection', 'selection.pressure', 'elitism', 'mutation', 
       'mating.index', 'mating.size', 'mating.criterion', 'immigration', 'tolerance', 
       'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop',
       'var.gb',

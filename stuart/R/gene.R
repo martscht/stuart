@@ -40,6 +40,8 @@
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
 #' @param generations Maximum number of generations to run. Defaults to 128.
 #' @param individuals The number of individuals per generation. Defaults to 64.
+#' @param selection The method used for selecting possible parents. Can be either \code{'proportional'} (the default) for fitness proportional random selection or \code{'tournament'} for a semi-deterministic selection.
+#' @param selection.pressure The pressure exerted during the selection process, depending on the \code{selection}: if \code{selection = 'proportional'} the non-linearity coefficient of the pheromone when determining selection probability (the default is 1); if \code{selection = 'proportional'} the number of randomly selected individuals from which to choose the best (the default is 5).
 #' @param elitism The proportion of individuals from the last generation to carry over to the next generation. Defaults to 1/individuals, meaning that the best individual is retained into the next generation.
 #' @param reproduction The proportion of individuals that are allowed to sire offspring. These individuals are selected using fitness proportionate selection. Defaults to .5. 
 #' @param mutation The mutation probability. Defaults to .1. See 'details'.
@@ -140,6 +142,7 @@ gene <-
     objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     
     generations = 128, individuals = 64,                                  #algorithm specs
+    selection = 'proportional', selection.pressure = ifelse(selection == 'tournament', 5, 1),
     elitism = 1/individuals, reproduction = .5, mutation = .1,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
