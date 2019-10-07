@@ -44,16 +44,17 @@
 #' @param selection.pressure The pressure exerted during the selection process, depending on the \code{selection}: if \code{selection = 'proportional'} the non-linearity coefficient of the pheromone when determining selection probability (the default is 1); if \code{selection = 'proportional'} the number of randomly selected individuals from which to choose the best (the default is 5).
 #' @param elitism The proportion of individuals from the last generation to carry over to the next generation. Defaults to 1/individuals, meaning that the best individual is retained into the next generation.
 #' @param reproduction The proportion of individuals that are allowed to sire offspring. These individuals are selected using fitness proportionate selection. Defaults to .5. 
-#' @param mutation The mutation probability. Defaults to .1. See 'details'.
+#' @param mutation The mutation probability. Defaults to .05. See 'details'.
 #' @param mating.index The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.
 #' @param mating.size The proportion of potential mates sampled from the pool of reproducers for each selected individual. Defaults to .25. See 'details'.
 #' @param mating.criterion The criterion by which to select mates. Can be either 'similarity' or 'fitness' (the default). See 'details'.
 #' @param immigration The proportion of individuals per generation that are randomly generated immigrants. Defaults to 0.
-#' @param tolerance The tolerance for deteriming convergence. Defaults to .0001. See 'details'.
+#' @param tolerance The tolerance for determining convergence. Defaults to .0001. See 'details'.
 #' @param reinit.n The maximum number of reinitilizations to be performed. Defaults to 0. See 'details'.
 #' @param reinit.criterion The convergence criterion used to determine whether the population should be reinitialized. Defaults to 'variance', currently the only implemented convergence criterion.
 #' @param reinit.tolerance The tolerance for determining the necessity of reinitialization. Defaults to 10-times the setting of \code{tolerance}.
 #' @param reinit.prop The proportion of the population to be discarded and replaced by random individuals when reinitializing. Defaults to .75. See 'details'.
+#' @param schedule The counter which the scheduling of parameters pertains to. Can be either 'run' (the default), for a continuous schedule, 'generation', for a schedule that is restarted every time the population is reinitialized.
 #' @param analysis.options A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.
 #' @param suppress.model A logical indicating whether to suppress the default model generation. If \code{TRUE} a model must be provided in \code{analysis.options$model}.
 #' @param seed A random seed for the generation of random samples. See \code{\link{Random}} for more details.
@@ -142,8 +143,8 @@ gene <-
     objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     
     generations = 128, individuals = 64,                                  #algorithm specs
-    selection = 'proportional', selection.pressure = ifelse(selection == 'tournament', 5, 1),
-    elitism = 1/individuals, reproduction = .5, mutation = .1,
+    selection = 'proportional', selection.pressure = NULL,
+    elitism = NULL, reproduction = .5, mutation = .05,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
     immigration = 0,
@@ -151,6 +152,8 @@ gene <-
     
     reinit.n = 0, reinit.criterion = 'variance',
     reinit.tolerance = tolerance*10, reinit.prop = .75,
+    
+    schedule = 'run',
     
     analysis.options=NULL, suppress.model=FALSE,                          #modeling specs
     seed=NULL,

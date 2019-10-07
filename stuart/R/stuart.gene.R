@@ -13,8 +13,8 @@ stuart.gene <-
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
     generations = 128, individuals = 64,                            #settings of the algorithm
-    selection = 'proportional', selection.pressure = ifelse(selection == 'tournament', 5, 1),
-    elitism = 1/individuals, reproduction = .5, mutation = .1,
+    selection = 'proportional', selection.pressure = NULL,
+    elitism = 1/individuals, reproduction = .5, mutation = .05,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
     immigration = 0,
@@ -22,6 +22,8 @@ stuart.gene <-
     
     reinit.n = 0, reinit.criterion = 'variance',
     reinit.tolerance = tolerance*10, reinit.prop = .75,
+    
+    schedule = 'run',
     
     suppress.model=FALSE, analysis.options=NULL,                   #Additional modeling
     seed,
@@ -42,6 +44,62 @@ stuart.gene <-
     phe.ib <- 0
     phe.gb <- 0
 
+    
+    # bind dependent parameters together
+    if (is.null(selection.pressure)) {
+      selection.pressure <- selection
+      selection.pressure[selection == 'tournament'] <- 5
+      selection.pressure[selection == 'proportional'] <- 1
+      if (is.matrix(selection.pressure)) {
+        selection.pressure <- matrix(as.numeric(selection.pressure), ncol = ncol(selection.pressure))
+      } else {
+        selection.pressure <- as.numeric(selection.pressure)
+      }
+    }
+    
+    
+    #initialize scheduling 
+    scheduled <- c('generations', 'individuals', 'selection', 'selection.pressure',
+      'elitism', 'reproduction', 'mutation', 'mating.index', 'mating.size', 'mating.criterion',
+      'immigration', 'tolerance', 'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop')
+    
+    #global assignment to avoid check note
+    generations_cur <- NA 
+    individuals_cur <- NA 
+    selection_cur <- NA 
+    selection.pressure_cur <- NA 
+    elitism_cur <- NA 
+    reproduction_cur <- NA 
+    mutation_cur <- NA 
+    mating.index_cur <- NA 
+    mating.size_cur <- NA 
+    mating.criterion_cur <- NA 
+    immigration_cur <- NA 
+    tolerance_cur <- NA 
+    reinit.n_cur <- NA 
+    reinit.criterion_cur <- NA 
+    reinit.tolerance_cur <- NA 
+    reinit.prop_cur <- NA
+    
+    
+    filt <- sapply(mget(scheduled),is.array)
+    for (i in 1:length(scheduled[!filt])) {
+      assign(paste0(scheduled[!filt][i],'_cur'),mget(scheduled[!filt][i])[[1]])
+    }
+    if (length(scheduled[filt])>0) {
+      scheduled <- scheduled[filt]
+      for (i in 1:length(scheduled)) {
+        tmp <- mget(scheduled[i])[[1]]
+        if (!any(c(0,1)%in%tmp[,1])) {
+          stop(paste('The parameter schedule for',scheduled[i],'does not contain a value for the first generation.'),call.=FALSE)
+        }
+        tmp <- tmp[which.min(tmp[,1]),2]
+        assign(paste0(scheduled[i],'_cur'),tmp)
+      }
+    } else {
+      scheduled <- NULL
+    }
+    
     #counting
     generation <- 1
     run <- 1
@@ -52,15 +110,15 @@ stuart.gene <-
     ### Loops ###
     log <- list()
     conv <- NULL
-    cur_reinit.n <- reinit.n
+    cur_reinit.n <- reinit.n_cur
     
     #creating user feedback
     message('Running STUART with Genetic Algorithm.\n')
-    progress <- utils::txtProgressBar(0,max(c(generations,1)),style=3)
+    progress <- utils::txtProgressBar(0,max(c(generations_cur,1)),style=3)
     
     # generate initial population
     full <- FALSE
-    n <- individuals
+    n <- individuals_cur
     combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
     
     duplicate <- combinations$duplicate
@@ -122,7 +180,7 @@ stuart.gene <-
       }
       
       #fill in results for duplicates
-      tmp <- vector('list', individuals)
+      tmp <- vector('list', individuals_cur)
       tmp[filter[,1]] <- bf.results
       if (run == 1) {
         bf.results <- tmp[duplicate]
@@ -131,29 +189,63 @@ stuart.gene <-
         bf.results <- tmp
       }
       
+      #parameter schedule
+      if (!is.null(scheduled)) {
+        for (i in 1:length(scheduled)) {
+          tmp <- mget(scheduled[i])[[1]]
+          if (schedule=='run') {
+            if (any(tmp[,1]==run)) {
+              message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+            }
+            tmp <- tmp[max(which(tmp[,1]<=run)),2]
+          } 
+          if (schedule=='generation') {
+            if (any(tmp[,1]==generation)) {
+              message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==generation),2],'.'))
+            }
+            tmp <- tmp[max(which(tmp[,1]<=generation)),2]
+          }
+          assign(paste0(scheduled[i],'_cur'),tmp)
+        }
+      }
+      
+      cur_reinit.n <- min(cur_reinit.n, reinit.n_cur)
+      
       # components of genetic algorithm
       # parent selection: fitness proportionate selection
       pheromones <- sapply(bf.results, function(x) x$solution.phe$pheromone)
       if (sum(pheromones > 0) == 0) {
         stop(paste0('There were no viable solutions in generation ', generation,'. This may indicate estimation problems in the CFA.'), call. = FALSE)
       }
-      if (sum(pheromones > 0) < round(individuals * reproduction)) {
+      if (sum(pheromones > 0) < round(individuals_cur * reproduction_cur) & 
+          length(pheromones) >= round(individuals_cur * reproduction_cur)) {
         warning(paste0('There were not enough viable individuals in generation ', generation, '. Some non-viables were randomly selected.\n'), call. = FALSE)
-        parents <- (1:individuals)[pheromones > 0]
-        parents <- c(parents, sample((1:individuals)[-parents], round(individuals * reproduction)-length(parents)))
+        parents <- (1:length(pheromones))[pheromones > 0]
+        parents <- c(parents, sample((1:individuals_cur)[-parents], round(individuals_cur * reproduction_cur)-length(parents)))
       }
       else {
-        if (!(selection %in% c('proportional', 'tournament'))) {
-          stop(paste0('The selection must be either proportional or tournament. You provided ', selection, '.'), call. = FALSE)
+        if (!(selection_cur %in% c('proportional', 'tournament'))) {
+          stop(paste0('The selection must be either proportional or tournament. You provided ', selection_cur, '.'), call. = FALSE)
         }
-        if (selection == 'proportional') {
-          parents <- sample(1:individuals, round(individuals * reproduction), FALSE, pheromones^selection.pressure / sum(pheromones^selection.pressure))
+        if (selection_cur == 'proportional') {
+          if (length(pheromones) >= round(individuals_cur * reproduction_cur)) {
+            parents <- sample(1:length(pheromones), round(individuals_cur * reproduction_cur), FALSE, pheromones^selection.pressure_cur / sum(pheromones^selection.pressure_cur))            
+          } else {
+            tmp <- floor(round(individuals_cur * reproduction_cur) / length(pheromones))
+            parents <- rep(1:length(pheromones), tmp)
+            parents <- c(parents, sample(1:length(pheromones), round(individuals_cur * reproduction_cur) - length(parents), FALSE, pheromones^selection.pressure_cur / sum(pheromones^selection.pressure_cur)))
+          }
         }
-        if (selection == 'tournament') {
-          parents <- rep(NA, round(individuals * reproduction))
-          pool <- 1:individuals
-          for (i in 1:round(individuals * reproduction)) {
-            tmp <- sample(pool, selection.pressure)
+        if (selection_cur == 'tournament') {
+          parents <- rep(NA, round(individuals_cur * reproduction_cur))
+          pool <- 1:length(pheromones)
+          for (i in 1:round(individuals_cur * reproduction_cur)) {
+            if (length(pool) == 0) pool <- 1:length(pheromones)
+            if (length(pool) < selection.pressure_cur) {
+              tmp <- pool
+            } else {
+              tmp <- sample(pool, selection.pressure_cur)
+            }
             parents[i] <- tmp[which.max(pheromones[tmp])]
             pool <- pool[pool!=parents[i]]
           }
@@ -161,38 +253,38 @@ stuart.gene <-
       }
       
       # random mating
-      if (is.null(mating.index)) {
-        mating <- matrix(sample(rep_len(parents, individuals*2)), ncol = 2)
+      if (is.null(mating.index_cur)) {
+        mating <- matrix(sample(rep_len(parents, individuals_cur*2)), ncol = 2)
       } 
       # fitness and similarity mating
       else {
-        parents <- rep_len(parents, individuals)
-        mating <- matrix(NA, ncol = 2, nrow = individuals)
+        parents <- rep_len(parents, individuals_cur)
+        mating <- matrix(NA, ncol = 2, nrow = individuals_cur)
         for (i in seq_along(parents)) {
-          partners <- sample(parents[-i], max(individuals*reproduction*mating.size, 1))
-          if (mating.criterion == 'fitness') {
+          partners <- sample(parents[-i], max(individuals_cur*reproduction_cur*mating.size_cur, 1))
+          if (mating.criterion_cur == 'fitness') {
             mating[i,] <- c(parents[i], 
               partners[which(pheromones[partners] == 
-                  stats::quantile(pheromones[partners], mating.index, type = 1))[1]])
+                  stats::quantile(pheromones[partners], mating.index_cur, type = 1))[1]])
           }
-          if (mating.criterion == 'similarity') {
+          if (mating.criterion_cur == 'similarity') {
             tmp <- combi_mat[partners,]
             similar <- apply(tmp, 1, function(x) length(intersect(combi_mat[parents[i],], x))/length(union(combi_mat[parents[i],], x)))
             mating[i,] <- c(parents[i], 
-              partners[which(similar == stats::quantile(similar, mating.index, type = 1))[1]])
+              partners[which(similar == stats::quantile(similar, mating.index_cur, type = 1))[1]])
           }
         }
       }
       
       # elitism
-      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>round(individuals*(1-elitism))), , drop = FALSE])
+      nextgen <- lapply(combi, function(x) x[which(rank(pheromones, ties.method = 'random')>round(individuals_cur*(1-elitism_cur))), , drop = FALSE])
       if (nrow(nextgen[[1]]) > 0) {
         nextgen <- lapply(nextgen, function(x) x[!duplicated(do.call(cbind, nextgen)), , drop = FALSE])
       }
       
       # immigration
-      if (immigration > 0) {
-        n <- round(individuals * immigration)
+      if (immigration_cur > 0) {
+        n <- round(individuals_cur * immigration_cur)
         combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
         for (i in 1:length(factor.structure)) {
           nextgen[[i]] <- rbind(nextgen[[i]], combinations$combi[[i]])
@@ -216,15 +308,15 @@ stuart.gene <-
             kid_solution <- c(dad_solution[0:crossover],mom_solution[(crossover+1):length(mom_solution)])
           }
 
-          if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation, 1-mutation))) {
-            tmp <- c(sample(which(kid_solution), 1),sample(which(!kid_solution), 1))
+          if (sample(c(TRUE,FALSE), 1, FALSE, c(mutation_cur, 1-mutation_cur))) {
+            tmp <- c(sample(which(kid_solution), 1), sample(which(!kid_solution), 1))
             kid_solution[tmp] <- kid_solution[rev(tmp)]
           }
           nextgen[[i]] <- rbind(nextgen[[i]], which(kid_solution))
         }
       }
       
-      nextgen <- lapply(nextgen, function(x) x[1:individuals, ])
+      nextgen <- lapply(nextgen, function(x) x[1:individuals_cur, ])
       
       #iteration.best memory
       individual.ib <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
@@ -246,19 +338,19 @@ stuart.gene <-
       tried <- rbind(tried, combi_mat)
       
       #create log
-      log <- c(log, bf.results)
+      log <- c(log, lapply(bf.results, function(x) c(run = run, x)))
       utils::setTxtProgressBar(progress,generation)
 
       # check for convergence
       conv <- c(conv, phe.ib)
-      if (generation >= generations) {
+      if (generation >= generations_cur) {
         end.reason <- 'Maximum number of generations exceeded.'
         break
       }
       
       reinit <- FALSE
       if (cur_reinit.n > 0) {
-        if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= reinit.tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(conv/conv[1]) <= reinit.tolerance_cur) {
           reinit <- TRUE
         }
       }
@@ -266,8 +358,8 @@ stuart.gene <-
       
       # reinitialization
       if (reinit) {
-        keep <- max(round(individuals * (1 - reinit.prop)), round(individuals * elitism))
-        n <- individuals - keep
+        keep <- max(round(individuals_cur * (1 - reinit.prop_cur)), round(individuals_cur * elitism_cur))
+        n <- individuals_cur - keep
         combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
         for (i in 1:length(factor.structure)) {
           nextgen[[i]] <- rbind(nextgen[[i]][1:keep, ], combinations$combi[[i]])
@@ -277,7 +369,7 @@ stuart.gene <-
         generation <- 1
         utils::setTxtProgressBar(progress,generation)
       } else { # convergence
-        if (generation > max(min(c(.1*generations, 10)),1) & stats::var(conv/conv[1]) <= tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(conv/conv[1]) <= tolerance_cur) {
           end.reason <- 'Algorithm converged.'
           break
         } else {
@@ -302,7 +394,8 @@ stuart.gene <-
     message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
-    log <- cbind(rep(1:run,each = individuals),rep(1:individuals, run),t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+    log <- cbind(sapply(log, function(x) x$run), NA, t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+    log[, 2] <- unlist(sapply(table(log[, 1]), function(x) 1:x))
     log <- data.frame(log)
     names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
     
