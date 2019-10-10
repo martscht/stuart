@@ -14,7 +14,7 @@ stuart.gene <-
     
     generations = 128, individuals = 64,                            #settings of the algorithm
     selection = 'proportional', selection.pressure = NULL,
-    elitism = 1/individuals, reproduction = .5, mutation = .05,
+    elitism = NULL, reproduction = .5, mutation = .05,
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
     immigration = 0,
@@ -57,6 +57,14 @@ stuart.gene <-
       }
     }
     
+    if (is.null(elitism)) {
+      elitism <- individuals
+      if (is.matrix(elitism)) {
+        elitism[, 2] <- 1/elitism[, 2]
+      } else {
+        elitism <- 1/elitism
+      }
+    }
     
     #initialize scheduling 
     scheduled <- c('generations', 'individuals', 'selection', 'selection.pressure',
