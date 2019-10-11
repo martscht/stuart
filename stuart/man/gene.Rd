@@ -11,14 +11,13 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   group.invariance = "strict", auxiliary = NULL, use.order = FALSE,
   software = "lavaan", cores = NULL, objective = objective.preset,
   ignore.errors = FALSE, generations = 128, individuals = 64,
-  selection = "proportional", selection.pressure = ifelse(selection ==
-  "tournament", 5, 1), elitism = 1/individuals, reproduction = 0.5,
-  mutation = 0.1, mating.index = 1, mating.size = 0.25,
-  mating.criterion = "fitness", immigration = 0, tolerance = 1e-04,
-  reinit.n = 0, reinit.criterion = "variance",
-  reinit.tolerance = tolerance * 10, reinit.prop = 0.75,
-  analysis.options = NULL, suppress.model = FALSE, seed = NULL,
-  filename = NULL)
+  selection = "proportional", selection.pressure = NULL,
+  elitism = NULL, reproduction = 0.5, mutation = 0.05,
+  mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
+  immigration = 0, tolerance = 1e-04, reinit.n = 0,
+  reinit.criterion = "variance", reinit.tolerance = tolerance * 10,
+  reinit.prop = 0.75, schedule = "run", analysis.options = NULL,
+  suppress.model = FALSE, seed = NULL, filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}
@@ -67,7 +66,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{reproduction}{The proportion of individuals that are allowed to sire offspring. These individuals are selected using fitness proportionate selection. Defaults to .5.}
 
-\item{mutation}{The mutation probability. Defaults to .1. See 'details'.}
+\item{mutation}{The mutation probability. Defaults to .05. See 'details'.}
 
 \item{mating.index}{The relative rank of the selected mate within the mating pool. A number bewteen 0, indicating a best-last mating, and 1 (the default), indicating a best-first mating. See 'details'.}
 
@@ -77,7 +76,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{immigration}{The proportion of individuals per generation that are randomly generated immigrants. Defaults to 0.}
 
-\item{tolerance}{The tolerance for deteriming convergence. Defaults to .0001. See 'details'.}
+\item{tolerance}{The tolerance for determining convergence. Defaults to .0001. See 'details'.}
 
 \item{reinit.n}{The maximum number of reinitilizations to be performed. Defaults to 0. See 'details'.}
 
@@ -86,6 +85,8 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 \item{reinit.tolerance}{The tolerance for determining the necessity of reinitialization. Defaults to 10-times the setting of \code{tolerance}.}
 
 \item{reinit.prop}{The proportion of the population to be discarded and replaced by random individuals when reinitializing. Defaults to .75. See 'details'.}
+
+\item{schedule}{The counter which the scheduling of parameters pertains to. Can be either 'run' (the default), for a continuous schedule, 'generation', for a schedule that is restarted every time the population is reinitialized.}
 
 \item{analysis.options}{A list additional arguments to be passed to the estimation software. The names of list elements must correspond to the arguments changed in the respective estimation software. E.g. \code{analysis.options$model} can contain additional modeling commands - such as regressions on auxiliary variables.}
 
