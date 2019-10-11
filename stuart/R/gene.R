@@ -176,6 +176,9 @@ gene <-
     #sanity check
     localization <- 'nodes'
     do.call('sanitycheck',mget(names(formals(sanitycheck))))
+    if (!(convergence.criterion %in% c('variance'))) {
+      stop('Invalid convergence criterion entered.', call. = FALSE)
+      }
     
     timer <- proc.time()
     
