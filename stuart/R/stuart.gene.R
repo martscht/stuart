@@ -18,6 +18,7 @@ stuart.gene <-
     mating.index = 1, mating.size = .25, 
     mating.criterion = 'fitness',
     immigration = 0,
+    convergence.criterion = 'variance',
     tolerance = .0001,
     
     reinit.n = 0, reinit.criterion = 'variance',
@@ -117,7 +118,7 @@ stuart.gene <-
         
     ### Loops ###
     log <- list()
-    conv <- NULL
+    qual.ib <- NULL
     cur_reinit.n <- reinit.n_cur
     
     #creating user feedback
@@ -350,22 +351,30 @@ stuart.gene <-
       utils::setTxtProgressBar(progress,generation)
 
       # check for convergence
-      conv <- c(conv, phe.ib)
+      
       if (generation >= generations_cur) {
         end.reason <- 'Maximum number of generations exceeded.'
         break
       }
       
       reinit <- FALSE
-      if (cur_reinit.n > 0) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(conv/conv[1]) <= reinit.tolerance_cur) {
+      conv <- FALSE
+      qual.ib <- c(qual.ib, phe.ib)
+      
+      if ('variance' %in% reinit.criterion) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= reinit.tolerance) {
           reinit <- TRUE
         }
       }
-    
+      
+      if ('variance' %in% convergence.criterion) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= tolerance) {
+          conv <- TRUE
+        }
+      }
       
       # reinitialization
-      if (reinit) {
+      if (reinit & cur_reinit.n > 0) {
         keep <- max(round(individuals_cur * (1 - reinit.prop_cur)), round(individuals_cur * elitism_cur))
         n <- individuals_cur - keep
         combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
@@ -377,7 +386,7 @@ stuart.gene <-
         generation <- 1
         utils::setTxtProgressBar(progress,generation)
       } else { # convergence
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(conv/conv[1]) <= tolerance_cur) {
+        if (conv) {
           end.reason <- 'Algorithm converged.'
           break
         } else {
@@ -424,7 +433,7 @@ stuart.gene <-
       mating.criterion, immigration, tolerance, 
       reinit.n, reinit.criterion,
       reinit.tolerance, reinit.prop,
-      var.gb = stats::var(conv/conv[1]),
+      var.gb = stats::var(qual.ib/qual.ib[1]),
       seed, objective, factor.structure)
     names(results$parameters) <- c('generations', 'individuals', 'selection', 'selection.pressure', 'elitism', 'mutation', 
       'mating.index', 'mating.size', 'mating.criterion', 'immigration', 'tolerance', 
