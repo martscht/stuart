@@ -5,7 +5,7 @@ Version: 0.8.0-9000
 Date: 2019-08-01
 Authors@R: c(
   person("Martin", "Schultze", email="martin.schultze@fu-berlin.de", role=c('aut','cre')),
-  person("Johanna", "Schüller", role=c('ctb))
+  person("Johanna", "Schüller", role='ctb'))
 Description: Construct subtests from a pool of items by using ant-colony-optimization, genetic algorithms, brute force, or random sampling.
   Schultze (2017) <doi:10.17169/refubium-622>.
 License: GPL-3
