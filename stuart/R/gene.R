@@ -176,7 +176,7 @@ gene <-
     #sanity check
     localization <- 'nodes'
     do.call('sanitycheck',mget(names(formals(sanitycheck))))
-    if (!(convergence.criterion %in% c('variance'))) {
+    if (!(convergence.criterion %in% c('variance', 'median'))) {
       stop('Invalid convergence criterion entered.', call. = FALSE)
       }
     
