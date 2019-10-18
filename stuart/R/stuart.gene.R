@@ -373,6 +373,18 @@ stuart.gene <-
         }
       }
       
+      if ('median' %in% reinit.criterion) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= reinit.tolerance) {
+          reinit <- TRUE
+        }
+      }
+      
+      if ('median' %in% convergence.criterion) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= tolerance) {
+          conv <- TRUE
+        }
+      }
+      
       # reinitialization
       if (reinit & cur_reinit.n > 0) {
         keep <- max(round(individuals_cur * (1 - reinit.prop_cur)), round(individuals_cur * elitism_cur))
