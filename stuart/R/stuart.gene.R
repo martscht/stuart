@@ -412,15 +412,17 @@ stuart.gene <-
       }
       
       if ('median' %in% reinit.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= reinit.tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= reinit.tolerance_md_cur) {
           reinit <- TRUE
         }
       }
       
       if ('median' %in% convergence.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= tolerance_md_cur) {
           conv <- TRUE
         }
+      }
+      
       if ('geno.within' %in% c(convergence.criterion, reinit.criterion)) {
         geno_var <- list()
         geno <- list()
