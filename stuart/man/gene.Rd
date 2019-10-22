@@ -15,10 +15,10 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   elitism = NULL, reproduction = 0.5, mutation = 0.05,
   mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
   immigration = 0, convergence.criterion = "variance",
-  tolerance = 1e-04, reinit.n = 0, reinit.criterion = "variance",
-  reinit.tolerance = tolerance * 10, reinit.prop = 0.75,
-  schedule = "run", analysis.options = NULL, suppress.model = FALSE,
-  seed = NULL, filename = NULL)
+  tolerance = NULL, reinit.n = 0,
+  reinit.criterion = convergence.criterion, reinit.tolerance = NULL,
+  reinit.prop = 0.75, schedule = "run", analysis.options = NULL,
+  suppress.model = FALSE, seed = NULL, filename = NULL)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}

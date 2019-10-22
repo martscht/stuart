@@ -19,10 +19,10 @@ stuart.gene <-
     mating.criterion = 'fitness',
     immigration = 0,
     convergence.criterion = 'variance',
-    tolerance = .0001,
+    tolerance = NULL,
     
-    reinit.n = 0, reinit.criterion = 'variance',
-    reinit.tolerance = tolerance*10, reinit.prop = .75,
+    reinit.n = 0, reinit.criterion = convergence.criterion,
+    reinit.tolerance = NULL, reinit.prop = .75,
     
     schedule = 'run',
     
@@ -67,10 +67,42 @@ stuart.gene <-
       }
     }
     
+    # sanity check for tolerance-convergence.criterion compatibility
+    if ((!is.null(tolerance) & !is.list(tolerance) & (length(convergence.criterion) > 1)) |
+        (!is.null(reinit.tolerance) & !is.list(reinit.tolerance) & (length(reinit.criterion) > 1))) {
+      stop(paste0('When using multiple convergence or reinitialization criteria, the accompanying tolerance must be either NULL or a list.'), .call = FALSE)
+    }
+    
+    # decompress tolerances (for multiple convergence criteria)
+    # explicit assignment to avoid check note
+    if (is.null(tolerance)) tolerance <- vector('list', length(convergence.criterion))
+    if (!is.list(tolerance)) tolerance <- list(tolerance)
+    if (is.null(names(tolerance))) names(tolerance) <- convergence.criterion
+    tolerance_va <- tolerance[['variance']]
+    tolerance_md <- tolerance[['median']]
+    tolerance_gw <- tolerance[['geno.within']]
+    tolerance_gb <- tolerance[['geno.between']]
+
+    if (is.null(reinit.tolerance)) reinit.tolerance <- vector('list', length(reinit.criterion))
+    if (!is.list(reinit.tolerance)) reinit.tolerance <- list(reinit.tolerance)
+    if (is.null(names(reinit.tolerance))) names(reinit.tolerance) <- reinit.criterion
+    reinit.tolerance_va <- reinit.tolerance[['variance']]
+    reinit.tolerance_md <- reinit.tolerance[['median']]
+    reinit.tolerance_gw <- reinit.tolerance[['geno.within']]
+    reinit.tolerance_gb <- reinit.tolerance[['geno.between']]
+    
+    # tolerance presets
+    tols <- ls(pattern = 'tolerance_')
+    pres <- c(.05, .7, .20, .005,
+      .01, .8, .10, .0005)
+    for (i in seq_along(tols)) {
+      if (is.null(get(tols[i]))) assign(tols[i], pres[i])
+    }
+
     #initialize scheduling 
     scheduled <- c('generations', 'individuals', 'selection', 'selection.pressure',
       'elitism', 'reproduction', 'mutation', 'mating.index', 'mating.size', 'mating.criterion',
-      'immigration', 'tolerance', 'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop')
+      'immigration', 'tolerance_va', 'tolerance_md', 'tolerance_gw', 'tolerance_gb', 'reinit.n', 'reinit.criterion', 'reinit.tolerance_va', 'reinit.tolerance_md', 'reinit.tolerance_gw', 'reinit.tolerance_gb', 'reinit.prop')
     
     #global assignment to avoid check note
     generations_cur <- NA 
@@ -84,10 +116,16 @@ stuart.gene <-
     mating.size_cur <- NA 
     mating.criterion_cur <- NA 
     immigration_cur <- NA 
-    tolerance_cur <- NA 
+    tolerance_va_cur <- NA 
+    tolerance_md_cur <- NA 
+    tolerance_gw_cur <- NA 
+    tolerance_gb_cur <- NA 
     reinit.n_cur <- NA 
     reinit.criterion_cur <- NA 
-    reinit.tolerance_cur <- NA 
+    reinit.tolerance_va_cur <- NA 
+    reinit.tolerance_md_cur <- NA 
+    reinit.tolerance_gw_cur <- NA 
+    reinit.tolerance_gb_cur <- NA 
     reinit.prop_cur <- NA
     
     
@@ -362,13 +400,13 @@ stuart.gene <-
       qual.ib <- c(qual.ib, phe.ib)
       
       if ('variance' %in% reinit.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= reinit.tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= reinit.tolerance_va_cur) {
           reinit <- TRUE
         }
       }
       
       if ('variance' %in% convergence.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= tolerance) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & stats::var(qual.ib/qual.ib[1]) <= tolerance_va_cur) {
           conv <- TRUE
         }
       }
@@ -383,6 +421,24 @@ stuart.gene <-
         if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= tolerance) {
           conv <- TRUE
         }
+      if ('geno.within' %in% c(convergence.criterion, reinit.criterion)) {
+        geno_var <- list()
+        geno <- list()
+        tmp <- c(0, cumsum(unlist(capacity)))
+        for (i in 1:length(short.factor.structure)) {
+          all_items <- seq_along(short.factor.structure[[i]])
+          sel_items <- combi_mat[, ((tmp[i]+1):tmp[i+1])]
+          geno[[i]] <- t(apply(sel_items, 1, function(x) all_items %in% x))
+          geno_var[[i]] <- colMeans(geno[[i]])*(1-colMeans(geno[[i]]))
+        }
+        if ('geno.within' %in% convergence.criterion &
+            all(unlist(sapply(geno_var, function(x) x < (tolerance_gw_cur*(1-tolerance_gw_cur)))))) {
+          conv <- TRUE
+        }
+        if ('geno.within' %in% reinit.criterion &
+            all(unlist(sapply(geno_var, function(x) x < (reinit.tolerance_gw_cur*(1-reinit.tolerance_gw_cur)))))) {
+          reinit <- TRUE
+        }
       }
       
       # reinitialization
@@ -390,7 +446,7 @@ stuart.gene <-
         keep <- max(round(individuals_cur * (1 - reinit.prop_cur)), round(individuals_cur * elitism_cur))
         n <- individuals_cur - keep
         combinations <- do.call('generate.combinations',mget(names(formals(generate.combinations))))
-        for (i in 1:length(factor.structure)) {
+        for (i in 1:length(short.factor.structure)) {
           nextgen[[i]] <- rbind(nextgen[[i]][1:keep, ], combinations$combi[[i]])
         }
         cur_reinit.n <- cur_reinit.n - 1
@@ -435,6 +491,18 @@ stuart.gene <-
       .Random.seed <<- old.seed
     }
     
+    # Preparing output
+    convergence <- vector('list', length(convergence.criterion))
+    names(convergence) <- convergence.criterion
+    if ('variance' %in% names(convergence)) convergence[['variance']] <- stats::var(qual.ib/qual.ib[1])
+    if ('median' %in% names(convergence)) convergence[['median']] <- phe.ib - stats::median(pheromones)
+    if ('geno.within' %in% names(convergence)) convergence[['geno.within']] <- lapply(geno, colMeans)
+    
+    tolerance <- list(variance = tolerance_va, median = tolerance_md, 
+      geno.within = tolerance_gw, geno.between = tolerance_gb)
+    reinit.tolerance <- list(variance = reinit.tolerance_va, median = reinit.tolerance_md, 
+      geno.within = reinit.tolerance_gw, geno.between = reinit.tolerance_gb)
+    
     #Generating Output
     for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
     results <- mget(grep('.gb',ls(),value=TRUE))
@@ -442,16 +510,16 @@ stuart.gene <-
     results$log <- log
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, selection, selection.pressure, elitism, mutation, mating.index, mating.size,
-      mating.criterion, immigration, tolerance, 
+      mating.criterion, immigration, convergence.criterion, tolerance, 
       reinit.n, reinit.criterion,
       reinit.tolerance, reinit.prop,
-      var.gb = stats::var(qual.ib/qual.ib[1]),
       seed, objective, factor.structure)
     names(results$parameters) <- c('generations', 'individuals', 'selection', 'selection.pressure', 'elitism', 'mutation', 
-      'mating.index', 'mating.size', 'mating.criterion', 'immigration', 'tolerance', 
+      'mating.index', 'mating.size', 'mating.criterion', 'immigration', 'convergence.criterion', 'tolerance', 
       'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop',
-      'var.gb',
       'seed', 'objective', 'factor.structure')
+    results$convergence <- convergence
+
     return(results)
     
   }

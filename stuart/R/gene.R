@@ -150,10 +150,10 @@ gene <-
     mating.criterion = 'fitness',
     immigration = 0,
     convergence.criterion = 'variance',
-    tolerance = .0001,
+    tolerance = NULL,
     
-    reinit.n = 0, reinit.criterion = 'variance',
-    reinit.tolerance = tolerance*10, reinit.prop = .75,
+    reinit.n = 0, reinit.criterion = convergence.criterion,
+    reinit.tolerance = NULL, reinit.prop = .75,
     
     schedule = 'run',
     
@@ -176,7 +176,7 @@ gene <-
     #sanity check
     localization <- 'nodes'
     do.call('sanitycheck',mget(names(formals(sanitycheck))))
-    if (!(convergence.criterion %in% c('variance', 'median'))) {
+    if (!(all(convergence.criterion %in% c('variance', 'median', 'geno.within', 'geno.between')))) {
       stop('Invalid convergence criterion entered.', call. = FALSE)
       }
     
@@ -209,6 +209,7 @@ gene <-
     output <- list(call=match.call())  
     output$software <- software
     output$parameters <- c(solution$parameters)
+    output$convergence <- c(solution$convergence)
     output$analysis.options <- analysis.options
     output$timer <- proc.time() - timer
     output$log <- solution$log
