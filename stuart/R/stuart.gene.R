@@ -93,8 +93,8 @@ stuart.gene <-
     
     # tolerance presets
     tols <- ls(pattern = 'tolerance_')
-    pres <- c(.05, .7, .20, .005,
-      .01, .8, .10, .0005)
+    pres <- c(.05, .8, .10, .005,
+      .01, .9, .05, .0005)
     for (i in seq_along(tols)) {
       if (is.null(get(tols[i]))) assign(tols[i], pres[i])
     }
