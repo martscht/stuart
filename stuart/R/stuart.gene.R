@@ -412,13 +412,13 @@ stuart.gene <-
       }
       
       if ('median' %in% reinit.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= reinit.tolerance_md_cur) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & ((phe.ib - stats::median(pheromones))/phe.ib) <= reinit.tolerance_md_cur) {
           reinit <- TRUE
         }
       }
       
       if ('median' %in% convergence.criterion) {
-        if (generation > max(min(c(.1*generations_cur, 10)),1) & (phe.ib - stats::median(pheromones)) <= tolerance_md_cur) {
+        if (generation > max(min(c(.1*generations_cur, 10)),1) & ((phe.ib - stats::median(pheromones))/phe.ib) <= tolerance_md_cur) {
           conv <- TRUE
         }
       }
