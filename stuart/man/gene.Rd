@@ -10,7 +10,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
   mtmm.invariance = "configural", grouping = NULL,
   group.invariance = "strict", auxiliary = NULL, use.order = FALSE,
   software = "lavaan", cores = NULL, objective = objective.preset,
-  ignore.errors = FALSE, generations = 128, individuals = 64,
+  ignore.errors = FALSE, generations = 256, individuals = 64,
   selection = "proportional", selection.pressure = NULL,
   elitism = NULL, reproduction = 0.5, mutation = 0.05,
   mating.index = 1, mating.size = 0.25, mating.criterion = "fitness",
@@ -55,7 +55,7 @@ gene(data, factor.structure, capacity = NULL, item.weights = NULL,
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
 
-\item{generations}{Maximum number of generations to run. Defaults to 128.}
+\item{generations}{Maximum number of generations to run. Defaults to 256.}
 
 \item{individuals}{The number of individuals per generation. Defaults to 64.}
 
@@ -108,7 +108,7 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 \item{log}{A \code{data.frame} containing the optimization history.}
 \item{solution}{A list of matrices with the choices made in the global-best solution.}
-\item{pheromones}{\code{NULL}}
+\item{pheromones}{A list of matrices with the relative selection frequency of items in the final generation.}
 \item{subtests}{A list containing the names of the selected items and their respective subtests.}
 \item{final}{The results of the estimation of the global-best solution.}
 }
@@ -120,7 +120,7 @@ The pheromone function provided via \code{objective} is used to assess the quali
 
 The genetic algorithm implemented selects parents in a two-step procedure. First, a fitness proportionate selection is performed to select \code{inviduals} times \code{reproduction} viable parents. Then, the non-self-adaptive version of mating proposed by Galán, Mengshoel, and Pinter (2013) is used to perform mating. In contrast to the original article, the \code{mating.index} and \code{mating.size} are handled as proportions, not integers. Similarity-based mating is based on the Jaccard Similarity. Mutation is currently always handled as an exchange of the selection state between two items. This results in mutation selecting one item that was not selected prior to mutation and dropping one item selected prior to mutation.
 
-Per default, convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). For generalizability over different functions provided to \code{objective}, variances are scaled to the first global-best found. To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. In this case the setting for \code{tolerance} pertains to the pure variance estimate and defaults to .0005 (or .005 when regarding the reinitialization process discussed below). Alternatively, the setting \code{'median'} checks for the relative difference between the objective function value of the generation-best and the median value of a generation (scaled bythe former). Here, the default is .05 (or .10 when regarding the reinitialization process). The setting \code{'geno.within'} checks for the variability of genotypes in a generation, by determining the relative frequency, with which each item is selected. Convergence is reached if this relative frequency is either \code{tolerance} (.9, by default - or .8 for the reinitialization process) or 1 - \code{tolerance} for all items within a generation. The setting \code{'geno.between'} checks convergence by tracking the changes between this variation in genotypes over subsequent generations. In this case the default for \code{tolerance} is .01 (or .05 for the reinitialization process).
+Per default, convergence is checked via the variance of the global-best values on the objective function, as proposed by Bhandari, Murthy, and Pal (2012). For generalizability over different functions provided to \code{objective}, variances are scaled to the first global-best found. To avoid false convergence in the early search, the lower of either 10\% of the generations or 10 generations must be completed, before convergence is checked. In this case the setting for \code{tolerance} pertains to the pure variance estimate and defaults to .0005 (or .005 when regarding the reinitialization process discussed below). Alternatively, the setting \code{'median'} checks for the relative difference between the objective function value of the generation-best and the median value of a generation (scaled bythe former). Here, the default is .05 (or .10 when regarding the reinitialization process). The setting \code{'geno.within'} checks for the variability of genotypes in a generation, by determining the relative frequency, with which each item is selected. Convergence is reached if this relative frequency is either \code{tolerance} (.8, by default - or .7 for the reinitialization process) or 1 - \code{tolerance} for all items within a generation. The setting \code{'geno.between'} checks convergence by tracking the changes between this variation in genotypes over subsequent generations. In this case the default for \code{tolerance} is .01 (or .05 for the reinitialization process).
 
 A reinitialization procedure can be used to avoid premature convergence. The behavior is controlled via the arguments starting in \code{reinit}. The argument \code{reinit.n} determines the maximum number of possible reinitializations. After each reinitialization, the generation counter is reset, allowing for the maximum number of generations before the search is aborted. The \code{reinit.criterion} and \code{reinit.tolerance} relate to convergence criteria outlined above. It is recommended to use a higher tolerance on reinitialization than on final convergence to avoid long periods of stagnant search. The \code{reinit.prop} determines the proportion of the population to be replaced by random individuals when reinitializing. Note that even when \code{reinit.prop = 1}, the number of individuals kept due to \code{elitism} is not discarded.
 }

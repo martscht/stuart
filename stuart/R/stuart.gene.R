@@ -93,8 +93,8 @@ stuart.gene <-
     
     # tolerance presets
     tols <- ls(pattern = 'tolerance_')
-    pres <- c(.05, .8, .10, .005,
-      .01, .9, .05, .0005)
+    pres <- c(.05, .7, .10, .005,
+      .01, .8, .05, .0005)
     for (i in seq_along(tols)) {
       if (is.null(get(tols[i]))) assign(tols[i], pres[i])
     }
@@ -315,7 +315,7 @@ stuart.gene <-
                   stats::quantile(pheromones[partners], mating.index_cur, type = 1))[1]])
           }
           if (mating.criterion_cur == 'similarity') {
-            tmp <- combi_mat[partners,]
+            tmp <- combi_mat[partners,,drop=FALSE]
             similar <- apply(tmp, 1, function(x) length(intersect(combi_mat[parents[i],], x))/length(union(combi_mat[parents[i],], x)))
             mating[i,] <- c(parents[i], 
               partners[which(similar == stats::quantile(similar, mating.index_cur, type = 1))[1]])
@@ -506,6 +506,15 @@ stuart.gene <-
       geno.within = reinit.tolerance_gw, geno.between = reinit.tolerance_gb)
     
     #Generating Output
+    geno <- list()
+    tmp <- c(0, cumsum(unlist(capacity)))
+    for (i in 1:length(short.factor.structure)) {
+      all_items <- seq_along(short.factor.structure[[i]])
+      sel_items <- combi_mat[, ((tmp[i]+1):tmp[i+1])]
+      geno[[i]] <- colMeans(t(apply(sel_items, 1, function(x) all_items %in% x)))
+    }
+    names(geno) <- names(short.factor.structure)
+    
     for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
     results <- mget(grep('.gb',ls(),value=TRUE))
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
@@ -521,6 +530,7 @@ stuart.gene <-
       'reinit.n', 'reinit.criterion', 'reinit.tolerance', 'reinit.prop',
       'seed', 'objective', 'factor.structure')
     results$convergence <- convergence
+    results$genotype <- geno
 
     return(results)
     
