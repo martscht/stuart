@@ -153,6 +153,9 @@ stuart.gene <-
     
     # reinitialization indicator
     reinit <- FALSE
+    
+    # genotypes
+    geno <- list()
         
     ### Loops ###
     log <- list()
@@ -425,7 +428,6 @@ stuart.gene <-
       
       if ('geno.within' %in% c(convergence.criterion, reinit.criterion)) {
         geno_var <- list()
-        geno <- list()
         tmp <- c(0, cumsum(unlist(capacity)))
         for (i in 1:length(short.factor.structure)) {
           all_items <- seq_along(short.factor.structure[[i]])
@@ -439,6 +441,35 @@ stuart.gene <-
         }
         if ('geno.within' %in% reinit.criterion &
             all(unlist(sapply(geno_var, function(x) x < (reinit.tolerance_gw_cur*(1-reinit.tolerance_gw_cur)))))) {
+          reinit <- TRUE
+        }
+      }
+      
+      if ('geno.between' %in% c(convergence.criterion, reinit.criterion)) {
+        if (run == 1) {
+          geno_r1 <- vector('list', length(short.factor.structure))
+          geno_r1 <- lapply(geno_r1, function(x) 0)
+          geno_d1 <- geno_r1
+        } else {
+          geno_r1 <- geno
+        }
+        geno_d2 <- geno_d1
+        tmp <- c(0, cumsum(unlist(capacity)))
+        for (i in 1:length(short.factor.structure)) {
+          all_items <- seq_along(short.factor.structure[[i]])
+          sel_items <- combi_mat[, ((tmp[i]+1):tmp[i+1])]
+          geno[[i]] <- colMeans(t(apply(sel_items, 1, function(x) all_items %in% x)))
+          geno_d1[[i]] <- abs(geno_r1[[i]]-geno[[i]])
+        }
+        
+        if ('geno.between' %in% convergence.criterion &
+            all(sapply(geno_d1, function(x) all(x < tolerance_gb_cur))) &
+            all(sapply(geno_d2, function(x) all(x < tolerance_gb_cur)))) {
+          conv <- TRUE
+        }
+        if ('geno.between' %in% reinit.criterion &
+            all(sapply(geno_d1, function(x) all(x < reinit.tolerance_gb_cur))) &
+            all(sapply(geno_d2, function(x) all(x < reinit.tolerance_gb_cur)))) {
           reinit <- TRUE
         }
       }
@@ -499,6 +530,7 @@ stuart.gene <-
     if ('variance' %in% names(convergence)) convergence[['variance']] <- stats::var(qual.ib/qual.ib[1])
     if ('median' %in% names(convergence)) convergence[['median']] <- phe.ib - stats::median(pheromones)
     if ('geno.within' %in% names(convergence)) convergence[['geno.within']] <- lapply(geno, colMeans)
+    if ('geno.between' %in% names(convergence)) convergence[['geno.between']] <- geno_d1
     
     tolerance <- list(variance = tolerance_va, median = tolerance_md, 
       geno.within = tolerance_gw, geno.between = tolerance_gb)
@@ -506,7 +538,6 @@ stuart.gene <-
       geno.within = reinit.tolerance_gw, geno.between = reinit.tolerance_gb)
     
     #Generating Output
-    geno <- list()
     tmp <- c(0, cumsum(unlist(capacity)))
     for (i in 1:length(short.factor.structure)) {
       all_items <- seq_along(short.factor.structure[[i]])
