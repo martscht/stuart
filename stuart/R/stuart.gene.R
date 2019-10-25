@@ -12,7 +12,7 @@ stuart.gene <-
     
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
-    generations = 128, individuals = 64,                            #settings of the algorithm
+    generations = 256, individuals = 64,                            #settings of the algorithm
     selection = 'proportional', selection.pressure = NULL,
     elitism = NULL, reproduction = .5, mutation = .05,
     mating.index = 1, mating.size = .25, 

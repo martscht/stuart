@@ -40,7 +40,7 @@
 #' @param cores The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.
 #' @param objective A function that converts the results of model estimation into a pheromone. See 'details' for... details.
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
-#' @param generations Maximum number of generations to run. Defaults to 128.
+#' @param generations Maximum number of generations to run. Defaults to 256.
 #' @param individuals The number of individuals per generation. Defaults to 64.
 #' @param selection The method used for selecting possible parents. Can be either \code{'proportional'} (the default) for fitness proportional random selection or \code{'tournament'} for a semi-deterministic selection.
 #' @param selection.pressure The pressure exerted during the selection process, depending on the \code{selection}: if \code{selection = 'proportional'} the non-linearity coefficient of the pheromone when determining selection probability (the default is 1); if \code{selection = 'proportional'} the number of randomly selected individuals from which to choose the best (the default is 5).
@@ -145,7 +145,7 @@ gene <-
     
     objective=objective.preset, ignore.errors=FALSE,                      #fitness specs
     
-    generations = 128, individuals = 64,                                  #algorithm specs
+    generations = 256, individuals = 64,                                  #algorithm specs
     selection = 'proportional', selection.pressure = NULL,
     elitism = NULL, reproduction = .5, mutation = .05,
     mating.index = 1, mating.size = .25, 
