@@ -48,7 +48,7 @@ function(
   class(deposit) <- 'numeric'
   
   #initialize scheduling 
-  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance','deposit')
+  scheduled <- c('ants','colonies','evaporation','pbest','alpha','beta','tolerance','deposit','ignore.errors')
   
   #global assignment to avoid check note
   ants_cur <- NA
@@ -59,6 +59,7 @@ function(
   beta_cur <- NA
   tolerance_cur <- NA
   deposit_cur <- NA
+  ignore.errors_cur <- NA
   
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
