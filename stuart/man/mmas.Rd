@@ -4,18 +4,42 @@
 \alias{mmas}
 \title{Subtest construction using the Max-Min-Ant-System}
 \usage{
-mmas(data, factor.structure, capacity = NULL, item.weights = NULL,
-  item.invariance = "congeneric", repeated.measures = NULL,
-  long.invariance = "strict", mtmm = NULL,
-  mtmm.invariance = "configural", grouping = NULL,
-  group.invariance = "strict", comparisons = NULL, auxiliary = NULL,
-  use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, ants = 16,
-  colonies = 256, evaporation = 0.95, alpha = 1, beta = 1,
-  pheromones = NULL, heuristics = NULL, deposit = "ib",
-  localization = "nodes", pbest = 0.005, tolerance = 0.5,
-  schedule = "run", analysis.options = NULL, suppress.model = FALSE,
-  seed = NULL, filename = NULL)
+mmas(
+  data,
+  factor.structure,
+  capacity = NULL,
+  item.weights = NULL,
+  item.invariance = "congeneric",
+  repeated.measures = NULL,
+  long.invariance = "strict",
+  mtmm = NULL,
+  mtmm.invariance = "configural",
+  grouping = NULL,
+  group.invariance = "strict",
+  comparisons = NULL,
+  auxiliary = NULL,
+  use.order = FALSE,
+  software = "lavaan",
+  cores = NULL,
+  objective = NULL,
+  ignore.errors = FALSE,
+  ants = 16,
+  colonies = 256,
+  evaporation = 0.95,
+  alpha = 1,
+  beta = 1,
+  pheromones = NULL,
+  heuristics = NULL,
+  deposit = "ib",
+  localization = "nodes",
+  pbest = 0.005,
+  tolerance = 0.5,
+  schedule = "run",
+  analysis.options = NULL,
+  suppress.model = FALSE,
+  seed = NULL,
+  filename = NULL
+)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}

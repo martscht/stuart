@@ -4,15 +4,32 @@
 \alias{randomsamples}
 \title{Generating random samples of Subtests}
 \usage{
-randomsamples(data, factor.structure, capacity = NULL,
-  item.invariance = "congeneric", repeated.measures = NULL,
-  long.invariance = "strict", mtmm = NULL,
-  mtmm.invariance = "configural", grouping = NULL,
-  group.invariance = "strict", comparisons = NULL, auxiliary = NULL,
-  use.order = FALSE, software = "lavaan", cores = NULL,
-  objective = NULL, ignore.errors = FALSE, analysis.options = NULL,
-  suppress.model = FALSE, seed = NULL, request.override = 10000,
-  filename = NULL, n = 1000, percentile = 100)
+randomsamples(
+  data,
+  factor.structure,
+  capacity = NULL,
+  item.invariance = "congeneric",
+  repeated.measures = NULL,
+  long.invariance = "strict",
+  mtmm = NULL,
+  mtmm.invariance = "configural",
+  grouping = NULL,
+  group.invariance = "strict",
+  comparisons = NULL,
+  auxiliary = NULL,
+  use.order = FALSE,
+  software = "lavaan",
+  cores = NULL,
+  objective = NULL,
+  ignore.errors = FALSE,
+  analysis.options = NULL,
+  suppress.model = FALSE,
+  seed = NULL,
+  request.override = 10000,
+  filename = NULL,
+  n = 1000,
+  percentile = 100
+)
 }
 \arguments{
 \item{data}{A data.frame containing all relevant data.}

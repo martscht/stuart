@@ -21,7 +21,7 @@ gene(
   use.order = FALSE,
   software = "lavaan",
   cores = NULL,
-  objective = objective.preset,
+  objective = NULL,
   ignore.errors = FALSE,
   generations = 256,
   individuals = 64,
