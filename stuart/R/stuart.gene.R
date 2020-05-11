@@ -12,16 +12,16 @@ stuart.gene <-
     
     objective=NULL, ignore.errors=FALSE,                           #objective function
     
-    generations = 256, individuals = 64,                            #settings of the algorithm
-    selection = 'proportional', selection.pressure = NULL,
+    generations = 256, individuals = 64,                                  #algorithm specs
+    selection = 'tournament', selection.pressure = NULL,
     elitism = NULL, reproduction = .5, mutation = .05,
-    mating.index = 1, mating.size = .25, 
-    mating.criterion = 'fitness',
+    mating.index = 0, mating.size = .25, 
+    mating.criterion = 'similarity',
     immigration = 0,
-    convergence.criterion = 'variance',
+    convergence.criterion = 'geno.between',
     tolerance = NULL,
     
-    reinit.n = 0, reinit.criterion = convergence.criterion,
+    reinit.n = 1, reinit.criterion = convergence.criterion,
     reinit.tolerance = NULL, reinit.prop = .75,
     
     schedule = 'run',
@@ -530,7 +530,7 @@ stuart.gene <-
     if ('variance' %in% names(convergence)) convergence[['variance']] <- stats::var(qual.ib/qual.ib[1])
     if ('median' %in% names(convergence)) convergence[['median']] <- phe.ib - stats::median(pheromones)
     if ('geno.within' %in% names(convergence)) convergence[['geno.within']] <- lapply(geno, colMeans)
-    if ('geno.between' %in% names(convergence)) convergence[['geno.between']] <- geno_d1
+    if ('geno.between' %in% names(convergence) & 'geno_d1'%in%ls()) convergence[['geno.between']] <- geno_d1
     
     tolerance <- list(variance = tolerance_va, median = tolerance_md, 
       geno.within = tolerance_gw, geno.between = tolerance_gb)
