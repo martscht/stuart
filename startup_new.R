@@ -17,4 +17,4 @@ check('./stuart', incoming = TRUE, cran = TRUE)
 build('./stuart')
 
 # check built package
-check_built('./stuart_0.8.0.tar.gz')
+check_built('./stuart_0.9.1.tar.gz')
