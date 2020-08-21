@@ -78,7 +78,7 @@ holdout <- function(data, prop = .5, grouping = NULL, seed = NULL,
       tmp <- which(data[grouping] == i)
       tmp <- tmp[!(tmp %in% c(det_cali, det_vali))]
       if (length(tmp) > 0) {
-        tmp_filter <- sample(tmp, n_cali[i])
+        tmp_filter <- sample(tmp, min(n_cali[i], length(tmp)))
       } else {
         tmp_filter <- 0
         warning('The deterministic assignment lead to unbalanced samples. Please check the results carefully.')
@@ -95,7 +95,7 @@ holdout <- function(data, prop = .5, grouping = NULL, seed = NULL,
     tmp <- 1:nrow(data)
     tmp <- tmp[!(tmp %in% c(det_cali, det_vali))]
     if (length(tmp) > 0) {
-      filter <- sort(sample(tmp, n_cali))
+      filter <- sort(sample(tmp, min(n_cali, length(tmp))))
     } else {
       filter <- 0
       warning('The deterministic assignment lead to unbalanced samples. Please check the results carefully.')
