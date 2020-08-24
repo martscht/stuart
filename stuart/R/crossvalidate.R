@@ -55,6 +55,7 @@
 crossvalidate <- 
 function(
   selection, old.data, new.data,
+  max.invariance = 'strict',
   filename = NULL
 ) { #begin function
   
@@ -78,7 +79,7 @@ function(
   args$analysis.options <- selection$analysis.options
   
   # run validation
-  output <- do.call(paste('crossvalidate',software,sep='.'),args)
+  output <- do.call(paste('crossvalidate',software,sep='.'), args)
   
   class(output) <- c('stuartCrossvalidate')
   return(output)

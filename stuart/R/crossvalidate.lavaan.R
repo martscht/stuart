@@ -2,7 +2,7 @@
 crossvalidate.lavaan <- 
 function(
   selection, old.data, new.data, output.model=TRUE, 
-  analysis.options = NULL, ...
+  analysis.options = NULL, max.invariance = 'strict', ...
 ) { #begin function
   
   # retrieve old results
@@ -45,6 +45,10 @@ function(
   all.data <- rbind(new.data, old.data)
 
   results <- models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
+  if (!(max.invariance %in% names(models))) {
+    break('The "max.invariance" must be one of "configural", "weak", "strong", or "strict".', call. = FALSE)
+  }
+  results <- models <- models[1:which(names(models) == max.invariance)]
 
   if (all(sapply(all.data[, unlist(selection$subtests)], is.ordered))) {
     results$strict <- models$strict <- NULL
@@ -95,14 +99,16 @@ function(
   }
 
   results <- do.call(rbind, results)
-  comps <- try(do.call(lavaan::lavTestLRT, c(object=models[[1]], models[-1])), silent = TRUE)
-  if (class(comps)[1]=='try-error') {
-    comps <- matrix(NA, ncol = 7, nrow = 4)
-    colnames(comps)[5:7] <- c('Chisq diff', 'Df diff', 'Pr(>Chisq)')
-    warning('One or more of the models resulted in an error. The LRT cannot be computed.', call. = FALSE)
+  if (length(models) > 1) {
+    comps <- try(do.call(lavaan::lavTestLRT, c(object=models[[1]], models[-1])), silent = TRUE)
+    if (class(comps)[1]=='try-error') {
+      comps <- matrix(NA, ncol = 7, nrow = 4)
+      colnames(comps)[5:7] <- c('Chisq diff', 'Df diff', 'Pr(>Chisq)')
+      warning('One or more of the models resulted in an error. The LRT cannot be computed.', call. = FALSE)
+    }
+    rownames(comps) <- names(models)
+    results <- cbind(results, comps[, 5:7])
   }
-  rownames(comps) <- names(models)
-  results <- cbind(results, comps[, 5:7])
   output <- list(comparison = results, models = models)
   
   return(output)
