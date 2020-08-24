@@ -548,6 +548,8 @@ stuart.gene <-
     names(geno) <- names(short.factor.structure)
     
     for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
+    names(solution.gb) <- names(short.factor.structure)
+    
     results <- mget(grep('.gb',ls(),value=TRUE))
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log

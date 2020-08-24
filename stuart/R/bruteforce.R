@@ -160,7 +160,7 @@ function(
   output$analysis.options <- analysis.options
   output$timer <- proc.time() - timer
   output$log <- solution$log
-  output$solution <- NULL
+  output$solution <- solution$solution.gb
   output$pheromones <- NULL
   output$subtests <- solution$selected.items
   output$final <- final.model$model

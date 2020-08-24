@@ -120,6 +120,14 @@ function(
 
   tried <- try(do.call(cbind, lapply(filter, function(y) do.call(rbind,lapply(y, function(x) combi[[1]][x, ])))), silent = TRUE)
   if (class(tried)[1]=='try-error') warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
+
+  # construction solution in standard format
+  solution.gb <- short.factor.structure
+  for (i in 1:length(short.factor.structure)) {
+    solution.gb[[i]] <- seq_along(short.factor.structure[[i]])
+    solution.gb[[i]] <- solution.gb[[i]] %in% selected.gb[[i]]
+    names(solution.gb[[i]]) <- short.factor.structure[[i]]
+  }
   
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)

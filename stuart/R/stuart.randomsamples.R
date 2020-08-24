@@ -135,6 +135,14 @@ function(
   close(progress)
   message('\nSearch ended.')
   
+  # construction solution in standard format
+  solution.sel <- short.factor.structure
+  for (i in 1:length(short.factor.structure)) {
+    solution.sel[[i]] <- seq_along(short.factor.structure[[i]])
+    solution.sel[[i]] <- solution.sel[[i]] %in% selected.sel[[i]]
+    names(solution.sel[[i]]) <- short.factor.structure[[i]]
+  }
+  
   results <- mget(grep('.sel',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.sel,factor.structure,short)
   log <- data.frame(log)
