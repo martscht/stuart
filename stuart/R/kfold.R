@@ -1,9 +1,13 @@
 kfold <- function(type, k = 5,
   max.invariance = 'strict',
-  ...) {
+  ...,
+  remove.details = TRUE) {
 
   # unpack ellipses
   args <- list(...)
+  
+  # check for multiple groups
+  if ('grouping' %in% names(args)) stop('Multiple groups are not yet supported in k-folds crossvalidation.', call. = FALSE)
   
   # split data
   folded <- list()
@@ -26,8 +30,11 @@ kfold <- function(type, k = 5,
   for (i in 1:k) {
     args$data <- folded[[i]]
     message(paste0('\nRunning fold number ', i, ' of ', k, '.\n'))
-    searches[[i]] <- do.call(type, args)
+    searches[[i]] <- try(do.call(type, args))
   }
+  
+  check <- sapply(searches, function(x) 'try-error' %in% class(x))
+  if (all(check)) stop('None of the folds resulted in viable solutions. This may be the result of the sample being to small for the number of folds.', call. = FALSE)
 
   # Run crossvalidation
   message('\nRunning cross-validation.\n')
@@ -35,8 +42,8 @@ kfold <- function(type, k = 5,
   for (i in 1:k) {
     selection <- searches[[i]]
     old.data <- folded[[i]]
-    cv[[i]] <- try(crossvalidate(selection, old.data), silent = TRUE)
-    if ('try-error' %in% class(cv[[i]])) cv[[i]] <- NA
+    cv[[i]] <- try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE)
+    if ('try-error' %in% class(cv[[i]])) cv[[i]] <- list(comparison = NULL, models = NULL)
   }
   
   # Reorganize solutions
@@ -46,17 +53,32 @@ kfold <- function(type, k = 5,
   }
   
   # identify best solution
-  phe <- sapply(cv, function(x) x[['comparison']][max.invariance, 'pheromone'])
-  best <- searches[[which.max(phe)]]
+  phe <- sapply(cv, function(x) {
+    if (is.null(x[['comparison']])) return(NA)
+    else return(x[['comparison']][max.invariance, 'pheromone'])})
   
-  out <- list()
+  best <- searches[[which.max(phe)]]
+  best_cv <- cv[[which.max(phe)]]
+  
+  # remove models and data for non-best
+  if (remove.details) {
+    searches <- lapply(searches, function(x) x[!(names(x) %in% c('final', 'call'))])
+    cv <- lapply(cv, `[[`, 'comparison')
+  }
+  
+  dats <- do.call(rbind, lapply(folded, `[[`, 'calibrate'))
+  dats$stuartKfold <- unlist(sapply(1:k, function(x) rep(x, nrow(folded[[x]][['calibrate']]))))
+  rownames(dats) <- NULL
+  
+  out <- list(call = match.call())
   out$subtests <- best$subtests
   out$solution <- best$solution
-  out$final <- cv[[which.max(phe)]][['models']][[max.invariance]]
-  out$validation <- cv[[which.max(phe)]][['comparison']]
+  out$final <- best_cv[['models']][[max.invariance]]
+  out$validation <- best_cv[['comparison']]
   out$frequencies <- lapply(solu, colMeans)
   out$full <- searches
   out$crossvalidations <- cv
+  out$data <- dats
   
   class(out) <- 'stuartKfold'
   
