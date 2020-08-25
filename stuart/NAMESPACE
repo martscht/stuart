@@ -2,8 +2,11 @@
 
 S3method(plot,stuartOutput)
 S3method(print,stuartCrossvalidate)
+S3method(print,stuartKfold)
 S3method(print,stuartOutput)
+S3method(print,summary.stuartKfold)
 S3method(print,summary.stuartOutput)
+S3method(summary,stuartKfold)
 S3method(summary,stuartOutput)
 export(bruteforce)
 export(combinations)
