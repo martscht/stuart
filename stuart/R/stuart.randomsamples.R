@@ -66,10 +66,10 @@ function(
     #parallel processing for R-internal estimations
     if (software=='lavaan') {
       if (cores>1) {
-        if (.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in RStudio.')
+        if (.Platform$GUI=='RStudio') message('\nProgressbars are not functional when utilizing multiple cores for randomsamples in RStudio.')
         #set up parallel processing on windows
         if (grepl('Windows',Sys.info()[1],ignore.case=TRUE)) {
-          if (!.Platform$GUI=='RStudio') message('Progressbars are not functional when utilizing multiple cores for randomsamples in Windows.')
+          if (!.Platform$GUI=='RStudio') message('\nProgressbars are not functional when utilizing multiple cores for randomsamples in Windows.')
           cl <- parallel::makeCluster(cores)
           
           bf.results <- parallel::parLapply(cl,1:nrow(filter),function(run) {
