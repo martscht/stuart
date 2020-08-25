@@ -6,7 +6,7 @@ function(x,...) {
   cat('SUMMARY OF ANALYSIS:\n\n')
   cat('Analysis Type:',x$Type[1],'\n')
   cat('Estimation Software:',x$Software,'\n')
-  cat('Models estimated:',x$Models,'\n')
+  cat('Models Estimated:',x$Models,'\n')
   cat('Replications of final solution:',x$Replications,'\n')
   if ('end.reason' %in% names(x)) cat(x$end.reason, '\n')
   cat('Time Required:',x$Time,'seconds\n')
