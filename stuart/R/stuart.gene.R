@@ -565,6 +565,7 @@ stuart.gene <-
       'seed', 'objective', 'factor.structure')
     results$convergence <- convergence
     results$genotype <- geno
+    results$end.reason <- end.reason
 
     return(results)
     

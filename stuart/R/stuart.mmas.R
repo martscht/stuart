@@ -331,6 +331,7 @@ function(
     objective=objective,
     heuristics=heuristics,
     factor.structure=factor.structure)
+  results$end.reason <- end.reason
   return(results)
 
 }

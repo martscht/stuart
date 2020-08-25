@@ -224,6 +224,7 @@ gene <-
     output$solution <- solution$solution.gb
     output$pheromones <- solution$genotype
     output$subtests <- solution$selected.items
+    output$end.reason <- solution$end.reason
     output$final <- final.model$model
     
     class(output) <- 'stuartOutput'

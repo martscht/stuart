@@ -10,6 +10,7 @@ function(object,...) {
 
   Out <- list(Subtests=object$subtests,Results=Results,Time=Time,Models=Models,
               Replications=Replications,Type=paste(object$call),Software=object$software)
+  if ('end.reason' %in% names(object)) Out$end.reason <- object$end.reason
   class(Out) <- 'summary.stuartOutput'
   return(Out)
 }
