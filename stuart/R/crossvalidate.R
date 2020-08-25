@@ -11,6 +11,7 @@
 #' @param selection An object of class \code{stuartOutput}.
 #' @param old.data A \code{data.frame} of the calibration sample.
 #' @param new.data A \code{data.frame} of the validation sample.
+#' @param max.invariance The maximum measurement invariance level which will be tested. Currently there are four options: 'configural', 'weak', 'strong', and 'strict' (the default). All levels below \code{max.invariance} are also tested. 
 #' @param filename The stem of the filenames used to save inputs, outputs, and data files when \code{software='Mplus'}. This may include the file path. When \code{NULL} (the default) files will be saved to the temporary directory, which is deleted when the R session is ended.
 #' 
 ### Outputs ----
