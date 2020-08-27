@@ -114,7 +114,7 @@ kfold <- function(type, k = 5,
   for (i in 1:k) {
     selection <- searches[[i]]
     old.data <- folded[[i]]
-    invisible(capture.output(cv[[i]] <- try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE)))
+    invisible(capture.output(cv[[i]] <- suppressWarnings(try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE))))
     if ('try-error' %in% class(cv[[i]])) {
       cv[[i]] <- list(comparison = NULL, models = NULL)
       warning(paste0('The crossvalidation produced an error in fold ', i), call. = FALSE)
