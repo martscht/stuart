@@ -4,7 +4,15 @@
 \alias{kfold}
 \title{k-Folds Crossvalidation}
 \usage{
-kfold(type, k = 5, max.invariance = "strict", ..., remove.details = TRUE)
+kfold(
+  type,
+  k = 5,
+  max.invariance = "strict",
+  seed = NULL,
+  seeded.search = TRUE,
+  ...,
+  remove.details = TRUE
+)
 }
 \arguments{
 \item{type}{A \code{character} calling the item-selection procedure. Can be one of "mmas" (see \code{\link{mmas}}), "gene" (see \code{\link{gene}}), "bruteforce" (see \code{\link{bruteforce}}), or randomsamples (see \code{\link{randomsamples}}).}
@@ -12,6 +20,10 @@ kfold(type, k = 5, max.invariance = "strict", ..., remove.details = TRUE)
 \item{k}{The number of folds.}
 
 \item{max.invariance}{The maximum measurement invariance level which will be tested. Currently there are four options: 'configural', 'weak', 'strong', and 'strict' (the default). All levels below \code{max.invariance} are also tested.}
+
+\item{seed}{The random seed.}
+
+\item{seeded.search}{A \code{logical} indicating whether the \code{seed} should also be used for the search procedure (the default) or only for the sample splitting.}
 
 \item{...}{Arguments passed to the item-selection procedure called with \code{type}.}
 

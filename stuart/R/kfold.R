@@ -12,6 +12,8 @@
 #' @param type A \code{character} calling the item-selection procedure. Can be one of "mmas" (see \code{\link{mmas}}), "gene" (see \code{\link{gene}}), "bruteforce" (see \code{\link{bruteforce}}), or randomsamples (see \code{\link{randomsamples}}).
 #' @param k The number of folds.
 #' @param max.invariance The maximum measurement invariance level which will be tested. Currently there are four options: 'configural', 'weak', 'strong', and 'strict' (the default). All levels below \code{max.invariance} are also tested. 
+#' @param seed The random seed. 
+#' @param seeded.search A \code{logical} indicating whether the \code{seed} should also be used for the search procedure (the default) or only for the sample splitting.
 #' @param ... Arguments passed to the item-selection procedure called with \code{type}.
 #' @param remove.details A \code{logical} indicating whether to remove detailed information such as models and copies of datasets. Reduces output size by approx. 90\%. Defaults to \code{TRUE}.
 #' 
@@ -59,11 +61,12 @@
 
 kfold <- function(type, k = 5,
   max.invariance = 'strict',
+  seed = NULL, seeded.search = TRUE,
   ...,
   remove.details = TRUE) {
 
   # unpack ellipses
-  args <- list(...)
+  args <- list(..., seed = seed)
   
   # check for multiple groups
   if ('grouping' %in% names(args)) stop('Multiple groups are not yet supported in k-folds crossvalidation.', call. = FALSE)
@@ -87,6 +90,8 @@ kfold <- function(type, k = 5,
   searches <- list()
 
   run_args <- args[names(args) %in% names(formals(type))]
+  
+  if (!seeded.search) run_args$seed <- NULL
   
   for (i in 1:k) {
     run_args$data <- folded[[i]]
