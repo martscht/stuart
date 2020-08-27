@@ -86,7 +86,7 @@ function(
     analysis.options$model <- pars
     
     args <- list(data=all.data,selected.items=selection$subtests,
-      grouping=grouping,auxi=all.data[,NULL],suppress.model=TRUE,
+      grouping=grouping,auxi=all.data[,selection$call$auxiliary, drop = FALSE],suppress.model=TRUE,
       analysis.options=analysis.options,objective=selection$parameters$objective,ignore.errors=TRUE,
       output.model=TRUE,factor.structure=selection$parameters$factor.structure)
     
