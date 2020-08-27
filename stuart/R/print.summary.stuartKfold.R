@@ -11,7 +11,7 @@ print.summary.stuartKfold <-
     cat('Time Required:',x$Time,'seconds\n')
     cat('\nCrossvalidation Results with', toupper(x$max.invariance), 'Invariance:\n')
     print(x$Results)
-    cat('\nAverage Jaccard Distance: ')
+    cat('\nAverage Jaccard Similarity: ')
     cat(paste0(paste0(names(x$Jaccard),': ',paste(x$Jaccard), collapse=', '), '\n'))
     cat(paste0('\nConstructed Subtests: (k = ', which.max(x$Results$pheromone), ')\n'))
     for (i in 1:length(x$Subtests)) {

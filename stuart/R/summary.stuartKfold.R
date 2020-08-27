@@ -1,7 +1,7 @@
 #' @export
 
 summary.stuartKfold <- function(object, ...) {
-  filt <- sapply(object$full, function(x) length(x) == 0)
+  filt <- sapply(object$full, function(x) length(x) == 0) | sapply(object$crossvalidations, function(x) length(x) == 0)
   Time <- as.numeric(sum(sapply(object$full[!filt], function(x) x$timer[3])))
   Models <- sum(sapply(object$full[!filt], function(x) nrow(x$log)))
   Type <- object$call$type

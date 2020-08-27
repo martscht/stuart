@@ -84,6 +84,9 @@ kfold <- function(type, k = 5,
     folded[[i]] <- do.call('holdout', hold_args)
     hold_args$data <- do.call('rbind', folded[[i]])
     hold_args$data$.determined_internal[1:nrow(folded[[i]]$calibrate)] <- 'validate'
+    tmp <- folded[[i]]
+    folded[[i]]$calibrate <- tmp$validate
+    folded[[i]]$validate <- tmp$calibrate
   }
   
   # Run searches
@@ -97,6 +100,9 @@ kfold <- function(type, k = 5,
     run_args$data <- folded[[i]]
     message(paste0('\nRunning fold number ', i, ' of ', k, '.\n'))
     searches[[i]] <- try(do.call(type, run_args))
+    if ('try-error' %in% class(searches[[i]])) {
+      warning(paste0('The search procedure did not terminate normally in fold ', i), call. = FALSE)
+    }
   }
   
   check <- sapply(searches, function(x) 'try-error' %in% class(x))
@@ -108,8 +114,11 @@ kfold <- function(type, k = 5,
   for (i in 1:k) {
     selection <- searches[[i]]
     old.data <- folded[[i]]
-    cv[[i]] <- try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE)
-    if ('try-error' %in% class(cv[[i]])) cv[[i]] <- list(comparison = NULL, models = NULL)
+    invisible(capture.output(cv[[i]] <- try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE)))
+    if ('try-error' %in% class(cv[[i]])) {
+      cv[[i]] <- list(comparison = NULL, models = NULL)
+      warning(paste0('The crossvalidation produced an error in fold ', i), call. = FALSE)
+    }
   }
   
   # Reorganize solutions
@@ -133,8 +142,8 @@ kfold <- function(type, k = 5,
     cv <- lapply(cv, `[[`, 'comparison')
   }
   
-  dats <- do.call(rbind, lapply(folded, `[[`, 'calibrate'))
-  dats$stuartKfold <- unlist(sapply(1:k, function(x) rep(x, nrow(folded[[x]][['calibrate']]))))
+  dats <- do.call(rbind, lapply(folded, `[[`, 'validate'))
+  dats$stuartKfold <- unlist(sapply(1:k, function(x) rep(x, nrow(folded[[x]][['validate']]))))
   rownames(dats) <- NULL
   
   out <- list(call = match.call())
