@@ -9,21 +9,23 @@ set.seed(1)
 
 # README #
 
-This repository contains the current alpha-build of the STUART package for R. The name suggests, what the package is made for: *s*ub*t*ests *u*sing *a*lgorithmic *r*ummaging *t*echniques. It is intended for the creation of short-forms of questionnaires in a multitude of situations including multiple facets, multiple groups, multiple measurement occasions, and multiple sources of information. A full vignette is currently in the works - for some of the theoretical and technical stuff you can [take a look at the dissertation I wrote](https://refubium.fu-berlin.de/handle/fub188/2951) - but this readme will provide a short guide on using the package.
+This repository contains the current alpha-build of the STUART package for R. The name suggests, what the package is made for: sub-tests using algorithmic rummaging techniques. It is intended for the creation of short-forms of questionnaires in a multitude of situations including multiple facets, multiple groups, multiple measurement occasions, and multiple sources of information. A full vignette is currently in the works - for some of the theoretical and technical stuff you can [take a look at the dissertation I wrote](https://refubium.fu-berlin.de/handle/fub188/2951) - but this readme will provide a short guide on using the package.
 
 ## Installation ##
 
-The easiest way to install the current version of STUART is via the use of the `install_bitbucket()`-function included in the `devtools` package. To install the *stable* version use:
+The current stable version (0.9.1) is [available CRAN](https://cran.r-project.org/package=stuart) and can be installed using the usual approach:
 
-```{r, eval=FALSE}
-devtools::install_bitbucket('martscht/stuart/stuart')
+```{r, eval = FALSE}
+install.packages('stuart')
 ```
 
-I will do my very best to ensure that this version is the same as the one that you can find on CRAN. If you're feeling a bit more experimental, you can install the development build by setting `ref='develop'`, like so:
+The current development version can be installed via the `install_bitbucket()`-function included in the `devtools` package
 
 ```{r, eval=FALSE}
 devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
 ```
+
+If you omit `ref = 'develop'`, the function will install the main branch, which is the one that can also be found on CRAN.
 
 ```{r}
 library(stuart)
@@ -33,24 +35,24 @@ After installation the easiest way to get an overview of STUARTs functions and c
 
 ## Prerequisites
 
-The core idea behind STUART is to perform item-selection not based on univariate propoerties of the items, but to instead use information about the quality of a constructed solution for this task. In this sense, all constructed solutions are viewed through the lense of confirmatory factor analysis (CFA) which is used to relate the items to latent constructs which are assumed to be the cause of observable behavior. To perform CFA on of two additional software components is required: either the [R-Package lavaan](http://lavaan.ugent.be/) or the [commercial software Mplus](http://statmodel.com/). Because the choice which of these to use is yours, neither of them installed when installing STUART, so you will need to do so manually, befor being able to use this package. If you intend to use Mplus, you will also need to install the [R-Package MplusAutomation](https://cran.r-project.org/web/packages/MplusAutomation/index.html), so STUART can interface with the Mplus output.
+The core idea behind STUART is to perform item-selection not based on univariate properties of the items, but to instead use information about the quality of a constructed solution for this task. In this sense, all constructed solutions are viewed through the lense of confirmatory factor analysis (CFA) which is used to relate the items to latent constructs which are assumed to be the cause of observable behavior. To perform CFA one of two additional software components is required: either the [R-Package lavaan](http://lavaan.ugent.be/) or the [commercial software Mplus](http://statmodel.com/). Because the choice which of these to use is yours, neither of them were installed when installing STUART, so you will need to do so manually, before being able to use this package. If you intend to use Mplus, you will also need to install the [R-Package MplusAutomation](https://cran.r-project.org/web/packages/MplusAutomation/index.html), so STUART can interface with the Mplus output.
 
-**WARNING: While both software solutions are implemented, as of STUART Version 0.8.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus, which is much slower than the current lavaan implementation (by factors of around 20).**
+**WARNING: While both software solutions are implemented, as of STUART Version 0.9.0 it is highly recommended to use lavaan, if possible. This is due to the current MplusAutomation-based implementation of using Mplus, which is much slower than the current lavaan implementation (by factors of around 20).**
 
 ## Features
 
-The current STUART version (0.8.0) provides four approaches to item selection, each in its own function:
+The current STUART version (0.9.1) provides four approaches to item selection, each in its own function:
 
   * `mmas()`, an adaptation of Stützle's (1998) $\mathcal{MAX}-\mathcal{MIN}$-Ant-System,
   * `gene()`, a basic genetic algorithm based on the ideas of Galán, Mengshoel, \& Pinter (2013),
   * `bruteforce()`, the brute-force approach of simply trying all possible combinations, and
   * `randomsamples()`, a simple random sample of all possible combinations.
 
-Before picking any of these, it is best to think about what it is that you are trying to achieve and what kind of situation you are in. If you are simply tring to determine what an average solution might look like (in terms of scale properties) it is best to use `randomsamples()`. If you are trying to find the best possible solution your next depends primarily on the number of possible solutions. You can determine this with `combinations()`. If the number is sufficiently small (or you are willing wait sufficiently long) it is recommended to use `bruteforce()`, because this guarantess that you will find the optimal solution in your data. Which number passes as "sufficiently small" is up to you and depends primarily on how long the estimation of a single CFA takes on your computer. My ballpark recommendation is about 200 000 for a regular CFA model with multiple facets. If one of these takes about a quarter second to run, this should be done in about 2 hours on a decently performing 8-core machine. If there are substantially more possible combinations of items that could be tested in the process of item selection, it is advisable to use either `mmas()` or `gene()`. The `mmas()` approach has been thoroughly scrutinized ([by me](https://refubium.fu-berlin.de/handle/fub188/2951)), while the `gene()` approach is currently going through this process. Preliminary results suggest that there is little difference in the performance of these two approaches, so my current recommendation would be to use the one you feel more comfortable with - Ant Colony Optimzation or Genetic Algorithms.
+Before picking any of these, it is best to think about what it is that you are trying to achieve and what kind of situation you are in. If you are simply tring to determine what an average solution might look like (in terms of scale properties) it is best to use `randomsamples()`. If you are trying to find the best possible solution your next depends primarily on the number of possible solutions. You can determine this with `combinations()`. If the number is sufficiently small (or you are willing wait sufficiently long) it is recommended to use `bruteforce()`, because this guarantees that you will find the optimal solution in your data. Which number passes as "sufficiently small" is up to you and depends primarily on how long the estimation of a single CFA takes on your computer. My ballpark recommendation is about 200 000 for a regular CFA model with multiple facets. If one of these takes about a quarter second to run, this should be done in about 2 hours on a decently performing 8-core machine. If there are substantially more possible combinations of items that could be tested in the process of item selection, it is advisable to use either `mmas()` or `gene()`. The `mmas()` approach has been thoroughly scrutinized ([by me](https://refubium.fu-berlin.de/handle/fub188/2951)), while the `gene()` approach is currently going through this process. Preliminary results suggest that there is little difference in the performance of these two approaches, so my current recommendation would be to use the one you feel more comfortable with - Ant Colony Optimzation or Genetic Algorithms. For both algorithms the presets of the parameters were empirically derived from evaluation studies.
 
-Because all of these approaches to item selection require some form of empirical data, there is bound to be uncertainty associated with the final solutions. To remedy the resulting insecurities about your solution a bit, there is also `crossvalidate()`, which allows you to check the quality of the final solution in a holdout sample by checking measurement invariance between the initial (calibration) sample and the second (validation) sample. To help you with splitting your data into these two sub-samples, STUART comes with the `holdout()` function.
+Because all of these approaches to item selection require some form of empirical data, there is bound to be uncertainty associated with the final solutions. To remedy the resulting insecurities about your solution a bit, there are two approaches to validation: `crossvalidate()`, which allows you to check the quality of the final solution in a holdout sample by checking measurement invariance between the initial (calibration) sample and the second (validation) sample and `kfold()`, which performs the widespread k-Folds crossvalidation to generate and validate multiple solutions. To help you with splitting your data into these two sub-samples, STUART comes with the `holdout()` function.
 
-If you have experience with older versions of STUART, the main new feature in 0.8.0 is the possibility of using ordinal indicators - either as the only type of items, or in combination with metric indicators. Thus, you should be able to use STUART for item selection with almost any type of questionnaire item-pool and have it generate the models, which include your assumptions about measurement invariance across time, groups, sources of information, and items automatically.
+STUART features the possibility of using ordinal indicators - either as the only type of items, or in combination with metric indicators. Thus, you should be able to use STUART for item selection with almost any type of questionnaire item-pool and have it generate the models, which include your assumptions about measurement invariance across time, groups, sources of information, and items automatically.
 
 If you have not yet collected your own data, or simply want to play around with the features of STUART, there are also two example datasets: `fairplayer` and `sups`. The former includes multiple groups, multiple occasions, multiple constructs, and multiple sources of information, making it a perfect toy-example.
 
@@ -71,7 +73,9 @@ Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Mu
 [Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |  |
 [Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |  |
 [Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |  |
+[Longitudinal Models](#longitudinal-models) | `bruteforce` | | X |  |  |  |
 [Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |  |
+[k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` | | X | | |
 
 
 ### A minimal example
@@ -265,6 +269,84 @@ summary(sel)
 
 As you can see, the anchored items are all included in the final selection. In my case a total of 4816 models were estimated amounting to a runtime of close to 90 seconds. The final solution also seems to work quite nicely in terms of the objective: the RMSEA is 0, the SRMR is below any reasonable threshold for model fit and the composite reliability is quite high for such a short measure.
 
+### Longitudinal Models
+
+Longitudinal studies are a mainstay in many areas of social sciences. Such studies have specific requirements for the questionnaires that are used. The one that is maybe mentioned most often is measurement invariance - properties of the measurement instrument which are prerequisites for making certain types of statements about change and stability of constructs over time. STUART allows for the selection from item-pools which were assessed at multiple occasions to optimize the final scale under appropriate assumptions of measurement invariance. To this end four, successively more restrictive, types of measurement invariance are implemented:
+
+Level | Constraint
+--- | -------
+`configural` | The same items measure the same constructs over time
+`weak` | Factor loadings are the same over time ($\lambda_{it} = \lambda_{it'}$)
+`strong` | Intercepts of manifest variables are the same over time ($\alpha_{it} = \alpha_{it'}$)
+`strict` | Residual variances of manifest variables are the same over time ($var(\epsilon_{it}) = var(\epsilon_{it'})$)
+
+These four levels are used not only for longitudinal models, but also to determine invariance across groups and different sources of information. For longitudinal measures strict measurement invariance is the default in all STUART functions, but it can be set to any of the four levels using the `xxx.invariance` arguments. If you want to incorporate weak longitudinal measurement invariance, you can do so by setting `long.invariance = 'weak'` in the function you are using for item-selection.
+
+In STUART longitudinal models are simple to implement. The `factor.structure` is provided in the same way as shown in previous examples. Here, let us select a three-item scale for the longitudinal self-assessment of social intelligence. For this, we have three occasions at which social intelligence was measured. The corresponding items are named with `sSI` (self-reported social intelligence) and the final `t1`, `t2`, or `t3` denotes the measurement occasion. In line with the factor structure above we can assign the names of these items to three separate factors:
+
+```{r}
+data(fairplayer)
+fs <- list(si1 = names(fairplayer)[83:92],
+  si2 = names(fairplayer)[93:102],
+  si3 = names(fairplayer)[103:112])
+```
+
+For STUART to know that these three factors are repeated measures of the same construct, we need to provide a new list.
+
+```{r}
+repe <- list(si = c('si1', 'si2', 'si3'))
+```
+
+In this list a general construct (`si`) is an element of the list and the names of the factors defined in the factor structure are contained in a vector in this element. This list needs to be passed to the `repeated.measures`-argument of any of the STUART functions. Using this list for repeated measures guarantees that the same items are selected for the factors which are named in the same element of the list. We can quickly check this, using the `combinations` function:
+
+```{r}
+combinations(fairplayer, fs, 3,
+  repeated.measures = repe)
+```
+
+When the items are selected independently for each facet, the number of possible combinations is quite a bit higher:
+
+```{r}
+combinations(fairplayer, fs, 3)
+```
+
+Because the number of combinations for the longitudinal model is quite low, we can use the `bruteforce` approach (but the same procedure to incorporate longitudinal measurements can be used for `mmas`, `gene`, and `randomsamples`):
+
+```{r}
+sel <- bruteforce(fairplayer, fs, 3,
+  repeated.measures = repe)
+```
+
+The resulting object is structurally the same as we have seen in previous examples. When printing the results, the selected items are returned:
+
+```{r}
+sel
+```
+
+As you can see, the same items are selected for each occasion (because we deemed the three factors are repeated measures of the same facet). The `summary` again provides some more detail:
+
+```{r}
+summary(sel)
+```
+
+In this case, the final selection is sensibly made on the basis of the quality of the final model which incorporates the supposed measurement invariance. If you, like so many reviewers, would rather make the decision based on the model comparison of different levels of measurement invariance, you can do so by using the `comparisons`-argument. For this longitudinal model (with the preset of strict measurement invariance) it would look like this:
+
+```{r, eval = FALSE}
+sel <- bruteforce(fairplayer, fs, 3,
+  repeated.measures = repe,
+  comparisons = 'long')
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/ex4_long.rds')
+```
+
+What will happen is that for each solution two models are estimated: the one assuming the invariance level provided via `long.invariance` and the one that is one step less restrictive. The preset objective function will then be based on the results of model comparisons, but you can change this according to your preferences. The `summary` then also contains the model comparisons (identified by the prefix `delta.`) in addition to the model fit of the final models:
+
+```{r, echo = FALSE}
+summary(sel)
+```
+
 
 ### Crossvalidation
 
@@ -300,3 +382,7 @@ crossvalidate(sel, cv)
 ```
 
 The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.
+
+### k-Folds Crossvalidation
+
+$k$-Folds crossvalidation is a common technique in modern tools of statistical and machine learning which is used to determine the trustworthiness of results. Generally, the original sample is split into $k$ subsamples at random and the estimation procedure is performed on
