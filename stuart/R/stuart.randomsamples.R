@@ -118,8 +118,20 @@ function(
   tmp <- vector('list', n)
   tmp[filter[,1]] <- bf.results
   bf.results <- tmp[duplicate]
+  
+  #generate matrix output
+  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
+  mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+  mats <- as.list(vector('numeric', length(mat_fil)))
+  names(mats) <- mat_fil
+  
+  for (m in seq_along(mat_fil)) {
+    tmp <- sapply(bf.results, function(x) x$solution.phe[mat_fil[m]])
+    dimens <- apply(sapply(tmp, dim), 1, max)
+    mats[[m]] <- array(unlist(tmp), dim = c(dimens, length(tmp)))
+  }
 
-  log <- cbind(1:n,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
+  log <- cbind(1:n,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   
   #best solution
   tmp <- data.frame(1:length(bf.results),sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
@@ -146,8 +158,9 @@ function(
   results <- mget(grep('.sel',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.sel,factor.structure,short)
   log <- data.frame(log)
-  names(log) <- c('run',names(bf.results[[1]]$solution.phe))
+  names(log) <- c('run',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
   results$log <- log
+  results$log_mat <- mats
   results$pheromones <- NULL
   results$parameters <- list(n=n,percentile=percentile,seed=seed,objective=objective,
     factor.structure=factor.structure)

@@ -143,6 +143,7 @@ randomsamples <-
     output$analysis.options <- analysis.options
     output$timer <- proc.time() - timer
     output$log <- solution$log
+    output$log_mat <- solution$log_mat
     output$solution <- solution$solution.sel
     output$pheromones <- NULL
     output$subtests <- solution$selected.items
