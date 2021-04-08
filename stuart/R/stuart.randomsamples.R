@@ -127,7 +127,7 @@ function(
   
   for (m in seq_along(mat_fil)) {
     tmp <- sapply(bf.results, function(x) x$solution.phe[mat_fil[m]])
-    dimens <- sapply(tmp, dim)
+    dimens <- lapply(tmp, dim)
     dimens <- do.call(cbind, dimens)
     dimens <- apply(dimens, 1, max)
     tmp <- lapply(tmp, function(x) matrix(x, nrow = dimens[1], ncol = dimens[2]))
