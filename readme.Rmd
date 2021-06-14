@@ -383,6 +383,129 @@ crossvalidate(sel, cv)
 
 The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.
 
+### Groups
+
+Since we already had enough fun with the *fairplayer* data, we now switch to something new and hopefully just as exciting. The *sups* data is a dataset which originates from a scale for Supervisor Support with two subscales: *career promotion* and *feedback and goal setting*.
+
+For having all necessary data available, we simply need to load the dataset, name the different factors and decide how many items of both facets our hopefully perfect questionnaire should include.
+
+```{r}
+data("sups")
+fs_s <- list(CP = names(sups)[2:13],
+           FGS = names(sups)[14:20])
+ni_s <- list(4, 4)
+```
+
+For the sole purpose of showing the `bruteforce`, `gene` or `mmas`-approach of running stuart for the item selection while having different groups, we manually added a new variable to the *sups* dataframe named *groups*. Please note that even though this example is designed to only present two different groups, it is possible to run stuart with up to as many groups as you like, given a sufficient sample size.
+
+```{r}
+set.seed(203)
+sups$groups <- sample(c(0, 1), nrow(sups), replace = T)
+```
+
+To include the group in our item selection process, we simply add the argument `grouping`. Since our created variable is named *groups*, the new argument thus used is "grouping = 'groups'".
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', seed = 302)
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groups.rds')
+```
+
+```{R, eval = FALSE}
+Running STUART with Genetic Algorithm.
+
+  |==============                                               |  22%
+Reinitialized population. Generation counter reset.
+  |=============================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+```{r}
+summary(sel)
+```
+
+As the summary shows, stuarts' *gene*-approach selects items 4, 5 6 and 12 for the facet of *career promotion*, while also selecting items 13, 15, 16 and 18 for the facet *feedback and goal setting*.
+
+
+### Better Groups
+
+Another addition to this selection process is the inclusion of the invariance between the items. Stuart enables us with the argument `group.invariance` to choose between four different restriction types -- *configural*, *weak*, *strong* and *strict*. To include the type of invariance our selected items should guarantee, stuart grants us the possibility of choosing between the 4 different invariances by adding the argument `group.invariance = 'XXX'` to our command. Please note that the result of the item selection will differ when choosing different types of invariances in your argument. If this argument is left out, the default will be set to *strict*.
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', seed = 302)
+
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groupinv.rds')
+```
+
+```{R, eval = FALSE}
+Running STUART with Genetic Algorithm.
+
+  |==========                                                   |  17%
+Reinitialized population. Generation counter reset.
+  |=============================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+```{r}
+summary(sel)
+```
+
+As already stated, the group.invariance will always be set to *strict* by default if not otherwise specified. Therefore, manually setting the invariance to *weak* changed the item selection. Instead of items 4, 5, 6 and 12 (like previously), we now choose items *5, 6, 7 and 12* for the first facet. Likewise, instead of items 13, 15, 16 and 18, stuart now chooses items *14, 15, 17 and 18* for the second facet.
+
+
+### Even better Groups
+
+Another addition to our group-based item selection process is the use of the argument `comparisons`. With this, stuart compares the invariance we chose in the `grouping` argument with the next weaker invariance. This ensures an optimal item selection.
+
+For example, let's look at the different output and chosen items when running the previous function with the addition of the `comparisons` argument.
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', comparisons = "group", seed = 302)
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groupcomp.rds')
+```
+
+```{r, eval = FALSE}
+Loading required namespace: parallel
+Running STUART with Genetic Algorithm.
+
+  |==========================                                                                                                                |  19%
+Reinitialized population. Generation counter reset.
+  |==========================================================================================================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+```{r}
+summary(sel)
+```
+
+Unlike before, adding the *comparison*-argument does not change the selected items at all. Instead, what's important here is the outputs' `delta.pvalue`.
+
+The delta.pvalue is based on the hypotheses' that the requirements needed for the chosen invariance are given, while the H1 implies that only the requirements for the next weaker form of invariance are met. If the *delta.pvalue* is significant, we have to discard the H0 hypothesis and thus must choose the weaker form of invariance for our selected items.
+
+Since the last delta.pvalue the output shows us is *0.9909916*, we do not have to discard the H0 hypothesis. If, however, delta.pvalue was \< 0.05, we would have to go with the weaker form of invariance, here being configural.
+
+As you may have already noticed, apart from the additional outputs, there are also changes in the pheromones. Unlike before, the pheromones no longer pend between 0 and 1.977, but between 0 and 2.977 instead. This stems from the changed objective preset when running stuart with the *comparison* argument. While the objective preset before looked like this:
+```{r}
+stuart:::objective.preset
+```
+
+Since the delta.values were added, it now looks like this:
+```{r}
+stuart:::objective.preset.comparisons
+```
+
+
 ### k-Folds Crossvalidation
 
 $k$-Folds crossvalidation is a common technique in modern tools of statistical and machine learning which is used to determine the trustworthiness of results. Generally, the original sample is split into $k$ subsamples at random and the estimation procedure is performed on
