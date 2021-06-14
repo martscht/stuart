@@ -305,7 +305,7 @@ information about what happened:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 2.17 seconds
+    ## Time Required: 1.85 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -337,7 +337,7 @@ look at the preset:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000156b0e40>
+    ## <bytecode: 0x00000000156b02a0>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -914,7 +914,7 @@ The `summary` again provides some more detail:
     ## Estimation Software: lavaan 
     ## Models Estimated: 120 
     ## Replications of final solution: 1 
-    ## Time Required: 5.73 seconds
+    ## Time Required: 5.5 seconds
     ## 
     ## Optimization History:
     ##     run pheromone     chisq df       pvalue      rmsea       srmr      crel
@@ -1051,7 +1051,7 @@ The summary object also looks the same:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.57 seconds
+    ## Time Required: 1.52 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -1199,6 +1199,8 @@ default will be set to *strict*.
 
     Search ended. Maximum number of generations exceeded.
 
+Our new summary now looks like this:
+
     summary(sel)
 
     ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
@@ -1276,6 +1278,8 @@ argument.
       |==========================================================================================================================================| 100%
 
     Search ended. Maximum number of generations exceeded.
+
+Due to the additional argument, our output now looks like this:
 
     summary(sel)
 
@@ -1360,7 +1364,7 @@ this:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000156b0e40>
+    ## <bytecode: 0x00000000156b02a0>
     ## <environment: namespace:stuart>
 
 Since the delta.values were added, it now looks like this:
@@ -1377,7 +1381,7 @@ Since the delta.values were added, it now looks like this:
     ##         (1 - (1/(1 + exp(-300 * (delta.rmsea - 0.01))))) + 0.5 * 
     ##         (1 - (1/(1 + exp(-300 * (delta.srmr - 0.01)))))
     ## }
-    ## <bytecode: 0x000000001e2b3e18>
+    ## <bytecode: 0x000000001e28e628>
     ## <environment: namespace:stuart>
 
 ### k-Folds Crossvalidation
