@@ -455,6 +455,8 @@ Reinitialized population. Generation counter reset.
 Search ended. Maximum number of generations exceeded.
 ```
 
+Our new summary now looks like this:
+
 ```{r}
 summary(sel)
 ```
@@ -486,6 +488,8 @@ Reinitialized population. Generation counter reset.
 
 Search ended. Maximum number of generations exceeded.
 ```
+
+Due to the additional argument, our output now looks like this:
 
 ```{r}
 summary(sel)
