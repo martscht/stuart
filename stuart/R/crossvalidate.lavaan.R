@@ -94,8 +94,19 @@ function(
     models[[invariance]] <- results[[invariance]]$model
     if (is.null(models[[invariance]])) models[[invariance]] <- NA
     
-    results[[invariance]] <- as.data.frame(fitness(selection$parameters$objective, results[[invariance]], 'lavaan'))
+    # if objective contians model parameters, take only validation sample
+    fil <- sapply(results[[invariance]], is.list)
+    fil.ind <- names(fil)[fil] %in% names(as.list(selection$parameters$objective)) 
+    tmp.results <- results
+    if (any(fil.ind)) {
+      tmp.results[[invariance]][fil] <- lapply(tmp.results[[invariance]][fil], `[[`, 1)
+    } 
+    results[[invariance]] <- as.data.frame(t(unlist(fitness(selection$parameters$objective, tmp.results[[invariance]], 'lavaan'))))
     
+  }
+  
+  if (any(fil.ind)) {
+    warning('When croosvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
   }
 
   results <- do.call(rbind, results)

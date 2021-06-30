@@ -1,36 +1,57 @@
-library(devtools)
-load_all('~/stuart/stuart')
+# # Install current version
+# devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
+# 
+# # load packages and data
+# library(stuart)
+# data(fairplayer)
+devtools::load_all('~/stuart/stuart')
 
-data(fairplayer)
+library(lavaan)
 
-fs <- list(ra1 = names(fairplayer)[53:57],
-  ra2 = names(fairplayer)[58:62],
-  ra3 = names(fairplayer)[63:67])
-reme <- list(ra = c('ra1', 'ra2', 'ra3'))
+# set up minimal example (two constructs)
+fs <- list(em1 = names(fairplayer)[5:12],
+  si1 = names(fairplayer)[83:92])
 
-fairplayer[!is.na(fairplayer$sRA01t3) & (fairplayer$sRA01t3 == 11), 'sRA01t3'] <- 1
-
-cmbnLevels <- function(x, extreme = FALSE) {
-  y <- x
-  if (extreme) {
-    y[x==1] <- 2
-    y[x==5] <- 4
-  } else {
-    y[x==4 | x==5] <- 3
-  }
-  
-  y <- droplevels(y)
-  return(y)
+# custom objective
+objective.scaled <- function(rmsea.scaled, srmr, cfi.scaled) {
+  out1 = 0.5-(0.5/(1 + exp(- 100 * (rmsea.scaled-.05))))
+  out2 = 0.5-(0.5/(1 + exp(- 100 * (srmr-.05))))
+  out3 = (1/(1 + exp(- 100 * (cfi.scaled-.95))))
+  out = out1 + out2 + out3 + out4
+  return(out)
 }
 
+# ordinal dataset
 ords <- fairplayer[, names(fairplayer)%in%unlist(fs)]
 ords <- lapply(ords, as.ordered)
-ords <- as.data.frame(lapply(ords, cmbnLevels))
+ords <- do.call(data.frame, ords)
 
-of <- function(rmsea, crel, delta.cfi.long, delta.pvalue.long) {
-  1-rmsea + crel + 1-(delta.cfi.long) + as.numeric(delta.pvalue.long > .2)
-}
+# run with regular data
+sel <- mmas(fairplayer, fs, 4, 
+  seed = 35355,
+  analysis.options = list(estimator = 'wlsmv', ordered = TRUE),
+  objective=objective.normal)
 
-sel <- bruteforce(ords, fs, 3, repeated.measures = reme, long.invariance = 'strong', cores = 1,
-  comparisons = c('long'))
+# Returns:
+  # Error: The lower pheromone limit is larger than the upper pheromone limit. This may indicate that none of the initial solutions were viable due to estimation problems.
+
+# Attempt with ordinal data
+sel <- mmas(ords, fs, 4, 
+  seed = 35355,
+  objective=objective.normal,
+  colonies = 0)
+
+# Returns:
+  # Warning messages:
+  #   1: It is highly recommended to used either scaled or robust versions of model fit criteria in your objective function when modeling ordinal indicators with lavaan. 
+  # 2: Invariance assumptions regarding residual variances of ordinal indicators are not possible in the current approach and are ignored. 
+
 summary(sel)
+sel$final
+
+held <- holdout(ords)
+sel <- mmas(ords, fs, 4, 
+  seed = 35355,
+  objective=objective.scaled,
+  colonies = 0)
+crossvalidate(sel, ords, ords[-c(1:10), ])
