@@ -106,7 +106,7 @@ function(
   }
   
   if (any(fil.ind)) {
-    warning('When croosvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
+    warning('When crossvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
   }
 
   results <- do.call(rbind, results)
