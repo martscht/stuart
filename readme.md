@@ -147,15 +147,15 @@ there is a specific example you would like to see, please either contact
 me directly or simply [file an
 issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-<table style="width:100%;">
+<table>
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 35%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 12%" />
+<col style="width: 6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -337,7 +337,7 @@ look at the preset:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000157dd528>
+    ## <bytecode: 0x00000000157d4a70>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -914,7 +914,7 @@ The `summary` again provides some more detail:
     ## Estimation Software: lavaan 
     ## Models Estimated: 120 
     ## Replications of final solution: 1 
-    ## Time Required: 4.44 seconds
+    ## Time Required: 4.64 seconds
     ## 
     ## Optimization History:
     ##     run pheromone     chisq df       pvalue      rmsea       srmr      crel
@@ -1051,7 +1051,7 @@ The summary object also looks the same:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.24 seconds
+    ## Time Required: 1.27 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -1364,7 +1364,7 @@ this:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000157dd528>
+    ## <bytecode: 0x00000000157d4a70>
     ## <environment: namespace:stuart>
 
 Since the delta.values were added, it now looks like this:
@@ -1381,7 +1381,7 @@ Since the delta.values were added, it now looks like this:
     ##         (1 - (1/(1 + exp(-300 * (delta.rmsea - 0.01))))) + 0.5 * 
     ##         (1 - (1/(1 + exp(-300 * (delta.srmr - 0.01)))))
     ## }
-    ## <bytecode: 0x000000001e3b2b68>
+    ## <bytecode: 0x000000001e3bda98>
     ## <environment: namespace:stuart>
 
 As you may have noticed, the pheromones slightly increase with every
@@ -1428,7 +1428,7 @@ Furthermore, it’s also possible to illustrate this curve it via heatmap.
 
 ### Ordinal Scaled Variables
 
-Most of the examples and analysis‘ up until now was done with only
+Most of the examples and analysis’ up until now was done with only
 interval scaled variables, leaving out another important type of data:
 ordinal scaled data. Therefore the following example is designed to
 display how to use stuart with ordinal scaled data.

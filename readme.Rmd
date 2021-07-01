@@ -67,15 +67,14 @@ This dataset contains information about `r nrow(fairplayer)` students on `r ncol
 
 The currently available examples are shown in the following table. If there is a specific example you would like to see, please either contact me directly or simply [file an issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
---- | --- | --- |--- | --- | --- | --- |
-[Minimal](#a-minimal-example) | `bruteforce` |  |  | x |  |  |
-[Multiple Facets](#multiple-facets) | `gene` | X |  | x |  |  |
-[Setting Anchors](#setting-anchor-items) | `mmas` | X |  | x |  |  |
-[Longitudinal Models](#longitudinal-models) | `bruteforce` | | X |  |  |  |
-[Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |  |
-[k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` | | X | | |
-
+| Example                                             | Approach     | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
+|-----------------------------------------------------|--------------|-----------------|--------------------|-----------------|------------------|----------|
+| [Minimal](#a-minimal-example)                       | `bruteforce` |                 |                    | x               |                  |          |
+| [Multiple Facets](#multiple-facets)                 | `gene`       | X               |                    | x               |                  |          |
+| [Setting Anchors](#setting-anchor-items)            | `mmas`       | X               |                    | x               |                  |          |
+| [Longitudinal Models](#longitudinal-models)         | `bruteforce` |                 | X                  |                 |                  |          |
+| [Crossvalidation](#crossvalidation)                 | `bruteforce` |                 |                    |                 |                  |          |
+| [k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` |                 | X                  |                 |                  |          |
 
 ### A minimal example {#a-minimal-example}
 
@@ -379,8 +378,6 @@ crossvalidate(sel, cv)
 
 The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.
 
-
-
 ### Groups
 
 Since we already had enough fun with the *fairplayer* data, we now switch to something new and hopefully just as exciting. The *sups* data is a dataset which originates from a scale for Supervisor Support with two subscales: *career promotion* and *feedback and goal setting*.
@@ -495,7 +492,7 @@ Unlike before, adding the *comparison*-argument does not change the selected ite
 
 The delta.pvalue is based on the hypotheses' that the requirements needed for the chosen invariance are given, while the H1 implies that only the requirements for the next weaker form of invariance are met. If the *delta.pvalue* is significant, we have to discard the H0 hypothesis and thus must choose the weaker form of invariance for our selected items.
 
-Since the last delta.pvalue the output shows us is *0.9259430*, we do not have to discard the H0 hypothesis. If, however, delta.pvalue was < 0.05, we would have to go with the weaker form of invariance, here being configural.
+Since the last delta.pvalue the output shows us is *0.9259430*, we do not have to discard the H0 hypothesis. If, however, delta.pvalue was \< 0.05, we would have to go with the weaker form of invariance, here being configural.
 
 As you may have already noticed, apart from the additional outputs, there are also changes in the pheromones. Unlike before, the pheromones no longer pend between 0 and 1.977, but between 0 and 2.977 instead. This stems from the changed objective preset when running stuart with the *comparison* argument. While the objective preset before looked like this:
 
@@ -508,7 +505,6 @@ Since the delta.values were added, it now looks like this:
 ```{r}
 stuart:::objective.preset.comparisons
 ```
-
 
 As you may have noticed, the pheromones slightly increase with every run. When we add the *comparisons*-argument, however, they do not only increase, but also have a higher maxima. To make this change or increase more accessible for all you visual learners out there, we provided a simple graph to make it more picturesque.
 
@@ -548,11 +544,9 @@ ggplot(dat, aes(x = RMSEA, y = Rel, z = Pheromone)) +
   theme_minimal()
 ```
 
-
-
 ### Ordinal Scaled Variables
 
-Most of the examples and analysis‘ up until now was done with only interval scaled variables, leaving out another important type of data: ordinal scaled data. Therefore the following example is designed to display how to use stuart with ordinal scaled data.
+Most of the examples and analysis' up until now was done with only interval scaled variables, leaving out another important type of data: ordinal scaled data. Therefore the following example is designed to display how to use stuart with ordinal scaled data.
 
 First we are gonna set up a minimal example with two facets.
 
@@ -560,7 +554,7 @@ First we are gonna set up a minimal example with two facets.
 fs <- list(em1 = names(fairplayer)[5:12],
            si1 = names(fairplayer)[83:92])
 ```
-           
+
 Furthermore, we got to ensure that stuart knows the data the data it is going to operate should be viewed as ordinal scaled. This can be implemented the following way:
 
 ```{r}
@@ -569,10 +563,9 @@ ords <- lapply(ords, as.ordered)
 ords <- do.call(data.frame, ords)
 ```
 
-The first row selects all the items our factor structure contains XXX0 
-The function lapply hereby returns a list with the same length as ords, but, just like we specified in the function itself, ordered. After that, using the do.call function, we now turn the newly made ordered ords-list to a data.frame, so we can use stuart for the item selection.
+The first row selects all the items our factor structure contains XXX0 The function lapply hereby returns a list with the same length as ords, but, just like we specified in the function itself, ordered. After that, using the do.call function, we now turn the newly made ordered ords-list to a data.frame, so we can use stuart for the item selection.
 
-Next up we have to alter our objective. Since we are working with ordinal data, it’s better to use the robust (rmsea.robust, cfi.robust) or the scaled (rmsea.scaled, cfi.scaled) fit statistics instead of the normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan. 
+Next up we have to alter our objective. Since we are working with ordinal data, it's better to use the robust (rmsea.robust, cfi.robust) or the scaled (rmsea.scaled, cfi.scaled) fit statistics instead of the normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan.
 
 ```{r}
 objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
@@ -610,8 +603,6 @@ Our output thus should look something like this:
 ```{r}
 summary(sel)
 ```
-
-
 
 ### k-Folds Crossvalidation {#k-folds-crossvalidation}
 
