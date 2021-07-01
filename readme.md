@@ -147,15 +147,15 @@ there is a specific example you would like to see, please either contact
 me directly or simply [file an
 issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-<table style="width:100%;">
+<table>
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 35%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 12%" />
+<col style="width: 6%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -305,7 +305,7 @@ information about what happened:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.85 seconds
+    ## Time Required: 1.56 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -337,7 +337,7 @@ look at the preset:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000156b02a0>
+    ## <bytecode: 0x00000000157dd9f8>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -785,8 +785,8 @@ invariance are implemented:
 
 <table>
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
+<col style="width: 11%" />
+<col style="width: 88%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -914,7 +914,7 @@ The `summary` again provides some more detail:
     ## Estimation Software: lavaan 
     ## Models Estimated: 120 
     ## Replications of final solution: 1 
-    ## Time Required: 5.5 seconds
+    ## Time Required: 4.39 seconds
     ## 
     ## Optimization History:
     ##     run pheromone     chisq df       pvalue      rmsea       srmr      crel
@@ -1051,7 +1051,7 @@ The summary object also looks the same:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.52 seconds
+    ## Time Required: 1.21 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -1344,7 +1344,7 @@ the *delta.pvalue* is significant, we have to discard the H0 hypothesis
 and thus must choose the weaker form of invariance for our selected
 items.
 
-Since the last delta.pvalue the output shows us is *0.9909916*, we do
+Since the last delta.pvalue the output shows us is *0.9259430*, we do
 not have to discard the H0 hypothesis. If, however, delta.pvalue was
 &lt; 0.05, we would have to go with the weaker form of invariance, here
 being configural.
@@ -1364,7 +1364,7 @@ this:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000156b02a0>
+    ## <bytecode: 0x00000000157dd9f8>
     ## <environment: namespace:stuart>
 
 Since the delta.values were added, it now looks like this:
@@ -1381,8 +1381,141 @@ Since the delta.values were added, it now looks like this:
     ##         (1 - (1/(1 + exp(-300 * (delta.rmsea - 0.01))))) + 0.5 * 
     ##         (1 - (1/(1 + exp(-300 * (delta.srmr - 0.01)))))
     ## }
-    ## <bytecode: 0x000000001e28e628>
+    ## <bytecode: 0x000000001e3c5d60>
     ## <environment: namespace:stuart>
+
+As you may have noticed, the pheromones slightly increase with every
+run. When we add the *comparisons*-argument, however, they do not only
+increase, but also have a higher maxima. To make this change or increase
+more accessible for all you visual learners out there, we provided a
+simple graph to make it more picturesque.
+
+    preset <- stuart:::objective.preset
+
+    # Simple curve
+    curve(preset(0, 0, 0, x, 0, 0),
+      xlab = 'RMSEA', xlim = c(0, .1),
+      ylab = 'Pheromone')
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-58-1.png)
+
+This change can also be visualized by a fancier curve, aka a ggplot:
+
+    library(ggplot2)
+    RMSEA <- seq(0, .1, .001)
+    Pheromone <- preset(0, 0, 0, RMSEA, 0, 0)
+    dat <- data.frame(RMSEA, Pheromone)
+
+    ggplot(dat, aes(x = RMSEA, y = Pheromone)) + geom_line() +
+      theme_minimal()
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-59-1.png)
+
+Furthermore, it’s also possible to illustrate this curve it via heatmap.
+
+    RMSEA <- seq(0, .1, .001)
+    Rel <- seq(.5, 1, .005)
+    dat <- expand.grid(RMSEA, Rel)
+    names(dat) <- c('RMSEA', 'Rel')
+
+    dat$Pheromone <- preset(0, 0, 0, dat$RMSEA, 0, dat$Rel)
+
+    ggplot(dat, aes(x = RMSEA, y = Rel, z = Pheromone)) + 
+      geom_tile(aes(fill = Pheromone), alpha = .9) + stat_contour(color = 'white') + 
+      theme_minimal()
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-60-1.png)
+
+### Ordinal Scaled Variables
+
+Most of the examples and analysis‘ up until now was done with only
+interval scaled variables, leaving out another important type of data:
+ordinal scaled data. Therefore the following example is designed to
+display how to use stuart with ordinal scaled data.
+
+First we are gonna set up a minimal example with two facets.
+
+    fs <- list(em1 = names(fairplayer)[5:12],
+               si1 = names(fairplayer)[83:92])
+
+Furthermore, we got to ensure that stuart knows the data the data it is
+going to operate should be viewed as ordinal scaled. This can be
+implemented the following way:
+
+    ords <- fairplayer[, names(fairplayer)%in%unlist(fs)]
+    ords <- lapply(ords, as.ordered)
+    ords <- do.call(data.frame, ords)
+
+The first row selects all the items our factor structure contains XXX0
+The function lapply hereby returns a list with the same length as ords,
+but, just like we specified in the function itself, ordered. After that,
+using the do.call function, we now turn the newly made ordered ords-list
+to a data.frame, so we can use stuart for the item selection.
+
+Next up we have to alter our objective. Since we are working with
+ordinal data, it’s better to use the robust (rmsea.robust, cfi.robust)
+or the scaled (rmsea.scaled, cfi.scaled) fit statistics instead of the
+normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan.
+
+    objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
+      out1 = 0.5-(0.5/(1 + exp(- 100 * (rmsea.scaled-.05))))
+      out2 = 0.5-(0.5/(1 + exp(- 100 * (srmr-.05))))
+      out3 = (1/(1 + exp(- 100 * (cfi.scaled-.95))))
+      out = (out1 + out2 + out3)/3
+      return(out)                                
+    }
+
+Since we already established the ords dataframe to be ordinal, we now do
+not have to specify it additionally in our mmas function. Working with
+the same facet-structure as before, our code now should look something
+like this:
+
+    sel <- mmas(ords, fs, 4, seed = 302, objective = objective.normal)
+
+    Loading required namespace: parallel
+    Running STUART with Genetic Algorithm.
+
+      |==========================                                                                                                                |  19%
+    Reinitialized population. Generation counter reset.
+      |==========================================================================================================================================| 100%
+
+    Search ended. Maximum number of generations exceeded.
+
+Our output thus should look something like this:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: mmas 
+    ## Estimation Software: lavaan 
+    ## Models Estimated: 5760 
+    ## Replications of final solution: 1 
+    ## Maximum number of colonies exceeded. 
+    ## Time Required: 438.66 seconds
+    ## 
+    ## Optimization History:
+    ##      run ant  pheromone rmsea.scaled       srmr cfi.scaled
+    ## 1      1   1 0.03922816   0.12059280 0.07838774  0.9268175
+    ## 2      1   2 0.27122231   0.08014711 0.07023842  0.9600440
+    ## 3      1   3 0.35763177   0.07087410 0.06397621  0.9742395
+    ## 4      1   4 0.42375638   0.06315615 0.05259964  0.9789923
+    ## 15     1  15 0.54549384   0.03283340 0.05184391  0.9922717
+    ## 60     4  12 0.57296681   0.01244410 0.05098254  0.9989864
+    ## 203   13  11 0.57374727   0.03520555 0.04364106  0.9933637
+    ## 258   17   2 0.59369169   0.00000000 0.04668071  1.0000000
+    ## 267   17  11 0.60166762   0.00000000 0.04467422  1.0000000
+    ## 425   27   9 0.60781849   0.00000000 0.04305400  1.0000000
+    ## 612   39   4 0.61044042   0.00000000 0.04233695  1.0000000
+    ## 745   47   9 0.61435163   0.00000000 0.04123057  1.0000000
+    ## 1145  72   9 0.62454756   0.00000000 0.03806514  1.0000000
+    ## 1661 104  13 0.62587550   0.00000000 0.03761335  1.0000000
+    ## 
+    ## Constructed Subtests:
+    ## em1: sEM01t1 sEM03t1 sEM06t1 sEM07t1
+    ## si1: sSI01t1 sSI02t1 sSI07t1 sSI08t1
 
 ### k-Folds Crossvalidation
 
