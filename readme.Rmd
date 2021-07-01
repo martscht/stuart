@@ -67,14 +67,15 @@ This dataset contains information about `r nrow(fairplayer)` students on `r ncol
 
 The currently available examples are shown in the following table. If there is a specific example you would like to see, please either contact me directly or simply [file an issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-| Example                                             | Approach     | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
-|-----------------------------------------------------|--------------|-----------------|--------------------|-----------------|------------------|----------|
-| [Minimal](#a-minimal-example)                       | `bruteforce` |                 |                    |                 |                  |          |
-| [Multiple Facets](#multiple-facets)                 | `gene`       | X               |                    |                 |                  |          |
-| [Setting Anchors](#setting-anchor-items)            | `mmas`       | X               |                    |                 |                  |          |
-| [Longitudinal Models](#longitudinal-models)         | `bruteforce` |                 | X                  |                 |                  |          |
-| [Crossvalidation](#crossvalidation)                 | `bruteforce` |                 |                    |                 |                  |          |
-| [k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` |                 | X                  |                 |                  |          |
+Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
+--- | --- | --- |--- | --- | --- | --- |
+[Minimal](#a-minimal-example) | `bruteforce` |  |  | x |  |  |
+[Multiple Facets](#multiple-facets) | `gene` | X |  | x |  |  |
+[Setting Anchors](#setting-anchor-items) | `mmas` | X |  | x |  |  |
+[Longitudinal Models](#longitudinal-models) | `bruteforce` | | X |  |  |  |
+[Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |  |
+[k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` | | X | | |
+
 
 ### A minimal example {#a-minimal-example}
 
