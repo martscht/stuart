@@ -149,13 +149,13 @@ issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
 <table>
 <colgroup>
-<col style="width: 35%" />
+<col style="width: 34%" />
 <col style="width: 9%" />
 <col style="width: 11%" />
 <col style="width: 13%" />
 <col style="width: 11%" />
 <col style="width: 12%" />
-<col style="width: 6%" />
+<col style="width: 7%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -305,7 +305,7 @@ information about what happened:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.72 seconds
+    ## Time Required: 1.58 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -337,7 +337,7 @@ look at the preset:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000157d4a70>
+    ## <bytecode: 0x00000000157cfbf0>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -914,7 +914,7 @@ The `summary` again provides some more detail:
     ## Estimation Software: lavaan 
     ## Models Estimated: 120 
     ## Replications of final solution: 1 
-    ## Time Required: 4.64 seconds
+    ## Time Required: 4.41 seconds
     ## 
     ## Optimization History:
     ##     run pheromone     chisq df       pvalue      rmsea       srmr      crel
@@ -1051,7 +1051,7 @@ The summary object also looks the same:
     ## Estimation Software: lavaan 
     ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 1.27 seconds
+    ## Time Required: 1.2 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -1364,7 +1364,7 @@ this:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x00000000157d4a70>
+    ## <bytecode: 0x00000000157cfbf0>
     ## <environment: namespace:stuart>
 
 Since the delta.values were added, it now looks like this:
@@ -1381,7 +1381,7 @@ Since the delta.values were added, it now looks like this:
     ##         (1 - (1/(1 + exp(-300 * (delta.rmsea - 0.01))))) + 0.5 * 
     ##         (1 - (1/(1 + exp(-300 * (delta.srmr - 0.01)))))
     ## }
-    ## <bytecode: 0x000000001e3bda98>
+    ## <bytecode: 0x000000001e3a5ad8>
     ## <environment: namespace:stuart>
 
 As you may have noticed, the pheromones slightly increase with every
@@ -1399,7 +1399,7 @@ simple graph to make it more picturesque.
 
 ![](readme_files/figure-markdown_strict/unnamed-chunk-58-1.png)
 
-This change can also be visualized by a fancier curve, aka a ggplot:
+This change can also be visualized by a fancier curve, aka *ggplot*:
 
     library(ggplot2)
     RMSEA <- seq(0, .1, .001)
@@ -1411,7 +1411,7 @@ This change can also be visualized by a fancier curve, aka a ggplot:
 
 ![](readme_files/figure-markdown_strict/unnamed-chunk-59-1.png)
 
-Furthermore, it’s also possible to illustrate this curve it via heatmap.
+Furthermore, it’s also possible to illustrate this curve via *heatmap*.
 
     RMSEA <- seq(0, .1, .001)
     Rel <- seq(.5, 1, .005)
@@ -1446,16 +1446,21 @@ implemented the following way:
     ords <- lapply(ords, as.ordered)
     ords <- do.call(data.frame, ords)
 
-The first row selects all the items our factor structure contains XXX0
-The function lapply hereby returns a list with the same length as ords,
-but, just like we specified in the function itself, ordered. After that,
-using the do.call function, we now turn the newly made ordered ords-list
-to a data.frame, so we can use stuart for the item selection.
+The first row selects all the items our factor structure contains, since
+*fs* is just a list in which the item names are assigned to the names of
+the factors and then transforms these items into a vector using
+*unlist()*.
+
+The function *lapply* hereby returns a list with the same length as
+ords, but, just like we specified in the function itself, ordered. After
+that, using the *do.call* function, we now turn the newly made ordered
+ords-list to a *data.frame*, so we can use stuart for the item
+selection.
 
 Next up we have to alter our objective. Since we are working with
-ordinal data, it’s better to use the robust (rmsea.robust, cfi.robust)
-or the scaled (rmsea.scaled, cfi.scaled) fit statistics instead of the
-normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan.
+ordinal data, it’s better to use the robust *(rmsea.robust, cfi.robust)*
+or scaled *(rmsea.scaled, cfi.scaled)* fit statistics instead of the
+normal ones *(rmsea, cfi)* for modelling ordinal indicators with lavaan.
 
     objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
       out1 = 0.5-(0.5/(1 + exp(- 100 * (rmsea.scaled-.05))))
@@ -1466,7 +1471,7 @@ normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan.
     }
 
 Since we already established the ords dataframe to be ordinal, we now do
-not have to specify it additionally in our mmas function. Working with
+not have to specify it additionally in our *mmas*-function. Working with
 the same facet-structure as before, our code now should look something
 like this:
 
@@ -1481,7 +1486,7 @@ like this:
 
     Search ended. Maximum number of generations exceeded.
 
-Our output thus should look something like this:
+And our output thus should look something like this:
 
     summary(sel)
 

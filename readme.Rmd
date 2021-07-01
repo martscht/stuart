@@ -67,14 +67,21 @@ This dataset contains information about `r nrow(fairplayer)` students on `r ncol
 
 The currently available examples are shown in the following table. If there is a specific example you would like to see, please either contact me directly or simply [file an issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | Example                                             | Approach     | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
-|-----------------------------------------------------|--------------|-----------------|--------------------|-----------------|------------------|----------|
++=====================================================+==============+=================+====================+=================+==================+==========+
 | [Minimal](#a-minimal-example)                       | `bruteforce` |                 |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | [Multiple Facets](#multiple-facets)                 | `gene`       | X               |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | [Setting Anchors](#setting-anchor-items)            | `mmas`       | X               |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | [Longitudinal Models](#longitudinal-models)         | `bruteforce` |                 | X                  |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | [Crossvalidation](#crossvalidation)                 | `bruteforce` |                 |                    |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 | [k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` |                 | X                  |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 
 ### A minimal example {#a-minimal-example}
 
@@ -269,12 +276,17 @@ As you can see, the anchored items are all included in the final selection. In m
 
 Longitudinal studies are a mainstay in many areas of social sciences. Such studies have specific requirements for the questionnaires that are used. The one that is maybe mentioned most often is measurement invariance - properties of the measurement instrument which are prerequisites for making certain types of statements about change and stability of constructs over time. STUART allows for the selection from item-pools which were assessed at multiple occasions to optimize the final scale under appropriate assumptions of measurement invariance. To this end four, successively more restrictive, types of measurement invariance are implemented:
 
++--------------+--------------------------------------------------------------------------------------------------------------+
 | Level        | Constraint                                                                                                   |
-|--------------|--------------------------------------------------------------------------------------------------------------|
++==============+==============================================================================================================+
 | `configural` | The same items measure the same constructs over time                                                         |
++--------------+--------------------------------------------------------------------------------------------------------------+
 | `weak`       | Factor loadings are the same over time ($\lambda_{it} = \lambda_{it'}$)                                      |
++--------------+--------------------------------------------------------------------------------------------------------------+
 | `strong`     | Intercepts of manifest variables are the same over time ($\alpha_{it} = \alpha_{it'}$)                       |
++--------------+--------------------------------------------------------------------------------------------------------------+
 | `strict`     | Residual variances of manifest variables are the same over time ($var(\epsilon_{it}) = var(\epsilon_{it'})$) |
++--------------+--------------------------------------------------------------------------------------------------------------+
 
 These four levels are used not only for longitudinal models, but also to determine invariance across groups and different sources of information. For longitudinal measures strict measurement invariance is the default in all STUART functions, but it can be set to any of the four levels using the `xxx.invariance` arguments. If you want to incorporate weak longitudinal measurement invariance, you can do so by setting `long.invariance = 'weak'` in the function you are using for item-selection.
 
@@ -517,7 +529,7 @@ curve(preset(0, 0, 0, x, 0, 0),
   ylab = 'Pheromone')
 ```
 
-This change can also be visualized by a fancier curve, aka a ggplot:
+This change can also be visualized by a fancier curve, aka *ggplot*:
 
 ```{r}
 library(ggplot2)
@@ -529,7 +541,7 @@ ggplot(dat, aes(x = RMSEA, y = Pheromone)) + geom_line() +
   theme_minimal()
 ```
 
-Furthermore, it's also possible to illustrate this curve it via heatmap.
+Furthermore, it's also possible to illustrate this curve via *heatmap*.
 
 ```{r}
 RMSEA <- seq(0, .1, .001)
@@ -563,9 +575,11 @@ ords <- lapply(ords, as.ordered)
 ords <- do.call(data.frame, ords)
 ```
 
-The first row selects all the items our factor structure contains XXX0 The function lapply hereby returns a list with the same length as ords, but, just like we specified in the function itself, ordered. After that, using the do.call function, we now turn the newly made ordered ords-list to a data.frame, so we can use stuart for the item selection.
+The first row selects all the items our factor structure contains, since *fs* is just a list in which the item names are assigned to the names of the factors and then transforms these items into a vector using *unlist()*.
 
-Next up we have to alter our objective. Since we are working with ordinal data, it's better to use the robust (rmsea.robust, cfi.robust) or the scaled (rmsea.scaled, cfi.scaled) fit statistics instead of the normal ones (rmsea, cfi) for modelling ordinal indicators with lavaan.
+The function *lapply* hereby returns a list with the same length as ords, but, just like we specified in the function itself, ordered. After that, using the *do.call* function, we now turn the newly made ordered ords-list to a *data.frame*, so we can use stuart for the item selection.
+
+Next up we have to alter our objective. Since we are working with ordinal data, it's better to use the robust *(rmsea.robust, cfi.robust)* or scaled *(rmsea.scaled, cfi.scaled)* fit statistics instead of the normal ones *(rmsea, cfi)* for modelling ordinal indicators with lavaan.
 
 ```{r}
 objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
@@ -577,7 +591,7 @@ objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
 }
 ```
 
-Since we already established the ords dataframe to be ordinal, we now do not have to specify it additionally in our mmas function. Working with the same facet-structure as before, our code now should look something like this:
+Since we already established the ords dataframe to be ordinal, we now do not have to specify it additionally in our *mmas*-function. Working with the same facet-structure as before, our code now should look something like this:
 
 ```{r, eval = FALSE}
 sel <- mmas(ords, fs, 4, seed = 302, objective = objective.normal)
@@ -598,7 +612,7 @@ Reinitialized population. Generation counter reset.
 Search ended. Maximum number of generations exceeded.
 ```
 
-Our output thus should look something like this:
+And our output thus should look something like this:
 
 ```{r}
 summary(sel)
