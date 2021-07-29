@@ -1,5 +1,4 @@
-README
-======
+# README
 
 This repository contains the current alpha-build of the STUART package
 for R. The name suggests, what the package is made for: sub-tests using
@@ -12,8 +11,7 @@ look at the dissertation I
 wrote](https://refubium.fu-berlin.de/handle/fub188/2951) - but this
 readme will provide a short guide on using the package.
 
-Installation
-------------
+## Installation
 
 The current stable version (0.9.1) is [available
 CRAN](https://cran.r-project.org/package=stuart) and can be installed
@@ -38,8 +36,7 @@ functions and capabilities is to use `?stuart` to open the package
 help-file. You could also read the rest of this README for an
 introduction and some examples.
 
-Prerequisites
--------------
+## Prerequisites
 
 The core idea behind STUART is to perform item-selection not based on
 univariate properties of the items, but to instead use information about
@@ -63,8 +60,7 @@ is due to the current MplusAutomation-based implementation of using
 Mplus, which is much slower than the current lavaan implementation (by
 factors of around 20).**
 
-Features
---------
+## Features
 
 The current STUART version (0.9.1) provides four approaches to item
 selection, each in its own function:
@@ -128,8 +124,7 @@ around with the features of STUART, there are also two example datasets:
 occasions, multiple constructs, and multiple sources of information,
 making it a perfect toy-example.
 
-Examples
---------
+## Examples
 
 In this section I will provide some small examples. These are not
 exhaustive for all possible strategies which can be employed with
@@ -152,15 +147,15 @@ there is a specific example you would like to see, please either contact
 me directly or simply [file an
 issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-<table style="width:100%;">
+<table>
 <colgroup>
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
-<col style="width: 14%" />
+<col style="width: 34%" />
+<col style="width: 9%" />
+<col style="width: 11%" />
+<col style="width: 13%" />
+<col style="width: 11%" />
+<col style="width: 12%" />
+<col style="width: 7%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -179,7 +174,7 @@ issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 <td><code>bruteforce</code></td>
 <td></td>
 <td></td>
-<td></td>
+<td>x</td>
 <td></td>
 <td></td>
 </tr>
@@ -188,7 +183,7 @@ issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 <td><code>gene</code></td>
 <td>X</td>
 <td></td>
-<td></td>
+<td>x</td>
 <td></td>
 <td></td>
 </tr>
@@ -197,7 +192,7 @@ issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 <td><code>mmas</code></td>
 <td>X</td>
 <td></td>
-<td></td>
+<td>x</td>
 <td></td>
 <td></td>
 </tr>
@@ -274,6 +269,9 @@ consitutes an appropriate time to use the `bruteforce()` function:
     ##   |                                                                              |                                                                      |   0%
 
     ## 
+    ## Progressbars are not functional when utilizing multiple cores for bruteforce in Windows.
+
+    ## 
     ## Search ended.
 
 The `bruteforce()`-function (as do the other three item-selection
@@ -305,9 +303,9 @@ information about what happened:
     ## 
     ## Analysis Type: bruteforce 
     ## Estimation Software: lavaan 
-    ## Models estimated: 10 
+    ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 0.722 seconds
+    ## Time Required: 1.58 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -339,7 +337,7 @@ look at the preset:
     ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
     ##         0.06)))))
     ## }
-    ## <bytecode: 0x55be9a607c30>
+    ## <bytecode: 0x00000000157cfbf0>
     ## <environment: namespace:stuart>
 
 As you can see, per default the quality of a solution is determined by a
@@ -464,7 +462,7 @@ us take a look at the summary to view the results in detail:
     ## 
     ## Analysis Type: gene 
     ## Estimation Software: lavaan 
-    ## Models estimated: 4544 
+    ## Models Estimated: 4544 
     ## Replications of final solution: 2307 
     ## Time Required: 42.297 seconds
     ## 
@@ -507,11 +505,11 @@ method implemented in lavaan:
 
     lavaan::summary(sel$final)
 
-    ## lavaan 0.6-7 ended normally after 52 iterations
+    ## lavaan 0.6-8 ended normally after 52 iterations
     ## 
     ##   Estimator                                         ML
     ##   Optimization method                           NLMINB
-    ##   Number of free parameters                         33
+    ##   Number of model parameters                        33
     ##                                                       
     ##                                                   Used       Total
     ##   Number of observations                           126         143
@@ -743,7 +741,7 @@ the solution for this case:
     ## 
     ## Analysis Type: mmas 
     ## Estimation Software: lavaan 
-    ## Models estimated: 4816 
+    ## Models Estimated: 4816 
     ## Replications of final solution: 408 
     ## Time Required: 88.941 seconds
     ## 
@@ -787,8 +785,8 @@ invariance are implemented:
 
 <table>
 <colgroup>
-<col style="width: 30%" />
-<col style="width: 70%" />
+<col style="width: 11%" />
+<col style="width: 88%" />
 </colgroup>
 <thead>
 <tr class="header">
@@ -882,6 +880,9 @@ and `randomsamples`):
     ##   |                                                                              |                                                                      |   0%
 
     ## 
+    ## Progressbars are not functional when utilizing multiple cores for bruteforce in Windows.
+
+    ## 
     ## Search ended.
 
 The resulting object is structurally the same as we have seen in
@@ -911,9 +912,9 @@ The `summary` again provides some more detail:
     ## 
     ## Analysis Type: bruteforce 
     ## Estimation Software: lavaan 
-    ## Models estimated: 120 
+    ## Models Estimated: 120 
     ## Replications of final solution: 1 
-    ## Time Required: 3.297 seconds
+    ## Time Required: 4.41 seconds
     ## 
     ## Optimization History:
     ##     run pheromone     chisq df       pvalue      rmsea       srmr      crel
@@ -955,7 +956,7 @@ addition to the model fit of the final models:
     ## 
     ## Analysis Type: bruteforce 
     ## Estimation Software: lavaan 
-    ## Models estimated: 120 
+    ## Models Estimated: 120 
     ## Replications of final solution: 1 
     ## Time Required: 6.929 seconds
     ## 
@@ -1033,6 +1034,9 @@ all other usages of the STUART functionalities:
     ##   |                                                                              |                                                                      |   0%
 
     ## 
+    ## Progressbars are not functional when utilizing multiple cores for bruteforce in Windows.
+
+    ## 
     ## Search ended.
 
 The summary object also looks the same:
@@ -1045,9 +1049,9 @@ The summary object also looks the same:
     ## 
     ## Analysis Type: bruteforce 
     ## Estimation Software: lavaan 
-    ## Models estimated: 10 
+    ## Models Estimated: 10 
     ## Replications of final solution: 1 
-    ## Time Required: 0.347 seconds
+    ## Time Required: 1.2 seconds
     ## 
     ## Optimization History:
     ##   run pheromone        chisq df pvalue rmsea         srmr      crel
@@ -1081,6 +1085,442 @@ sample size in both samples, these results are still not really
 convincing. If you did not use `holdout()` but simply have two datasets,
 you can use the same approach but simply provide two dataframes to the
 function.
+
+### Groups
+
+Since we already had enough fun with the *fairplayer* data, we now
+switch to something new and hopefully just as exciting. The *sups* data
+is a dataset which originates from a scale for Supervisor Support with
+two subscales: *career promotion* and *feedback and goal setting*.
+
+For having all necessary data available, we simply need to load the
+dataset, name the different factors and decide how many items of both
+facets our hopefully perfect questionnaire should include.
+
+    data("sups")
+    fs_s <- list(CP = names(sups)[2:13],
+               FGS = names(sups)[14:20])
+    ni_s <- list(4, 4)
+
+For the sole purpose of showing the `bruteforce`, `gene` or
+`mmas`-approach of running stuart for the item selection while having
+different groups, we manually added a new variable to the *sups*
+dataframe named *groups*. Please note that even though this example is
+designed to only present two different groups, it is possible to run
+stuart with up to as many groups as you like, given a sufficient sample
+size.
+
+    set.seed(203)
+    sups$groups <- sample(c(0, 1), nrow(sups), replace = T)
+
+To include the group in our item selection process, we simply add the
+argument `grouping`. Since our created variable is named *groups*, the
+new argument thus used is “grouping = ‘groups’”.
+
+    sel <- gene(sups, fs_s, ni_s, grouping = 'groups', seed = 302)
+
+    Running STUART with Genetic Algorithm.
+
+      |==============                                               |  22%
+    Reinitialized population. Generation counter reset.
+      |=============================================================| 100%
+
+    Search ended. Maximum number of generations exceeded.
+
+Our summary now looks like this:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: gene 
+    ## Estimation Software: lavaan 
+    ## Models Estimated: 19008 
+    ## Replications of final solution: 3491 
+    ## Maximum number of generations exceeded. 
+    ## Time Required: 162.9 seconds
+    ## 
+    ## Optimization History:
+    ##      run ind pheromone     chisq df       pvalue      rmsea       srmr
+    ## 1      1   1  1.192026 137.48838 58 2.107028e-08 0.09858896 0.06160535
+    ## 3      1   3  1.192220 127.31373 58 4.175767e-07 0.09206320 0.06157309
+    ## 4      1   4  1.290714  95.52715 58 1.397131e-03 0.06774063 0.05857789
+    ## 5      1   5  1.300044 135.53279 58 3.785533e-08 0.09736865 0.05278934
+    ## 8      1   8  1.300952 108.58139 58 6.453117e-05 0.07864513 0.05437516
+    ## 12     1  12  1.318658 137.14415 58 2.336848e-08 0.09837525 0.05107773
+    ## 13     1  13  1.623122  74.83782 58 6.758536e-02 0.04537528 0.05026510
+    ## 186    3  58  1.801626  66.61809 58 2.047221e-01 0.03246250 0.04326526
+    ## 263    5   7  1.851866  62.96276 58 3.051033e-01 0.02463419 0.04151548
+    ## 265    5   9  1.889660  57.42055 58 4.968008e-01 0.00000000 0.04052349
+    ## 1625  26  25  1.895559  59.76365 58 4.114123e-01 0.01468528 0.03777945
+    ##           crel
+    ## 1    0.9132168
+    ## 3    0.9043532
+    ## 4    0.8953928
+    ## 5    0.9159412
+    ## 8    0.9066046
+    ## 12   0.9179373
+    ## 13   0.9018754
+    ## 186  0.9041031
+    ## 263  0.9091969
+    ## 265  0.9064669
+    ## 1625 0.9143906
+    ## 
+    ## Constructed Subtests:
+    ## CP: SupS5 SupS8 SupS11 SupS12
+    ## FGS: SupS14 SupS16 SupS17 SupS18
+
+As the summary shows, stuarts’ *gene*-approach selects items 4, 5 6 and
+12 for the facet of *career promotion*, while also selecting items 13,
+15, 16 and 18 for the facet *feedback and goal setting*.
+
+### Better Groups
+
+Another addition to this selection process is the inclusion of the
+invariance between the items. Stuart enables us with the argument
+`group.invariance` to choose between four different restriction types –
+*configural*, *weak*, *strong* and *strict*. To include the type of
+invariance our selected items should guarantee, stuart grants us the
+possibility of choosing between the 4 different invariances by adding
+the argument `group.invariance = 'XXX'` to our command. Please note that
+the result of the item selection will differ when choosing different
+types of invariances in your argument. If this argument is left out, the
+default will be set to *strict*.
+
+    sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', seed = 302)
+
+    Running STUART with Genetic Algorithm.
+
+      |==========                                                   |  17%
+    Reinitialized population. Generation counter reset.
+      |=============================================================| 100%
+
+    Search ended. Maximum number of generations exceeded.
+
+Our new summary now looks like this:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: gene 
+    ## Estimation Software: lavaan 
+    ## Models Estimated: 17792 
+    ## Replications of final solution: 359 
+    ## Maximum number of generations exceeded. 
+    ## Time Required: 208.6 seconds
+    ## 
+    ## Optimization History:
+    ##       run ind pheromone     chisq df       pvalue      rmsea       srmr
+    ## 1       1   1  1.198803 131.64740 44 1.130935e-10 0.11885942 0.06079084
+    ## 3       1   3  1.261587 110.92219 44 1.068115e-07 0.10386021 0.05554344
+    ## 4       1   4  1.321011  81.97093 44 4.467449e-04 0.07823295 0.05228105
+    ## 5       1   5  1.326799 128.95103 44 2.845961e-10 0.11701686 0.04984777
+    ## 8       1   8  1.332734  95.06880 44 1.278510e-05 0.09072812 0.04969069
+    ## 12      1  12  1.335739 129.91933 44 2.045164e-10 0.11768186 0.04899147
+    ## 13      1  13  1.453780  68.31163 44 1.087675e-02 0.06259954 0.04736972
+    ## 45      1  45  1.455041  65.16693 44 2.068546e-02 0.05841078 0.05150834
+    ## 73      2   9  1.458972  71.94490 44 4.941842e-03 0.06711434 0.04290729
+    ## 124     2  60  1.671372  56.76982 44 9.379399e-02 0.04536872 0.04543411
+    ## 274     5  18  1.735311  55.74626 44 1.102713e-01 0.04351249 0.03794522
+    ## 294     5  38  1.838212  50.37167 44 2.359842e-01 0.03204725 0.03788274
+    ## 1478   24   6  1.855980  49.67917 44 2.573405e-01 0.03025564 0.03575079
+    ## 10351 162  47  1.862460  47.96162 44 3.152978e-01 0.02526972 0.03964582
+    ##            crel
+    ## 1     0.9131474
+    ## 3     0.9043584
+    ## 4     0.8965828
+    ## 5     0.9156526
+    ## 8     0.9074139
+    ## 12    0.9176874
+    ## 13    0.9021044
+    ## 45    0.9036376
+    ## 73    0.9155187
+    ## 124   0.9152048
+    ## 274   0.9092359
+    ## 294   0.9146666
+    ## 1478  0.9116858
+    ## 10351 0.9155173
+    ## 
+    ## Constructed Subtests:
+    ## CP: SupS4 SupS5 SupS11 SupS12
+    ## FGS: SupS13 SupS15 SupS16 SupS18
+
+As already stated, the group.invariance will always be set to *strict*
+by default if not otherwise specified. Therefore, manually setting the
+invariance to *weak* changed the item selection. Instead of items 4, 5,
+6 and 12 (like previously), we now choose items *5, 6, 7 and 12* for the
+first facet. Likewise, instead of items 13, 15, 16 and 18, stuart now
+chooses items *14, 15, 17 and 18* for the second facet.
+
+### Even better Groups
+
+Another addition to our group-based item selection process is the use of
+the argument `comparisons`. With this, stuart compares the invariance we
+chose in the `grouping` argument with the next weaker invariance. This
+ensures an optimal item selection.
+
+For example, let’s look at the different output and chosen items when
+running the previous function with the addition of the `comparisons`
+argument.
+
+    sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', comparisons = "group", seed = 302)
+
+    Loading required namespace: parallel
+    Running STUART with Genetic Algorithm.
+
+      |==========================                                                                                                                |  19%
+    Reinitialized population. Generation counter reset.
+      |==========================================================================================================================================| 100%
+
+    Search ended. Maximum number of generations exceeded.
+
+Due to the additional argument, our output now looks like this:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: gene 
+    ## Estimation Software: lavaan 
+    ## Models Estimated: 19520 
+    ## Replications of final solution: 12383 
+    ## Maximum number of generations exceeded. 
+    ## Time Required: 272 seconds
+    ## 
+    ## Optimization History:
+    ##      run ind pheromone     chisq df       pvalue      rmsea       srmr
+    ## 1      1   1  1.911722 131.64740 44 1.130935e-10 0.11885942 0.06079084
+    ## 2      1   2  1.924657 122.18655 44 2.771445e-09 0.11226132 0.06316126
+    ## 3      1   3  2.086411 110.92219 44 1.068115e-07 0.10386021 0.05554344
+    ## 5      1   5  2.328875 128.95103 44 2.845961e-10 0.11701686 0.04984777
+    ## 71     2   7  2.360630  66.64628 44 1.536135e-02 0.06041747 0.04071385
+    ## 106    2  42  2.366874  82.39375 44 4.010342e-04 0.07866733 0.04807091
+    ## 203    4  11  2.493206  53.65838 44 1.509039e-01 0.03945628 0.04068292
+    ## 810   13  42  2.593791  64.16099 44 2.519723e-02 0.05700593 0.03535726
+    ## 2317  37  13  2.782725  52.77964 44 1.710386e-01 0.03761859 0.03506167
+    ## 3390  53  62  2.827067  49.67917 44 2.573405e-01 0.03025564 0.03575079
+    ##            cfi      crel delta.chisq delta.df delta.pvalue  delta.rmsea
+    ## 1    0.9293706 0.9131474    9.211777        6    0.1620135 -0.006674614
+    ## 2    0.9182067 0.8857694    4.942996        6    0.5511449 -0.009351856
+    ## 3    0.9443963 0.9043584    5.107337        6    0.5301220 -0.008642005
+    ## 5    0.9323123 0.9156526    1.026062        6    0.9846050 -0.012533553
+    ## 71   0.9786385 0.9015733    3.119966        6    0.7936463 -0.008605349
+    ## 106  0.9687456 0.9178840    3.607205        6    0.7296563 -0.008581004
+    ## 203  0.9906238 0.8997424    4.114194        6    0.6612260 -0.006961055
+    ## 810  0.9827921 0.9118651    0.829727        6    0.9912528 -0.011752677
+    ## 2317 0.9916434 0.9053769    1.777112        6    0.9390143 -0.011643472
+    ## 3390 0.9949331 0.9116858    1.930896        6    0.9259430 -0.012398618
+    ##       delta.srmr     delta.cfi    delta.crel
+    ## 1    0.012231813 -0.0025881638 -3.464277e-04
+    ## 2    0.010761682  0.0011057643 -2.516053e-04
+    ## 3    0.009188755  0.0007416878 -7.596035e-04
+    ## 5    0.002256385  0.0039631611 -1.161553e-04
+    ## 71   0.008792181  0.0027166469  3.080010e-05
+    ## 106  0.002582990  0.0019478537 -3.515738e-04
+    ## 203  0.011663750  0.0018307033 -8.062007e-06
+    ## 810  0.001593463  0.0044129598 -2.390472e-05
+    ## 2317 0.003847654  0.0040193888 -1.293525e-04
+    ## 3390 0.004253580  0.0036304166 -3.941919e-05
+    ## 
+    ## Constructed Subtests:
+    ## CP: SupS5 SupS8 SupS11 SupS12
+    ## FGS: SupS13 SupS15 SupS16 SupS18
+
+Unlike before, adding the *comparison*-argument does not change the
+selected items at all. Instead, what’s important here is the outputs’
+`delta.pvalue`.
+
+The delta.pvalue is based on the hypotheses’ that the requirements
+needed for the chosen invariance are given, while the H1 implies that
+only the requirements for the next weaker form of invariance are met. If
+the *delta.pvalue* is significant, we have to discard the H0 hypothesis
+and thus must choose the weaker form of invariance for our selected
+items.
+
+Since the last delta.pvalue the output shows us is *0.9259430*, we do
+not have to discard the H0 hypothesis. If, however, delta.pvalue was
+&lt; 0.05, we would have to go with the weaker form of invariance, here
+being configural.
+
+As you may have already noticed, apart from the additional outputs,
+there are also changes in the pheromones. Unlike before, the pheromones
+no longer pend between 0 and 1.977, but between 0 and 2.977 instead.
+This stems from the changed objective preset when running stuart with
+the *comparison* argument. While the objective preset before looked like
+this:
+
+    stuart:::objective.preset
+
+    ## function (chisq, df, pvalue, rmsea, srmr, crel) 
+    ## {
+    ##     1/(1 + exp(-10 * (crel - 0.6))) + 0.5 * (1 - (1/(1 + exp(-100 * 
+    ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
+    ##         0.06)))))
+    ## }
+    ## <bytecode: 0x00000000157cfbf0>
+    ## <environment: namespace:stuart>
+
+Since the delta.values were added, it now looks like this:
+
+    stuart:::objective.preset.comparisons
+
+    ## function (chisq, df, pvalue, rmsea, srmr, cfi, crel, delta.chisq, 
+    ##     delta.df, delta.pvalue, delta.rmsea, delta.srmr, delta.cfi, 
+    ##     delta.crel) 
+    ## {
+    ##     1/(1 + exp(-10 * (crel - 0.6))) + 0.5 * (1 - (1/(1 + exp(-100 * 
+    ##         (rmsea - 0.05))))) + 0.5 * (1 - (1/(1 + exp(-100 * (srmr - 
+    ##         0.06))))) + 1/(1 + exp(-30 * (delta.crel - 0.1))) + 0.5 * 
+    ##         (1 - (1/(1 + exp(-300 * (delta.rmsea - 0.01))))) + 0.5 * 
+    ##         (1 - (1/(1 + exp(-300 * (delta.srmr - 0.01)))))
+    ## }
+    ## <bytecode: 0x000000001e3a5ad8>
+    ## <environment: namespace:stuart>
+
+As you may have noticed, the pheromones slightly increase with every
+run. When we add the *comparisons*-argument, however, they do not only
+increase, but also have a higher maxima. To make this change or increase
+more accessible for all you visual learners out there, we provided a
+simple graph to make it more picturesque.
+
+    preset <- stuart:::objective.preset
+
+    # Simple curve
+    curve(preset(0, 0, 0, x, 0, 0),
+      xlab = 'RMSEA', xlim = c(0, .1),
+      ylab = 'Pheromone')
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-58-1.png)
+
+This change can also be visualized by a fancier curve, aka *ggplot*:
+
+    library(ggplot2)
+    RMSEA <- seq(0, .1, .001)
+    Pheromone <- preset(0, 0, 0, RMSEA, 0, 0)
+    dat <- data.frame(RMSEA, Pheromone)
+
+    ggplot(dat, aes(x = RMSEA, y = Pheromone)) + geom_line() +
+      theme_minimal()
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-59-1.png)
+
+Furthermore, it’s also possible to illustrate this curve via *heatmap*.
+
+    RMSEA <- seq(0, .1, .001)
+    Rel <- seq(.5, 1, .005)
+    dat <- expand.grid(RMSEA, Rel)
+    names(dat) <- c('RMSEA', 'Rel')
+
+    dat$Pheromone <- preset(0, 0, 0, dat$RMSEA, 0, dat$Rel)
+
+    ggplot(dat, aes(x = RMSEA, y = Rel, z = Pheromone)) + 
+      geom_tile(aes(fill = Pheromone), alpha = .9) + stat_contour(color = 'white') + 
+      theme_minimal()
+
+![](readme_files/figure-markdown_strict/unnamed-chunk-60-1.png)
+
+### Ordinal Scaled Variables
+
+Most of the examples and analysis’ up until now was done with only
+interval scaled variables, leaving out another important type of data:
+ordinal scaled data. Therefore the following example is designed to
+display how to use stuart with ordinal scaled data.
+
+First we are gonna set up a minimal example with two facets.
+
+    fs <- list(em1 = names(fairplayer)[5:12],
+               si1 = names(fairplayer)[83:92])
+
+Furthermore, we got to ensure that stuart knows the data the data it is
+going to operate should be viewed as ordinal scaled. This can be
+implemented the following way:
+
+    ords <- fairplayer[, names(fairplayer)%in%unlist(fs)]
+    ords <- lapply(ords, as.ordered)
+    ords <- do.call(data.frame, ords)
+
+The first row selects all the items our factor structure contains, since
+*fs* is just a list in which the item names are assigned to the names of
+the factors and then transforms these items into a vector using
+*unlist()*.
+
+The function *lapply* hereby returns a list with the same length as
+ords, but, just like we specified in the function itself, ordered. After
+that, using the *do.call* function, we now turn the newly made ordered
+ords-list to a *data.frame*, so we can use stuart for the item
+selection.
+
+Next up we have to alter our objective. Since we are working with
+ordinal data, it’s better to use the robust *(rmsea.robust, cfi.robust)*
+or scaled *(rmsea.scaled, cfi.scaled)* fit statistics instead of the
+normal ones *(rmsea, cfi)* for modelling ordinal indicators with lavaan.
+
+    objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
+      out1 = 0.5-(0.5/(1 + exp(- 100 * (rmsea.scaled-.05))))
+      out2 = 0.5-(0.5/(1 + exp(- 100 * (srmr-.05))))
+      out3 = (1/(1 + exp(- 100 * (cfi.scaled-.95))))
+      out = (out1 + out2 + out3)/3
+      return(out)                                
+    }
+
+Since we already established the ords dataframe to be ordinal, we now do
+not have to specify it additionally in our *mmas*-function. Working with
+the same facet-structure as before, our code now should look something
+like this:
+
+    sel <- mmas(ords, fs, 4, seed = 302, objective = objective.normal)
+
+    Loading required namespace: parallel
+    Running STUART with Genetic Algorithm.
+
+      |==========================                                                                                                                |  19%
+    Reinitialized population. Generation counter reset.
+      |==========================================================================================================================================| 100%
+
+    Search ended. Maximum number of generations exceeded.
+
+And our output thus should look something like this:
+
+    summary(sel)
+
+    ## Warning: This is a beta-build of stuart. Please report any bugs you encounter.
+
+    ## SUMMARY OF ANALYSIS:
+    ## 
+    ## Analysis Type: mmas 
+    ## Estimation Software: lavaan 
+    ## Models Estimated: 5760 
+    ## Replications of final solution: 1 
+    ## Maximum number of colonies exceeded. 
+    ## Time Required: 438.66 seconds
+    ## 
+    ## Optimization History:
+    ##      run ant  pheromone rmsea.scaled       srmr cfi.scaled
+    ## 1      1   1 0.03922816   0.12059280 0.07838774  0.9268175
+    ## 2      1   2 0.27122231   0.08014711 0.07023842  0.9600440
+    ## 3      1   3 0.35763177   0.07087410 0.06397621  0.9742395
+    ## 4      1   4 0.42375638   0.06315615 0.05259964  0.9789923
+    ## 15     1  15 0.54549384   0.03283340 0.05184391  0.9922717
+    ## 60     4  12 0.57296681   0.01244410 0.05098254  0.9989864
+    ## 203   13  11 0.57374727   0.03520555 0.04364106  0.9933637
+    ## 258   17   2 0.59369169   0.00000000 0.04668071  1.0000000
+    ## 267   17  11 0.60166762   0.00000000 0.04467422  1.0000000
+    ## 425   27   9 0.60781849   0.00000000 0.04305400  1.0000000
+    ## 612   39   4 0.61044042   0.00000000 0.04233695  1.0000000
+    ## 745   47   9 0.61435163   0.00000000 0.04123057  1.0000000
+    ## 1145  72   9 0.62454756   0.00000000 0.03806514  1.0000000
+    ## 1661 104  13 0.62587550   0.00000000 0.03761335  1.0000000
+    ## 
+    ## Constructed Subtests:
+    ## em1: sEM01t1 sEM03t1 sEM06t1 sEM07t1
+    ## si1: sSI01t1 sSI02t1 sSI07t1 sSI08t1
 
 ### k-Folds Crossvalidation
 

@@ -6,12 +6,11 @@ output: md_document
 set.seed(1)
 ```
 
-
-# README #
+# README
 
 This repository contains the current alpha-build of the STUART package for R. The name suggests, what the package is made for: sub-tests using algorithmic rummaging techniques. It is intended for the creation of short-forms of questionnaires in a multitude of situations including multiple facets, multiple groups, multiple measurement occasions, and multiple sources of information. A full vignette is currently in the works - for some of the theoretical and technical stuff you can [take a look at the dissertation I wrote](https://refubium.fu-berlin.de/handle/fub188/2951) - but this readme will provide a short guide on using the package.
 
-## Installation ##
+## Installation
 
 The current stable version (0.9.1) is [available CRAN](https://cran.r-project.org/package=stuart) and can be installed using the usual approach:
 
@@ -43,10 +42,10 @@ The core idea behind STUART is to perform item-selection not based on univariate
 
 The current STUART version (0.9.1) provides four approaches to item selection, each in its own function:
 
-  * `mmas()`, an adaptation of Stützle's (1998) $\mathcal{MAX}-\mathcal{MIN}$-Ant-System,
-  * `gene()`, a basic genetic algorithm based on the ideas of Galán, Mengshoel, \& Pinter (2013),
-  * `bruteforce()`, the brute-force approach of simply trying all possible combinations, and
-  * `randomsamples()`, a simple random sample of all possible combinations.
+-   `mmas()`, an adaptation of Stützle's (1998) $\mathcal{MAX}-\mathcal{MIN}$-Ant-System,
+-   `gene()`, a basic genetic algorithm based on the ideas of Galán, Mengshoel, & Pinter (2013),
+-   `bruteforce()`, the brute-force approach of simply trying all possible combinations, and
+-   `randomsamples()`, a simple random sample of all possible combinations.
 
 Before picking any of these, it is best to think about what it is that you are trying to achieve and what kind of situation you are in. If you are simply tring to determine what an average solution might look like (in terms of scale properties) it is best to use `randomsamples()`. If you are trying to find the best possible solution your next depends primarily on the number of possible solutions. You can determine this with `combinations()`. If the number is sufficiently small (or you are willing wait sufficiently long) it is recommended to use `bruteforce()`, because this guarantees that you will find the optimal solution in your data. Which number passes as "sufficiently small" is up to you and depends primarily on how long the estimation of a single CFA takes on your computer. My ballpark recommendation is about 200 000 for a regular CFA model with multiple facets. If one of these takes about a quarter second to run, this should be done in about 2 hours on a decently performing 8-core machine. If there are substantially more possible combinations of items that could be tested in the process of item selection, it is advisable to use either `mmas()` or `gene()`. The `mmas()` approach has been thoroughly scrutinized ([by me](https://refubium.fu-berlin.de/handle/fub188/2951)), while the `gene()` approach is currently going through this process. Preliminary results suggest that there is little difference in the performance of these two approaches, so my current recommendation would be to use the one you feel more comfortable with - Ant Colony Optimzation or Genetic Algorithms. For both algorithms the presets of the parameters were empirically derived from evaluation studies.
 
@@ -68,17 +67,23 @@ This dataset contains information about `r nrow(fairplayer)` students on `r ncol
 
 The currently available examples are shown in the following table. If there is a specific example you would like to see, please either contact me directly or simply [file an issue](https://bitbucket.org/martscht/stuart/issues?status=new&status=open).
 
-Example | Approach | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
---- | --- | --- |--- | --- | --- | --- |
-[Minimal](#a-minimal-example) | `bruteforce` |  |  |  |  |  |
-[Multiple Facets](#multiple-facets) | `gene` | X |  |  |  |  |
-[Setting Anchors](#setting-anchor-items) | `mmas` | X |  |  |  |  |
-[Longitudinal Models](#longitudinal-models) | `bruteforce` | | X |  |  |  |
-[Crossvalidation](#crossvalidation) | `bruteforce` |  |  |  |  |  |
-[k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` | | X | | |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| Example                                             | Approach     | Multiple Facets | Multiple Occasions | Multiple Groups | Multiple Sources | Comments |
++=====================================================+==============+=================+====================+=================+==================+==========+
+| [Minimal](#a-minimal-example)                       | `bruteforce` |                 |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| [Multiple Facets](#multiple-facets)                 | `gene`       | X               |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| [Setting Anchors](#setting-anchor-items)            | `mmas`       | X               |                    | x               |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| [Longitudinal Models](#longitudinal-models)         | `bruteforce` |                 | X                  |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| [Crossvalidation](#crossvalidation)                 | `bruteforce` |                 |                    |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
+| [k-Folds Crossvalidation](#k-folds-crossvalidation) | `bruteforce` |                 | X                  |                 |                  |          |
++-----------------------------------------------------+--------------+-----------------+--------------------+-----------------+------------------+----------+
 
-
-### A minimal example
+### A minimal example {#a-minimal-example}
 
 In the `fairplayer` dataset, relational aggression was measured with five items. Let's say (as a minimal example) we want to find the optimal three-item short version of this scale. For this we need to provide STUART with some information about which items constitute the original item-pool from which to choose. This information is stored in a `list` and prodvided to any STUART-function as the `factor.structure` argument. In this case:
 
@@ -96,9 +101,9 @@ sel <- bruteforce(data = fairplayer, factor.structure = fs, capacity = 3)
 
 The `bruteforce()`-function (as do the other three item-selection functions of STUART) requires a minimum of three arguments:
 
-  * `data`: the dataset you are using,
-  * `factor.structure`: the list assigning items to their facets, and
-  * `capacity`: the number of items you want to select.
+-   `data`: the dataset you are using,
+-   `factor.structure`: the list assigning items to their facets, and
+-   `capacity`: the number of items you want to select.
 
 There are (many) more arguments you *can* use, but these three are absolutely necessary. What this function should return is the three items contained in what is deemed the optimal solution in accordance to the preset objective:
 
@@ -130,8 +135,7 @@ sel$log
 
 The solutions that contain `NA` on all variables were deemed inadmissable solutions. This occurs when the CFA leads to errors in estimation (e.g. non-convergence) or problems with estimated paramaters (e.g. negative variances). Such solutions are excluded by default, but the latter type of solutions can be included by using `ignore.errors = TRUE`.
 
-
-### Multiple Facets
+### Multiple Facets {#multiple-facets}
 
 The previous example was limited to a single facet. In this example, we will take a look at something a bit more complex, which likely constitutes the most common situation. In this example we will look at empathy, relational aggression, and social intelligence simultaneously. The example is a bit lacking, because these three constitute different constructs and not different facets of a single construct, as would most often be the case in scale construction.
 
@@ -194,8 +198,7 @@ lavaan::summary(sel$final)
 
 As you can see, a lot of parameters are labeled automatically. This is because these labels are used to implement invariance assumptions in more complex situations.
 
-
-### Setting Anchor Items
+### Setting Anchor Items {#setting-anchor-items}
 
 In many situations, specific items are so central to the definition of a construct that they must be included in the final questionnaire. In such cases it is best to select items which fit around these anchor items. When using the `mmas()` approach to item selection this can be handled via *heuristics*. In the ACO approach underlying the `mmas()` function the probability of selecting an item when a potential solution is constructed is dependent on two factors: the pheromone (i.e. the extent to which an item has proven itself useful in prior solutions) and the heuristic information (i.e. information that is provided before beginning the construction of solutions). Per default, each item has its own pheromone and its own heuristic information - this is called *node localization*. A [later example]() shows the alternative - *arc localization* - but let us focus on the default case for now. To incorporate anchor items, we need to provide heuristic information that makes the selection of these items basically certain.
 
@@ -269,16 +272,21 @@ summary(sel)
 
 As you can see, the anchored items are all included in the final selection. In my case a total of 4816 models were estimated amounting to a runtime of close to 90 seconds. The final solution also seems to work quite nicely in terms of the objective: the RMSEA is 0, the SRMR is below any reasonable threshold for model fit and the composite reliability is quite high for such a short measure.
 
-### Longitudinal Models
+### Longitudinal Models {#longitudinal-models}
 
 Longitudinal studies are a mainstay in many areas of social sciences. Such studies have specific requirements for the questionnaires that are used. The one that is maybe mentioned most often is measurement invariance - properties of the measurement instrument which are prerequisites for making certain types of statements about change and stability of constructs over time. STUART allows for the selection from item-pools which were assessed at multiple occasions to optimize the final scale under appropriate assumptions of measurement invariance. To this end four, successively more restrictive, types of measurement invariance are implemented:
 
-Level | Constraint
---- | -------
-`configural` | The same items measure the same constructs over time
-`weak` | Factor loadings are the same over time ($\lambda_{it} = \lambda_{it'}$)
-`strong` | Intercepts of manifest variables are the same over time ($\alpha_{it} = \alpha_{it'}$)
-`strict` | Residual variances of manifest variables are the same over time ($var(\epsilon_{it}) = var(\epsilon_{it'})$)
++--------------+--------------------------------------------------------------------------------------------------------------+
+| Level        | Constraint                                                                                                   |
++==============+==============================================================================================================+
+| `configural` | The same items measure the same constructs over time                                                         |
++--------------+--------------------------------------------------------------------------------------------------------------+
+| `weak`       | Factor loadings are the same over time ($\lambda_{it} = \lambda_{it'}$)                                      |
++--------------+--------------------------------------------------------------------------------------------------------------+
+| `strong`     | Intercepts of manifest variables are the same over time ($\alpha_{it} = \alpha_{it'}$)                       |
++--------------+--------------------------------------------------------------------------------------------------------------+
+| `strict`     | Residual variances of manifest variables are the same over time ($var(\epsilon_{it}) = var(\epsilon_{it'})$) |
++--------------+--------------------------------------------------------------------------------------------------------------+
 
 These four levels are used not only for longitudinal models, but also to determine invariance across groups and different sources of information. For longitudinal measures strict measurement invariance is the default in all STUART functions, but it can be set to any of the four levels using the `xxx.invariance` arguments. If you want to incorporate weak longitudinal measurement invariance, you can do so by setting `long.invariance = 'weak'` in the function you are using for item-selection.
 
@@ -347,8 +355,7 @@ What will happen is that for each solution two models are estimated: the one ass
 summary(sel)
 ```
 
-
-### Crossvalidation
+### Crossvalidation {#crossvalidation}
 
 In any type of scale construction validation is a key concept. The same is true for many algorithm-driven analyses, where *k*-Folds crossvalidation is extremely popular. In STUART there are two functions which can aide the crossvalidation of solutions: `holdout()` which splits a dataset into two subsamples and `crossvalidate()` which applies the solution found by one of the four approaches and uses multiple-group SEM to investigate, whether the solution holds in the holdout-sample.
 
@@ -383,6 +390,234 @@ crossvalidate(sel, cv)
 
 The function automatically checks the four standard measurement invariance assumptions across the two samples. In this case invariance assumptions hold across the two subsamples - due to the extremely small sample size in both samples, these results are still not really convincing. If you did not use `holdout()` but simply have two datasets, you can use the same approach but simply provide two dataframes to the function.
 
-### k-Folds Crossvalidation
+### Groups
+
+Since we already had enough fun with the *fairplayer* data, we now switch to something new and hopefully just as exciting. The *sups* data is a dataset which originates from a scale for Supervisor Support with two subscales: *career promotion* and *feedback and goal setting*.
+
+For having all necessary data available, we simply need to load the dataset, name the different factors and decide how many items of both facets our hopefully perfect questionnaire should include.
+
+```{r}
+data("sups")
+fs_s <- list(CP = names(sups)[2:13],
+           FGS = names(sups)[14:20])
+ni_s <- list(4, 4)
+```
+
+For the sole purpose of showing the `bruteforce`, `gene` or `mmas`-approach of running stuart for the item selection while having different groups, we manually added a new variable to the *sups* dataframe named *groups*. Please note that even though this example is designed to only present two different groups, it is possible to run stuart with up to as many groups as you like, given a sufficient sample size.
+
+```{r}
+set.seed(203)
+sups$groups <- sample(c(0, 1), nrow(sups), replace = T)
+```
+
+To include the group in our item selection process, we simply add the argument `grouping`. Since our created variable is named *groups*, the new argument thus used is "grouping = 'groups'".
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', seed = 302)
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groups.rds')
+```
+
+```{R, eval = FALSE}
+Running STUART with Genetic Algorithm.
+
+  |==============                                               |  22%
+Reinitialized population. Generation counter reset.
+  |=============================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+Our summary now looks like this:
+
+```{r}
+summary(sel)
+```
+
+As the summary shows, stuarts' *gene*-approach selects items 4, 5 6 and 12 for the facet of *career promotion*, while also selecting items 13, 15, 16 and 18 for the facet *feedback and goal setting*.
+
+### Better Groups
+
+Another addition to this selection process is the inclusion of the invariance between the items. Stuart enables us with the argument `group.invariance` to choose between four different restriction types -- *configural*, *weak*, *strong* and *strict*. To include the type of invariance our selected items should guarantee, stuart grants us the possibility of choosing between the 4 different invariances by adding the argument `group.invariance = 'XXX'` to our command. Please note that the result of the item selection will differ when choosing different types of invariances in your argument. If this argument is left out, the default will be set to *strict*.
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', seed = 302)
+
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groupinv.rds')
+```
+
+```{R, eval = FALSE}
+Running STUART with Genetic Algorithm.
+
+  |==========                                                   |  17%
+Reinitialized population. Generation counter reset.
+  |=============================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+Our new summary now looks like this:
+
+```{r}
+summary(sel)
+```
+
+As already stated, the group.invariance will always be set to *strict* by default if not otherwise specified. Therefore, manually setting the invariance to *weak* changed the item selection. Instead of items 4, 5, 6 and 12 (like previously), we now choose items *5, 6, 7 and 12* for the first facet. Likewise, instead of items 13, 15, 16 and 18, stuart now chooses items *14, 15, 17 and 18* for the second facet.
+
+### Even better Groups
+
+Another addition to our group-based item selection process is the use of the argument `comparisons`. With this, stuart compares the invariance we chose in the `grouping` argument with the next weaker invariance. This ensures an optimal item selection.
+
+For example, let's look at the different output and chosen items when running the previous function with the addition of the `comparisons` argument.
+
+```{r, eval = FALSE}
+sel <- gene(sups, fs_s, ni_s, grouping = 'groups', group.invariance = 'weak', comparisons = "group", seed = 302)
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/groupcomp.rds')
+```
+
+```{r, eval = FALSE}
+Loading required namespace: parallel
+Running STUART with Genetic Algorithm.
+
+  |==========================                                                                                                                |  19%
+Reinitialized population. Generation counter reset.
+  |==========================================================================================================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+Due to the additional argument, our output now looks like this:
+
+```{r}
+summary(sel)
+```
+
+Unlike before, adding the *comparison*-argument does not change the selected items at all. Instead, what's important here is the outputs' `delta.pvalue`.
+
+The delta.pvalue is based on the hypotheses' that the requirements needed for the chosen invariance are given, while the H1 implies that only the requirements for the next weaker form of invariance are met. If the *delta.pvalue* is significant, we have to discard the H0 hypothesis and thus must choose the weaker form of invariance for our selected items.
+
+Since the last delta.pvalue the output shows us is *0.9259430*, we do not have to discard the H0 hypothesis. If, however, delta.pvalue was \< 0.05, we would have to go with the weaker form of invariance, here being configural.
+
+As you may have already noticed, apart from the additional outputs, there are also changes in the pheromones. Unlike before, the pheromones no longer pend between 0 and 1.977, but between 0 and 2.977 instead. This stems from the changed objective preset when running stuart with the *comparison* argument. While the objective preset before looked like this:
+
+```{r}
+stuart:::objective.preset
+```
+
+Since the delta.values were added, it now looks like this:
+
+```{r}
+stuart:::objective.preset.comparisons
+```
+
+As you may have noticed, the pheromones slightly increase with every run. When we add the *comparisons*-argument, however, they do not only increase, but also have a higher maxima. To make this change or increase more accessible for all you visual learners out there, we provided a simple graph to make it more picturesque.
+
+```{r}
+preset <- stuart:::objective.preset
+
+# Simple curve
+curve(preset(0, 0, 0, x, 0, 0),
+  xlab = 'RMSEA', xlim = c(0, .1),
+  ylab = 'Pheromone')
+```
+
+This change can also be visualized by a fancier curve, aka *ggplot*:
+
+```{r}
+library(ggplot2)
+RMSEA <- seq(0, .1, .001)
+Pheromone <- preset(0, 0, 0, RMSEA, 0, 0)
+dat <- data.frame(RMSEA, Pheromone)
+
+ggplot(dat, aes(x = RMSEA, y = Pheromone)) + geom_line() +
+  theme_minimal()
+```
+
+Furthermore, it's also possible to illustrate this curve via *heatmap*.
+
+```{r}
+RMSEA <- seq(0, .1, .001)
+Rel <- seq(.5, 1, .005)
+dat <- expand.grid(RMSEA, Rel)
+names(dat) <- c('RMSEA', 'Rel')
+
+dat$Pheromone <- preset(0, 0, 0, dat$RMSEA, 0, dat$Rel)
+
+ggplot(dat, aes(x = RMSEA, y = Rel, z = Pheromone)) + 
+  geom_tile(aes(fill = Pheromone), alpha = .9) + stat_contour(color = 'white') + 
+  theme_minimal()
+```
+
+### Ordinal Scaled Variables
+
+Most of the examples and analysis' up until now was done with only interval scaled variables, leaving out another important type of data: ordinal scaled data. Therefore the following example is designed to display how to use stuart with ordinal scaled data.
+
+First we are gonna set up a minimal example with two facets.
+
+```{r}
+fs <- list(em1 = names(fairplayer)[5:12],
+           si1 = names(fairplayer)[83:92])
+```
+
+Furthermore, we got to ensure that stuart knows the data the data it is going to operate should be viewed as ordinal scaled. This can be implemented the following way:
+
+```{r}
+ords <- fairplayer[, names(fairplayer)%in%unlist(fs)]
+ords <- lapply(ords, as.ordered)
+ords <- do.call(data.frame, ords)
+```
+
+The first row selects all the items our factor structure contains, since *fs* is just a list in which the item names are assigned to the names of the factors and then transforms these items into a vector using *unlist()*.
+
+The function *lapply* hereby returns a list with the same length as ords, but, just like we specified in the function itself, ordered. After that, using the *do.call* function, we now turn the newly made ordered ords-list to a *data.frame*, so we can use stuart for the item selection.
+
+Next up we have to alter our objective. Since we are working with ordinal data, it's better to use the robust *(rmsea.robust, cfi.robust)* or scaled *(rmsea.scaled, cfi.scaled)* fit statistics instead of the normal ones *(rmsea, cfi)* for modelling ordinal indicators with lavaan.
+
+```{r}
+objective.normal <- function(rmsea.scaled, srmr, cfi.scaled) {
+  out1 = 0.5-(0.5/(1 + exp(- 100 * (rmsea.scaled-.05))))
+  out2 = 0.5-(0.5/(1 + exp(- 100 * (srmr-.05))))
+  out3 = (1/(1 + exp(- 100 * (cfi.scaled-.95))))
+  out = (out1 + out2 + out3)/3
+  return(out)                                
+}
+```
+
+Since we already established the ords dataframe to be ordinal, we now do not have to specify it additionally in our *mmas*-function. Working with the same facet-structure as before, our code now should look something like this:
+
+```{r, eval = FALSE}
+sel <- mmas(ords, fs, 4, seed = 302, objective = objective.normal)
+```
+
+```{r, echo = FALSE}
+sel <- readRDS('./readme/ordinal.rds')
+```
+
+```{r, eval = FALSE}
+Loading required namespace: parallel
+Running STUART with Genetic Algorithm.
+
+  |==========================                                                                                                                |  19%
+Reinitialized population. Generation counter reset.
+  |==========================================================================================================================================| 100%
+
+Search ended. Maximum number of generations exceeded.
+```
+
+And our output thus should look something like this:
+
+```{r}
+summary(sel)
+```
+
+### k-Folds Crossvalidation {#k-folds-crossvalidation}
 
 $k$-Folds crossvalidation is a common technique in modern tools of statistical and machine learning which is used to determine the trustworthiness of results. Generally, the original sample is split into $k$ subsamples at random and the estimation procedure is performed on
