@@ -2,6 +2,7 @@ defaultobjective <- function(
   criteria = c('rmsea', 'srmr', 'crel'), 
   add = c('chisq', 'df', 'pvalue'),
   scale = 1,
+  fixed = NULL,
   ...) {
   
   # predefined sets for typical criteria
@@ -52,6 +53,16 @@ defaultobjective <- function(
     
     obj_list[[i]] <- list(func = func, string = string) 
   }
+  
+  if (!is.null(fixed)) {
+    if (class(fixed) == 'function') {
+      fixed <- manualobjective(fixed)
+    }
+    obj_list[[length(obj_list) + 1]] <- fixed
+    add <- union(add, eval(fixed$call$criteria))
+    add <- union(add, eval(fixed$call$add))
+  }
+  
   
   tmp <- lapply(obj_list, `[[`, 'string')
   string <- paste0(tmp, collapse = ' + ')

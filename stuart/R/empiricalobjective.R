@@ -7,6 +7,7 @@ empiricalobjective <- function(
   side = NULL,
   skew = FALSE,
   scale = 1,
+  fixed = NULL,
   ...
 ) {
 
@@ -17,7 +18,7 @@ empiricalobjective <- function(
   called <- called[names(called)!='x']
   
   if (is.null(x)) {
-    warning('No empirical values provided to empiricalobjective. Attempting to return defaults.')
+    warning('No empirical values provided to empiricalobjective. Attempting to return defaults.', call. = FALSE)
     out <- do.call(defaultobjective, called)
     class(out) <- 'stuartEmpiricalObjective'
     return(out)
@@ -83,6 +84,16 @@ empiricalobjective <- function(
     tmp$string <- gsub('x', i, tmp$string)
     obj_list[[i]] <- tmp
   }
+  
+  if (!is.null(fixed)) {
+    if (class(fixed) == 'function') {
+      fixed <- manualobjective(fixed)
+    }
+    obj_list[[length(obj_list) + 1]] <- fixed
+    add <- union(add, eval(fixed$call$criteria))
+    add <- union(add, eval(fixed$call$add))
+  }
+  
   
   tmp <- lapply(obj_list, `[[`, 'string')
   string <- paste0(tmp, collapse = ' + ')
