@@ -103,7 +103,16 @@ function(
     )
   }
   
-
+  # Evaluate using empirical objective
+  if (class(objective) == 'stuartEmpiricalObjective') {
+    args <- c(objective$call, x = list(bf.results))
+    objective <- do.call(empiricalobjective, args)
+    bf.results <- lapply(bf.results, function(x) {
+      x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      return(x)})
+  }
+  
+  
   log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
 
   #best solution
