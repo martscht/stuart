@@ -4,7 +4,7 @@ summary.stuartOutput <-
 function(object,...) {
   Time <- as.numeric(object$timer[3])
   Models <- nrow(object$log)
-  Replications <- sum(object$log$pheromone==max(object$log$pheromone))
+  Replications <- sum(duplicated(object$log[,4:ncol(object$log)]))
   Results <- object$log[object$log$pheromone==cummax(object$log$pheromone),]
   Results <- Results[!duplicated(Results[,3:ncol(Results)]),]
 

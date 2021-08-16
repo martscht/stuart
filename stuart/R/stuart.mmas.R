@@ -12,6 +12,7 @@ function(
   software, cores,                                               #Software to be used
 
   objective=NULL, ignore.errors=FALSE,                           #objective function
+  burnin = 5,
   
   ants=16, colonies=256, evaporation=.95,                        #general ACO parameters
   deposit='ib', pbest=.005, localization='nodes',                #MMAS parameters
@@ -60,6 +61,7 @@ function(
   tolerance_cur <- NA
   deposit_cur <- NA
   ignore.errors_cur <- NA
+  objective_cur <- NA
   
   filt <- sapply(mget(scheduled),is.array)
   for (i in 1:length(scheduled[!filt])) {
@@ -220,10 +222,14 @@ function(
     }
     
     #fill in results for duplicates
-    tmp <- vector('list', ants_cur)
-    tmp[filter[,1]] <- ant.results
-    tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
-    ant.results <- tmp
+    tmp_results <- vector('list', ants_cur)
+    tmp_results[filter[,1]] <- ant.results
+    tmp <- log[stats::na.omit(duplicate)]
+    tmp <- lapply(tmp, function(x) {
+      x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      return(x)})
+    tmp_results[sapply(tmp_results,is.null)] <- tmp
+    ant.results <- tmp_results
     
     #iteration.best memory
     ant.ib <- which.max(sapply(ant.results, function(x) return(x$solution.phe$pheromone)))
@@ -268,13 +274,17 @@ function(
     pheromones <- mmas.update(pheromones,phe.min,phe.max,evaporation_cur,localization,
       get(paste('phe',c('ib','gb')[deposit_cur],sep='.')),get(paste('solution',c('ib','gb')[deposit_cur],sep='.')))
 
-    
     #create log
     log <- c(log, ant.results)
     counter <- rbind(counter, c(run, ants_cur))
     # log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
     
-    
+    # update empirical objective
+    if (class(objective) == 'stuartEmpiricalObjective' & run > burnin) {
+      args <- c(objective$call, x = list(log))
+      objective <- do.call(empiricalobjective, args)
+    }
+
     #check for convergence
     if (localization=='arcs') {
       conv <- lapply(pheromones,function(x) x[lower.tri(x)])

@@ -127,8 +127,8 @@ function(
   
   for (m in seq_along(mat_fil)) {
     mats[[m]] <- sapply(bf.results, function(x) x$solution.phe[mat_fil[m]])
+    names(mats[[m]]) <- 1:n
   }
-  names(mats) <- 1:n
 
   log <- cbind(1:n,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   

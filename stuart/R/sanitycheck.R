@@ -3,7 +3,7 @@ sanitycheck <- function(data, factor.structure,capacity,
   objective=NULL,localization,software='lavaan',
   comparisons) {
   
-  if (is.null(objective)) objective <- objective.preset
+  if (is.null(objective)) objective <- defaultobjective()
   #sanity check
   if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
     if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {
@@ -11,11 +11,11 @@ sanitycheck <- function(data, factor.structure,capacity,
     }
   }
   
-  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & any(names(formals(objective))=='srmr') & software == 'Mplus') {
+  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & any(names(formals(objective$func))=='srmr') & software == 'Mplus') {
     stop('Mplus does not provide estimates for the SRMR when handling ordinal variables. Please change your objective function.', call. = FALSE)
   }
   
-  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & !any(grepl('.scaled|.robust', names(formals(objective)))) & software == 'lavaan') {
+  if (any(sapply(data[, unlist(factor.structure)], is.factor)) & !any(grepl('.scaled|.robust', names(formals(objective$func)))) & software == 'lavaan') {
     warning('It is highly recommended to used either scaled or robust versions of model fit criteria in your objective function when modeling ordinal indicators with lavaan.', call. = FALSE)
   }
   
@@ -38,10 +38,10 @@ sanitycheck <- function(data, factor.structure,capacity,
   }
   
   if (!is.null(objective)) {
-    if (!is.function(objective)) {
+    if (!is.function(objective$func)) {
       stop('The objective function you requested is not a function.',call.=FALSE)
     }
-    if (is.null(mtmm)&'con'%in%names(formals(objective))) {
+    if (is.null(mtmm)&'con'%in%names(formals(objective$func))) {
       stop('The objective function you requested uses consistency in the pheromone computation but mtmm=NULL',call.=FALSE)
     }
   }

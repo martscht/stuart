@@ -153,12 +153,16 @@ function(
   
   #set preset for objective functions
   if (is.null(objective)) {
-    if (is.null(comparisons)) objective <- objective.preset
+    if (is.null(comparisons)) objective <- defaultobjective()
     else {
       if (length(comparisons)==1) objective <- objective.preset.comparisons
       else stop(paste0('Currently, there is no preset objective for multiple comparisons across ',
         paste(comparisons, collapse = ' and '), '.'), call.=FALSE)
     }
+  }
+  if (class(objective) == 'function') {
+    objective <- list(func = objective, string = toString(body(objective)[-1]))
+    class(objective) <- 'stuartManualObjective'
   }
   
   output <- list(short.factor.structure,short,long.equal,comparisons.equal,comparisons.invariance,

@@ -172,7 +172,7 @@ function(
     analysis.options$se <- 'none'
   }
   
-  if (all(names(formals(objective))%in%c('crel', 'rel', 'con', 'lvcor', 'alpha', 'beta', 'lambda', 'psi', 'theta'))) {
+  if (all(names(formals(objective$func))%in%c('crel', 'rel', 'con', 'lvcor', 'alpha', 'beta', 'lambda', 'psi', 'theta'))) {
     analysis.options$h1 <- FALSE
   }
   
@@ -207,7 +207,7 @@ function(
       if (!suppressWarnings(lavaan::inspect(output, 'post.check'))) return(output = list(NA))
     }
 
-    fits <- names(formals(objective))
+    fits <- names(formals(objective$func))
     fits <- gsub('delta\\.', '', fits)
     fits <- gsub('\\.items|\\.long|\\.mtmm|\\.group', '', fits)
     fits <- unique(fits)

@@ -1,19 +1,19 @@
 ### Roxygen-izable Documentation ----
-#' Deriving objective functions for item selection 
+#' Extracting empirical objective functions for item selection 
 #' 
 #' This is a bare-bones initial version of this approach.
 #' 
 ### Inputs ----
 #' @param x A vector of values for which to determine the objective function (e.g. RMSEA).
-#' @param proportion  Proportion of values to use in function determining. Defaults to .1, meaning the best 10%.
+#' @param n  Number of values to use in function determining. Defaults to 50.
 #' @param side Which side good values are located at. \code{'top'} means large values are good (e.g. Reliability), \code{'bottom'} means small values are good (e.g. RMSEA), and \code{'middle'} means average values are good (e.g. factor correlations).
 #' @param skew Whether to account for skew in the distribution using the [sn::psn()] function. Defaults to \code{FALSE}, meaning a normal distribution is used.
 #' @param scale A numeric scale to use in weighting the objective component. Defaults to 1.
 #' @export
 
 ### Empirical Objective Functions ----
-empobjective <- function(x,             # Input parameter
-    proportion = .1,                    # Reference proportion
+extractobjective <- function(x,         # Input parameter
+    n = 50,                             # Reference proportion
     side = c('top', 'bottom', 'center'),  # Where is good?
     skew = FALSE,                       # Use skew?
     scale = 1,                          # Scale output
@@ -27,7 +27,7 @@ empobjective <- function(x,             # Input parameter
   # use only selected proportion
   y <- sort(x)
   ly <- length(y)
-  py <- length(y) * proportion
+  py <- min(n, ceiling(length(y) * .25))
 
   if (side == 'top') {
     y <- y[ly : (ly - py)]
