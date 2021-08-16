@@ -11,7 +11,7 @@ stuart.gene <-
     comparisons,
     software, cores,                                               #Software to be used
     
-    objective=NULL, ignore.errors=FALSE,                           #objective function
+    objective=NULL, ignore.errors=FALSE, burnin = 5,               #objective function
     
     generations = 256, individuals = 64,                                  #algorithm specs
     selection = 'tournament', selection.pressure = NULL,
@@ -236,7 +236,10 @@ stuart.gene <-
       if (run == 1) {
         bf.results <- tmp[duplicate]
       } else {
-        tmp[sapply(tmp,is.null)] <- log[stats::na.omit(duplicate)]
+        redo <- lapply(log[stats::na.omit(duplicate)], function(x) {
+          x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+          return(x)})
+        tmp[sapply(tmp,is.null)] <- redo
         bf.results <- tmp
       }
       
@@ -474,6 +477,13 @@ stuart.gene <-
           reinit <- TRUE
         }
       }
+      
+      # update empirical objective
+      if (class(objective) == 'stuartEmpiricalObjective' & run > burnin) {
+        args <- c(objective$call, x = list(log))
+        objective <- do.call(empiricalobjective, args)
+      }
+      
       
       # reinitialization
       if (reinit & cur_reinit.n > 0) {
