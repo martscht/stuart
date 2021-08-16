@@ -38,6 +38,7 @@
 #' @param cores The number of cores to be used in parallel processing. If \code{NULL} (the default) the result of \code{\link[parallel]{detectCores}} will be used. On Unix-y machines parallel processing is implemented via \code{\link[parallel]{mclapply}}, on Windows machines it is realized via \code{\link[parallel]{parLapply}}.
 #' @param objective A function that converts the results of model estimation into a pheromone. See 'details' for... details.
 #' @param ignore.errors A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.
+#' @param burnin Number of colonies for which to use fixed objective function before switching to empirical objective. Ignored if \code{objective} is not of class \code{stuartEmpiricalObjetive}. Defaults to 5.
 #' @param ants The number of ants per colony to be estimated. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
 #' @param colonies The maximum number of colonies estimated since finding the latest global-best solution before aborting the process. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
 #' @param evaporation The evaporation coefficient. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.
@@ -155,7 +156,7 @@ function(
 
   software='lavaan', cores=NULL,                                        #run settings
 
-  objective=NULL, ignore.errors=FALSE,                      #fitness specs
+  objective=NULL, ignore.errors=FALSE, burnin = 5,                      #fitness specs
 
   ants=16, colonies=256, evaporation=.95,                               #general ACO specs
   alpha=1, beta=1, pheromones=NULL, heuristics=NULL,                    #general ACO specs

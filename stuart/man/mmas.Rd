@@ -23,6 +23,7 @@ mmas(
   cores = NULL,
   objective = NULL,
   ignore.errors = FALSE,
+  burnin = 5,
   ants = 16,
   colonies = 256,
   evaporation = 0.95,
@@ -77,6 +78,8 @@ mmas(
 \item{objective}{A function that converts the results of model estimation into a pheromone. See 'details' for... details.}
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
+
+\item{burnin}{Number of colonies for which to use fixed objective function before switching to empirical objective. Ignored if \code{objective} is not of class \code{stuartEmpiricalObjetive}. Defaults to 5.}
 
 \item{ants}{The number of ants per colony to be estimated. Can either be a single value or an array with two columns for parameter scheduling. See 'details'.}
 
