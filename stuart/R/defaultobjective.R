@@ -14,7 +14,7 @@ defaultobjective <- function(
   
   if (any(!grepl(predef_check, criteria))) {
     end_reason <- criteria[!grepl(predef_check, criteria)]
-    stop(paste0('Not all criteria provided to the objective function have defaults. Problem with: ', paste(end_reason, collapse = ', '), '. Consider using these as auxiliary information via \"add\" instead.'))
+    stop(paste0('Not all criteria provided to the objective function have defaults. Problem with: ', paste(end_reason, collapse = ', '), '. Consider using these as auxiliary information via \"add\" or including them manually via \"fixed\" instead.'))
   }
   
   defaults <- data.frame(criterion = predef, 
@@ -25,6 +25,16 @@ defaultobjective <- function(
       .03, .1, .1, 10, 10, 10, 10, .015, .02, .015, .02, .2, .2, .2),
     scale = 1)
 
+  # Check for correct scaling
+  if (length(scale) %in% c(1, length(criteria))) {
+    scale <- rep(scale, length.out = length(criteria))
+  } else {
+    if (!is.null(fixed)) {
+      addendum <- 'Please scale components provided to \"fixed\" locally.'
+    }
+    stop(paste('Could not determine empirical objectives because arguments did not match the number of criteria. Problems with: scale.', addendum))
+  }
+  
   tmp <- data.frame(criteria, scale)
   for (i in criteria) {
     filt <- sapply(defaults$criterion, grepl, x = i)

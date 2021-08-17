@@ -59,18 +59,22 @@ empiricalobjective <- function(
   } else {
     end_reason <- c(end_reason, 'side')
   }
-  if (length(skew) %in% c(1, length(skew))) {
+  if (length(skew) %in% c(1, length(criteria))) {
     skew <- rep(skew, length.out = length(criteria))
   } else {
     end_reason <- c(end_reason, 'skew')
   }
-  if (length(scale) %in% c(1, length(scale))) {
+  if (length(scale) %in% c(1, length(criteria))) {
     scale <- rep(scale, length.out = length(criteria))
   } else {
     end_reason <- c(end_reason, 'scale')
   }
   if (!is.null(end_reason)) {
-    stop(paste('Could not determine empirical objectives because arguments did not match the number of criteria. Problems with:', paste(end_reason, collapse = ', ')))
+    addendum <- NULL
+    if (any(end_reason=='scale') & !is.null(fixed)) {
+      addendum <- ' Please scale components provided to \"fixed\" locally.'
+    }
+    stop(paste('Could not determine empirical objectives because arguments did not match the number of criteria. Problems with:', paste(end_reason, collapse = ', '), '.', addendum))
   }
   
   arguments <- data.frame(criteria, n, side, skew, scale)
