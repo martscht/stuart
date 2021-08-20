@@ -513,11 +513,20 @@ stuart.gene <-
     message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
-    log <- cbind(sapply(log, function(x) x$run), NA, t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
-    log[, 2] <- unlist(sapply(table(log[, 1]), function(x) 1:x))
-    log <- data.frame(log)
-    names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
+    #generate matrix output
+    mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
+    mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+    mats <- as.list(vector('numeric', length(mat_fil)))
+    names(mats) <- mat_fil
     
+    for (m in seq_along(mat_fil)) {
+      mats[[m]] <- sapply(log, function(x) x$solution.phe[mat_fil[m]])
+      names(mats[[m]]) <- 1:length(log)
+    }
+
+    log <- cbind(rep(1:run, each = individuals), rep(1:individuals, generations),t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
+    log <- data.frame(log)
+    names(log) <- c('run', 'individuals',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
     
     #return to previous random seeds
     if (!is.null(seed)) {
