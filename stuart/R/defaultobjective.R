@@ -6,10 +6,10 @@ defaultobjective <- function(
   ...) {
   
   # predefined sets for typical criteria
-  predef <- c('^rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
+  predef <- c('^([^c]+)rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
     '^nfi', '^pnfi', '^ifi', '^rni', '^gfi', '^agfi', '^pgfi',
     '^mfi', '^ecvi', '^pvalue', '^chisq', '^aic', '^bic', '^bic2', '^rmsea', '^rmr', '^srmr',
-    '^crmr', '^lvcor', '^beta', '^con')
+    '^crmr', 'lvcor', 'beta', 'con')
   predef_check <- paste0(predef, collapse = '|')
   
   if (any(!grepl(predef_check, criteria))) {
@@ -18,7 +18,7 @@ defaultobjective <- function(
   }
   
   defaults <- data.frame(criterion = predef, 
-    side = c(rep('top', 16), rep('bottom', 8), rep('middle', 3)),
+    side = c(rep('top', 16), rep('bottom', 8), rep('center', 3)),
     m = c(.7, .8, .95, .95, .95, .95, .95, .6, .95, .95, .95, .95, .5,
       .95, .4, .05, 0, 0, 0, 0, .05, .05, .05, .05, 0, 0, .7),
     s = c(.1, .075, .03, .03, .03, .03, .03, .1, .03, .03, .03, .03, .12,
@@ -53,7 +53,7 @@ defaultobjective <- function(
     if (cur_default$side == 'bottom') {
       string <- paste0(cur_default$scale, ' * pnorm(x, ', cur_default$m, ', ', cur_default$s, ', lower.tail = FALSE)')
     }
-    if (cur_default$side == 'center') {
+    if (cur_default$side == 'center' | cur_default$side == 'centre') {
       string <- paste0(cur_default$scale, ' * 2 * ifelse(x > ', cur_default$m, ', pnorm(x, ', cur_default$m, ', ', cur_default$s, ', lower.tail = FALSE), pnorm(x, ', cur_default$m, ', ', cur_default$s, ', lower.tail = TRUE))')
     }
    

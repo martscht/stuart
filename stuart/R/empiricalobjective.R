@@ -30,14 +30,14 @@ empiricalobjective <- function(
   names(emp_values) <- criteria
   
   # predefined sets for typical criteria
-  tops <- c('^rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
+  tops <- c('^([^c]+)rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
     '^nfi', '^pnfi', '^ifi', '^rni', '^logl', '^gfi', '^agfi', '^pgfi',
     '^mfi', '^ecvi', '^pvalue')
   tops <- paste0(tops, collapse = '|')
   bottoms <- c('^chisq', '^aic', '^bic', '^bic2', '^rmsea', '^rmr', '^srmr',
     '^crmr')
   bottoms <- paste0(bottoms, collapse = '|')
-  mids <- c('^lvcor', '^beta', '^con')
+  mids <- c('lvcor', 'beta', 'con')
   mids <- paste0(mids, collapse = '|')
   
   
@@ -53,7 +53,7 @@ empiricalobjective <- function(
       side <- rep(NA, length(criteria))
       side[grep(tops, criteria)] <- 'top'
       side[grep(bottoms, criteria)] <- 'bottom'
-      side[grep(mids, criteria)] <- 'middle'
+      side[grep(mids, criteria)] <- 'center'
     }
     side <- rep(side, length.out = length(criteria))
   } else {
