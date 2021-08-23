@@ -313,10 +313,21 @@ function(
   }
   
   # reformat log
+  #generate matrix output
+  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
+  mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+  mats <- as.list(vector('numeric', length(mat_fil)))
+  names(mats) <- mat_fil
+  
+  for (m in seq_along(mat_fil)) {
+    mats[[m]] <- sapply(log, function(x) x$solution.phe[mat_fil[m]])
+    names(mats[[m]]) <- 1:length(log)
+  }
+  
   tmp <- as.numeric(unlist(apply(counter, 1, function(x) seq(1,x[2]))))
-  log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
+  log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   log <- data.frame(log)
-  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe))
+  names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe)[!names(ant.results[[1]]$solution.phe)%in%mat_fil])
   
   
   #Generating Output

@@ -524,9 +524,11 @@ stuart.gene <-
       names(mats[[m]]) <- 1:length(log)
     }
 
-    log <- cbind(rep(1:run, each = individuals), rep(1:individuals, generations),t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
+    tmp <- sapply(log, `[[`, 1)
+    tmp <- unlist(lapply(table(tmp), function(x) seq(1, x)))
+    log <- cbind(cumsum(tmp == 1), tmp, t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
     log <- data.frame(log)
-    names(log) <- c('run', 'individuals',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
+    names(log) <- c('run', 'ind',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
     
     #return to previous random seeds
     if (!is.null(seed)) {
@@ -562,6 +564,7 @@ stuart.gene <-
     results <- mget(grep('.gb',ls(),value=TRUE))
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log
+    results$log_mat <- mats
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, selection, selection.pressure, elitism, mutation, mating.index, mating.size,
       mating.criterion, immigration, convergence.criterion, tolerance, 
