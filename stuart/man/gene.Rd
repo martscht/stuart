@@ -136,6 +136,7 @@ Returns an object of the class \code{stuartOutput} for which specific \code{summ
 \item{analysis.options}{A list of the additional arguments passed to the estimation software.}
 \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 \item{log}{A \code{data.frame} containing the optimization history.}
+\item{log_mat}{A \code{list} of matrices (e.g. lvcor) relevant to the estimation history, if any.}
 \item{solution}{A list of matrices with the choices made in the global-best solution.}
 \item{pheromones}{A list of matrices with the relative selection frequency of items in the final generation.}
 \item{subtests}{A list containing the names of the selected items and their respective subtests.}

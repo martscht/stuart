@@ -66,6 +66,7 @@
 #' \item{analysis.options}{A list of the additional arguments passed to the estimation software.}
 #' \item{timer}{An object of the class \code{proc_time} which contains the time used for the analysis.}
 #' \item{log}{A \code{data.frame} containing the optimization history.}
+#' \item{log_mat}{A \code{list} of matrices (e.g. lvcor) relevant to the estimation history, if any.}
 #' \item{solution}{A list of matrices with the choices made in the global-best solution.}
 #' \item{pheromones}{A list of matrices with the pheromones of each choice.}
 #' \item{subtests}{A list containing the names of the selected items and their respective subtests.}
@@ -214,6 +215,7 @@ function(
   output$analysis.options <- analysis.options
   output$timer <- proc.time() - timer
   output$log <- solution$log
+  output$log_mat <- solution$log_mat
   output$solution <- solution$solution.gb
   output$pheromones <- solution$pheromones
   output$subtests <- solution$selected.items

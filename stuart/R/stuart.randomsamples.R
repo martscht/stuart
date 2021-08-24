@@ -141,7 +141,9 @@ function(
   }
 
   log <- cbind(1:n,t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
-  
+  log <- data.frame(log)
+  names(log) <- c('run',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
+
   #best solution
   tmp <- data.frame(1:length(bf.results),sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
   tmp <- tmp[tmp[,2]!=0,]
@@ -166,8 +168,6 @@ function(
   
   results <- mget(grep('.sel',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.sel,factor.structure,short)
-  log <- data.frame(log)
-  names(log) <- c('run',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
   results$log <- log
   results$log_mat <- mats
   results$pheromones <- NULL

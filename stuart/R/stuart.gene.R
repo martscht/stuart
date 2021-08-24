@@ -523,11 +523,22 @@ stuart.gene <-
     message(paste('\nSearch ended.',end.reason))      
     
     # reformat log
-    log <- cbind(sapply(log, function(x) x$run), NA, t(sapply(log, function(x) array(data=unlist(x$solution.phe)))))
-    log[, 2] <- unlist(sapply(table(log[, 1]), function(x) 1:x))
-    log <- data.frame(log)
-    names(log) <- c('run','ind',names(bf.results[[1]]$solution.phe))
+    #generate matrix output
+    mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
+    mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+    mats <- as.list(vector('numeric', length(mat_fil)))
+    names(mats) <- mat_fil
     
+    for (m in seq_along(mat_fil)) {
+      mats[[m]] <- sapply(log, function(x) x$solution.phe[mat_fil[m]])
+      names(mats[[m]]) <- 1:length(log)
+    }
+
+    tmp <- sapply(log, `[[`, 1)
+    tmp <- unlist(lapply(table(tmp), function(x) seq(1, x)))
+    log <- cbind(cumsum(tmp == 1), tmp, t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
+    log <- data.frame(log)
+    names(log) <- c('run', 'ind',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
     
     #return to previous random seeds
     if (!is.null(seed)) {
@@ -563,6 +574,7 @@ stuart.gene <-
     results <- mget(grep('.gb',ls(),value=TRUE))
     results$selected.items <- translate.selection(selected.gb,factor.structure,short)
     results$log <- log
+    results$log_mat <- mats
     results$pheromones <- pheromones
     results$parameters <- list(generations, individuals, selection, selection.pressure, elitism, mutation, mating.index, mating.size,
       mating.criterion, immigration, convergence.criterion, tolerance, 

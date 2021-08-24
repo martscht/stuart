@@ -112,8 +112,20 @@ function(
       return(x)})
   }
   
+    #generate matrix output
+  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
+  mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+  mats <- as.list(vector('numeric', length(mat_fil)))
+  names(mats) <- mat_fil
   
-  log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe)))))
+  for (m in seq_along(mat_fil)) {
+    mats[[m]] <- sapply(bf.results, function(x) x$solution.phe[mat_fil[m]])
+    names(mats[[m]]) <- 1:nrow(filter)
+  }
+  
+  log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
+  log <- data.frame(log)
+  names(log) <- c('run',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
 
   #best solution
   run.gb <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
@@ -140,9 +152,8 @@ function(
   
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
-  log <- data.frame(log)
-  names(log) <- c('run',names(bf.results[[1]]$solution.phe))
   results$log <- log
+  results$log_mat <- mats
   results$tried <- tried
   results$pheromones <- NULL
   results$parameters <- list(objective=objective, factor.structure=factor.structure)
