@@ -525,7 +525,7 @@ stuart.gene <-
     # reformat log
     #generate matrix output
     mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
-    mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+    mat_fil <- mat_fil[mat_fil %in% names(formals(objective$func))]
     mats <- as.list(vector('numeric', length(mat_fil)))
     names(mats) <- mat_fil
     
