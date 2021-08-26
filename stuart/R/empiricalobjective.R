@@ -8,6 +8,7 @@ empiricalobjective <- function(
   skew = FALSE,
   scale = 1,
   fixed = NULL,
+  comparisons = NULL,
   ...
 ) {
 
@@ -30,14 +31,14 @@ empiricalobjective <- function(
   names(emp_values) <- criteria
   
   # predefined sets for typical criteria
-  tops <- c('^([^c]+)rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
-    '^nfi', '^pnfi', '^ifi', '^rni', '^logl', '^gfi', '^agfi', '^pgfi',
-    '^mfi', '^ecvi', '^pvalue')
+  tops <- c('^(delta\\.)?([^c]+)rel', '^(delta\\.)?crel', '^(delta\\.)?cfi', '^(delta\\.)?tli', '^(delta\\.)?nnfi', '^(delta\\.)?rfi',
+    '^(delta\\.)?nfi', '^(delta\\.)?pnfi', '^(delta\\.)?ifi', '^(delta\\.)?rni', '^(delta\\.)?logl', '^(delta\\.)?gfi', '^(delta\\.)?agfi', '^(delta\\.)?pgfi',
+    '^(delta\\.)?mfi', '^(delta\\.)?ecvi', '^(delta\\.)?pvalue')
   tops <- paste0(tops, collapse = '|')
-  bottoms <- c('^chisq', '^aic', '^bic', '^bic2', '^rmsea', '^rmr', '^srmr',
-    '^crmr')
+  bottoms <- c('^(delta\\.)?chisq', '^(delta\\.)?aic', '^(delta\\.)?bic', '^(delta\\.)?bic2', '^(delta\\.)?rmsea', '^(delta\\.)?rmr', '^(delta\\.)?srmr',
+    '^(delta\\.)?crmr')
   bottoms <- paste0(bottoms, collapse = '|')
-  mids <- c('lvcor', 'beta', 'con')
+  mids <- c('^(delta\\.)?lvcor', '^(delta\\.)?beta', '^(delta\\.)?con')
   mids <- paste0(mids, collapse = '|')
   
   

@@ -41,7 +41,7 @@ sel3b <- gene(sups, fs, 4,
 sel3c <- bruteforce(sups, fs, 4, objective = obj)
 
 # mixed objective
-fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr', 'beta[2,1]'), scale = 2/3)
+fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr'), scale = 2/3)
 obj <- stuart:::empiricalobjective(criteria = c('crel'), add = c('chisq', 'df', 'pvalue'), 
   fixed = fix)
 
@@ -87,3 +87,76 @@ subset(long_log, type == 'Actual') |> ggplot(aes(x = solution, y = cfi)) +
   geom_point(alpha = .5) + theme_minimal() + geom_smooth()
 subset(long_log, type == 'Post') |> ggplot(aes(x = solution, y = pheromone)) +
   geom_point(alpha = .5) + theme_minimal() + geom_smooth()
+
+#### Multiple Groups ----
+data(fairplayer)
+fs <- list(em1 = paste0('sEM0', 1:8, 't1'),
+  em2 = paste0('sEM0', 1:8, 't2'))
+re <- list(em = c('em1', 'em2'))
+
+# simple comparisons
+selg <- mmas(fairplayer, fs, 3,
+  repeated.measures = re,
+  grouping = 'IGL',
+  colonies = 0, comparisons = c('group', 'long'),
+  pbest = .02)
+selg$parameters$objective # old comparison preset used
+
+# presetting objectives
+fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue.group', 'delta.pvalue.long'),
+  comparisons = c('group', 'long'),
+  scale = c(1/3, 1/3, 1/3, 1, .25, .25))
+fix
+
+selg2 <- mmas(fairplayer, fs, 3,
+  repeated.measures = re,
+  grouping = 'IGL',
+  objective = fix,
+  colonies = 0, comparisons = c('group', 'long'),
+  pbest = .02)
+summary(selg2)
+
+selg2b <- bruteforce(fairplayer, fs, 3,
+  repeated.measures = re,
+  grouping = 'IGL',
+  objective = fix,
+  comparisons = c('group', 'long'))
+
+#### Multiple methods ----
+fs <- list(em1 = paste0('sEM0', 1:8, 't1'),
+  em2 = paste0('tEM0', 1:8, 't1'))
+mm <- list(em = c('em1', 'em2'))
+
+fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue'),
+  comparisons = c('group'),
+  scale = c(1/3, 1/3, 1/3, 1, .25))
+fix
+
+selg2 <- mmas(fairplayer, fs, 3,
+  mtmm = mm,
+  grouping = 'IGL',
+  objective = fix,
+  colonies = 0, comparisons = c('group'),
+  cores = 1,
+  pbest = .02)
+summary(selg2)
+
+#### Now empirical ----
+emp <- stuart:::empiricalobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue'),
+  comparisons = c('group'),
+  scale = c(1/3, 1/3, 1/3, 1, .25))
+
+selg3 <- mmas(fairplayer, fs, 3,
+  mtmm = mm,
+  grouping = 'IGL',
+  objective = emp, burnin = 1,
+  colonies = 10, comparisons = c('group'),
+  pbest = .5)
+summary(selg3)
+
+selg4 <- gene(fairplayer, fs, 3,
+  mtmm = mm,
+  grouping = 'IGL',
+  objective = emp, burnin = 1,
+  generations = 10, comparisons = c('group'),
+  seed = 1)

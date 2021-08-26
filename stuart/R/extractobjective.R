@@ -27,7 +27,7 @@ extractobjective <- function(x,         # Input parameter
   # use only selected proportion
   y <- sort(x)
   ly <- length(y)
-  py <- min(n, ceiling(length(y) * .25))
+  py <- max(2, min(n, ceiling(length(y) * .25)))
 
   if (side == 'top') {
     y <- y[ly : (ly - py)]
@@ -46,6 +46,7 @@ extractobjective <- function(x,         # Input parameter
   if (!skew) {
     m <- mean(y, na.rm = TRUE)
     s <- stats::sd(y, na.rm = TRUE)
+    if (!is.na(s) | s == 0) s <- .001
     if (side == 'top') {
       string <- paste0(scale, ' * pnorm(x, ', m, ', ', s, ', lower.tail = TRUE)')
     }

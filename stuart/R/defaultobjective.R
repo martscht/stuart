@@ -3,14 +3,26 @@ defaultobjective <- function(
   add = c('chisq', 'df', 'pvalue'),
   scale = 1,
   fixed = NULL,
+  comparisons = NULL,
   ...) {
   
   # predefined sets for typical criteria
   predef <- c('^([^c]+)rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
     '^nfi', '^pnfi', '^ifi', '^rni', '^gfi', '^agfi', '^pgfi',
     '^mfi', '^ecvi', '^pvalue', '^chisq', '^aic', '^bic', '^bic2', '^rmsea', '^rmr', '^srmr',
-    '^crmr', 'lvcor', 'beta', 'con')
+    '^crmr', '^lvcor', '^beta', '^con')
   predef_check <- paste0(predef, collapse = '|')
+  
+  if (!is.null(comparisons)) {
+    predef_comp <- gsub('^\\^', '^delta.', predef)
+    predef_comp[1] <- gsub('\\(\\[\\^c\\]\\+\\)', '', predef_comp[1])
+    if (length(comparisons) > 1) {
+      predef_comp <- outer(predef_comp, comparisons, paste, sep = '(.*).')
+      predef_comp <- as.vector(predef_comp)
+    }
+    predef_check <- paste(predef_check, paste0(predef_comp, collapse = '|'),
+      sep = '|')
+  }
   
   if (any(!grepl(predef_check, criteria))) {
     end_reason <- criteria[!grepl(predef_check, criteria)]
@@ -24,15 +36,29 @@ defaultobjective <- function(
     s = c(.1, .075, .03, .03, .03, .03, .03, .1, .03, .03, .03, .03, .12,
       .03, .1, .1, 10, 10, 10, 10, .015, .02, .015, .02, .2, .2, .2),
     scale = 1)
-
+  
+  if (!is.null(comparisons)) {
+    defaults_comp <- data.frame(criterion = predef_comp,
+      side = defaults$side, 
+      m = defaults$m / 10,
+      s = defaults$s / 5,
+      scale = defaults$scale)
+    defaults_comp[grep('pvalue', defaults_comp$criterion), c('m', 's')] <- c(.05, .1) 
+    defaults <- rbind(defaults, defaults_comp)
+    if (!any(grepl('delta', c(criteria, add)))) {
+      warning('Comparisons were requested, but the objective function does not contain any comparative indicators. Check whether this is intended - they can be added as \"criteria\" or via \"add\".', call. = FALSE)
+    }
+  }
+  
   # Check for correct scaling
   if (length(scale) %in% c(1, length(criteria))) {
     scale <- rep(scale, length.out = length(criteria))
   } else {
+    addendum <- NULL
     if (!is.null(fixed)) {
-      addendum <- 'Please scale components provided to \"fixed\" locally.'
+      addendum <- 'Please scale components provided to \"fixed\" beforehand.'
     }
-    stop(paste('Could not determine empirical objectives because arguments did not match the number of criteria. Problems with: scale.', addendum))
+    stop(paste('Could not determine objectives because arguments did not match the number of criteria. Problems with: scale.', addendum))
   }
   
   tmp <- data.frame(criteria, scale)

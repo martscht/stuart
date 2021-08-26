@@ -154,11 +154,7 @@ function(
   #set preset for objective functions
   if (is.null(objective)) {
     if (is.null(comparisons)) objective <- defaultobjective()
-    else {
-      if (length(comparisons)==1) objective <- objective.preset.comparisons
-      else stop(paste0('Currently, there is no preset objective for multiple comparisons across ',
-        paste(comparisons, collapse = ' and '), '.'), call.=FALSE)
-    }
+    else objective <- defaultobjective(comparisons = comparisons)
   }
   if (class(objective) == 'function') {
     objective <- list(func = objective, string = toString(body(objective)[-1]))

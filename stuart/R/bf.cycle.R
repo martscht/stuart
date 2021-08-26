@@ -40,7 +40,7 @@ function(run,
           run.options[grep('invariance',names(run.options))] <- comparisons.invariance[[i]]
           comp.fit <- do.call(paste('run',software,sep='.'), run.options)
           comps <- c(comps, unlist(compute.comparisons(objective$func, comp.fit, solution.fit, names(comparisons.equal)[i])))
-          if (is.logical(all.equal(objective.preset.comparisons, objective$func))) {
+          if (length(comparisons.equal) == 1) {
             names(comps)[grepl('delta\\.', names(comps))] <- gsub(paste0('\\.', names(comparisons.equal)[[i]]), '', names(comps)[grepl('delta\\.', names(comps))])
           }
         }
