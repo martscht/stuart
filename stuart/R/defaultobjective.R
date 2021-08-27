@@ -1,6 +1,7 @@
 defaultobjective <- function(
   criteria = c('rmsea', 'srmr', 'crel'), 
   add = c('chisq', 'df', 'pvalue'),
+  side = NULL,
   scale = 1,
   fixed = NULL,
   comparisons = NULL,
@@ -50,21 +51,35 @@ defaultobjective <- function(
     }
   }
   
+  # Replace sides
+  endreason <- vector('character')
+  addendum <- vector('character')
+  if (length(side) %in% c(1, length(criteria))) {
+    side <- rep(side, length.out = length(criteria))
+  } else {
+    endreason <- 'side'
+  }
+  
   # Check for correct scaling
   if (length(scale) %in% c(1, length(criteria))) {
     scale <- rep(scale, length.out = length(criteria))
   } else {
     addendum <- NULL
+    endreason <- 'scale'
     if (!is.null(fixed)) {
       addendum <- 'Please scale components provided to \"fixed\" beforehand.'
     }
-    stop(paste('Could not determine objectives because arguments did not match the number of criteria. Problems with: scale.', addendum))
+  }
+
+  if (length(endreason) > 0) {
+    stop(paste0('Could not determine objectives because arguments did not match the number of criteria. Problems with: ', paste(endreason, sep = ', '), '. ', addendum))
+    
   }
   
-  tmp <- data.frame(criteria, scale)
+  tmp <- data.frame(criteria, side, scale)
   for (i in criteria) {
     filt <- sapply(defaults$criterion, grepl, x = i)
-    defaults[filt, 'scale'] <- subset(tmp, criteria == i, select = scale)
+    defaults[filt, c('side', 'scale')] <- subset(tmp, criteria == i, select = c(side, scale))
   }
   
   
