@@ -54,7 +54,7 @@ defaultobjective <- function(
   # Replace sides
   endreason <- vector('character')
   addendum <- vector('character')
-  if (length(side) %in% c(1, length(criteria))) {
+  if (is.null(side) | length(side) %in% c(1, length(criteria))) {
     side <- rep(side, length.out = length(criteria))
   } else {
     endreason <- 'side'
