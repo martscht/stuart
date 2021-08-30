@@ -54,10 +54,12 @@ defaultobjective <- function(
   # Replace sides
   endreason <- vector('character')
   addendum <- vector('character')
-  if (is.null(side) | length(side) %in% c(1, length(criteria))) {
-    side <- rep(side, length.out = length(criteria))
-  } else {
-    endreason <- 'side'
+  if (!is.null(side)) {
+    if (length(side) %in% c(1, length(criteria))) {
+      side <- rep(side, length.out = length(criteria))
+    } else {
+      endreason <- 'side'
+    }
   }
   
   # Check for correct scaling
@@ -76,12 +78,19 @@ defaultobjective <- function(
     
   }
   
-  tmp <- data.frame(criteria, side, scale)
-  for (i in criteria) {
-    filt <- sapply(defaults$criterion, grepl, x = i)
-    defaults[filt, c('side', 'scale')] <- subset(tmp, criteria == i, select = c(side, scale))
+  if (is.null(side)) {
+    tmp <- data.frame(criteria, scale)
+    for (i in criteria) {
+      filt <- sapply(defaults$criterion, grepl, x = i)
+      defaults[filt, c('scale')] <- subset(tmp, criteria == i, select = c(scale))
+    }
+  } else {
+    tmp <- data.frame(criteria, side, scale)
+    for (i in criteria) {
+      filt <- sapply(defaults$criterion, grepl, x = i)
+      defaults[filt, c('side', 'scale')] <- subset(tmp, criteria == i, select = c(side, scale))
+    }
   }
-  
   
   obj_list <- vector('list', length = length(criteria))
   names(obj_list) <- criteria
