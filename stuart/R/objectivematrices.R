@@ -36,8 +36,8 @@ objectivematrices <-
     
     attempts <- 0
     worked <- FALSE
+    message('Attempting to extract matrices from a random subset...')
     while (!worked & attempts < 10) {
-      message('Attempting to extract matrices from a random subset...')
       invisible(capture.output(suppressMessages(single <- do.call(randomsamples, args))))
       attempts <- attempts + 1
       if (single$log$pheromone != 0) {

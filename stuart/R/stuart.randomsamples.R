@@ -154,6 +154,7 @@ function(
     warning('The chosen percentile of the pheromone was achieved by multiple solutions. Only the first is reported.',call.=FALSE)
     run.sel <- run.sel[1]
   }
+  if (length(run.sel) == 0) run.sel <- 1
   phe.sel <- bf.results[[run.sel]]$solution.phe$pheromone
   selected.sel <- bf.results[[run.sel]]$selected
   
