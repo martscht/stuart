@@ -123,11 +123,20 @@ fixedobjective <- function(
         js <- 1
       }
       for (j in js) {
-        for (k in which(matrices[[i]]$use[[j]])) {
-          cur_side <- matrices[[i]]$side[[j]][k]
-          cur_scale <- matrices[[i]]$scale[[j]][k]
-          cur_m <-  matrices[[i]]$mean[[j]][k]
-          cur_s <-  matrices[[i]]$sd[[j]][k]
+        if (length(js) > 1) filt <- which(matrices[[i]]$use[[j]])
+        else filt <- which(matrices[[i]]$use)
+        for (k in filt) {
+          if (length(js) > 1) {
+            cur_side <- matrices[[i]]$side[[j]][k]
+            cur_scale <- matrices[[i]]$scale[[j]][k]
+            cur_m <-  matrices[[i]]$mean[[j]][k]
+            cur_s <-  matrices[[i]]$sd[[j]][k]
+          } else {
+            cur_side <- matrices[[i]]$side[k]
+            cur_scale <- matrices[[i]]$scale[k]
+            cur_m <-  matrices[[i]]$mean[k]
+            cur_s <-  matrices[[i]]$sd[k]
+          }
           
           if (cur_side == 'top') {
             string <- paste0(cur_scale, ' * pnorm(x, ', cur_m, ', ', cur_s, ', lower.tail = TRUE)')
