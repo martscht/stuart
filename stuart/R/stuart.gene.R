@@ -237,7 +237,8 @@ stuart.gene <-
         bf.results <- tmp[duplicate]
       } else {
         redo <- lapply(log[stats::na.omit(duplicate)], function(x) {
-          x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+          if(all(is.na(x$solution.phe[-1]))) x$solution.phe$pheromone <- 0
+          else x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
           if(is.na(x$solution.phe$pheromone)) x$solution.phe$pheromone <- 0
           return(x)})
         tmp[sapply(tmp,is.null)] <- redo

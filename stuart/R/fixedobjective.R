@@ -1,8 +1,9 @@
-defaultobjective <- function(
+fixedobjective <- function(
   criteria = c('rmsea', 'srmr', 'crel'), 
   add = c('chisq', 'df', 'pvalue'),
   side = NULL,
   scale = 1,
+  matrices = NULL,
   fixed = NULL,
   comparisons = NULL,
   ...) {
@@ -11,7 +12,7 @@ defaultobjective <- function(
   predef <- c('^([^c]+)rel', '^crel', '^cfi', '^tli', '^nnfi', '^rfi',
     '^nfi', '^pnfi', '^ifi', '^rni', '^gfi', '^agfi', '^pgfi',
     '^mfi', '^ecvi', '^pvalue', '^chisq', '^aic', '^bic', '^bic2', '^rmsea', '^rmr', '^srmr',
-    '^crmr', '^lvcor', '^beta', '^con')
+    '^crmr', '^con')
   predef_check <- paste0(predef, collapse = '|')
   
   if (!is.null(comparisons)) {
@@ -31,11 +32,11 @@ defaultobjective <- function(
   }
   
   defaults <- data.frame(criterion = predef, 
-    side = c(rep('top', 16), rep('bottom', 8), rep('center', 3)),
+    side = c(rep('top', 16), rep('bottom', 8), rep('center', 1)),
     m = c(.7, .8, .95, .95, .95, .95, .95, .6, .95, .95, .95, .95, .5,
-      .95, .4, .05, 0, 0, 0, 0, .05, .05, .05, .05, 0, 0, .7),
+      .95, .4, .05, 0, 0, 0, 0, .05, .05, .05, .05, .7),
     s = c(.1, .075, .03, .03, .03, .03, .03, .1, .03, .03, .03, .03, .12,
-      .03, .1, .1, 10, 10, 10, 10, .015, .02, .015, .02, .2, .2, .2),
+      .03, .1, .1, 10, 10, 10, 10, .015, .02, .015, .02, .2),
     scale = 1)
   
   if (!is.null(comparisons)) {
@@ -75,7 +76,6 @@ defaultobjective <- function(
 
   if (length(endreason) > 0) {
     stop(paste0('Could not determine objectives because arguments did not match the number of criteria. Problems with: ', paste(endreason, sep = ', '), '. ', addendum))
-    
   }
   
   if (is.null(side)) {
@@ -114,6 +114,47 @@ defaultobjective <- function(
     obj_list[[i]] <- list(func = func, string = string) 
   }
   
+  if (!is.null(matrices)) {
+    criteria <- c(criteria, names(matrices))
+    for (i in 1:length(matrices)) {
+      if (is.list(matrices[[i]]$use)) {
+        js <- 1:length(matrices[[i]]$use)
+      } else {
+        js <- 1
+      }
+      for (j in js) {
+        for (k in which(matrices[[i]]$use[[j]])) {
+          cur_side <- matrices[[i]]$side[[j]][k]
+          cur_scale <- matrices[[i]]$scale[[j]][k]
+          cur_m <-  matrices[[i]]$mean[[j]][k]
+          cur_s <-  matrices[[i]]$sd[[j]][k]
+          
+          if (cur_side == 'top') {
+            string <- paste0(cur_scale, ' * pnorm(x, ', cur_m, ', ', cur_s, ', lower.tail = TRUE)')
+          }
+          if (cur_side == 'bottom') {
+            string <- paste0(cur_scale, ' * pnorm(x, ', cur_m, ', ', cur_s, ', lower.tail = FALSE)')
+          }
+          if (cur_side == 'center' | cur_side == 'centre') {
+            string <- paste0(cur_scale, ' * 2 * ifelse(x > ', cur_m, ', pnorm(x, ', cur_m, ', ', cur_s, ', lower.tail = FALSE), pnorm(x, ', cur_m, ', ', cur_s, ', lower.tail = TRUE))')
+          }
+          if (length(js) > 1) {
+            string <- gsub('x', paste0(names(matrices)[i], '[[', j, ']][', k, ']'), string)
+          } else {
+            string <- gsub('x', paste0(names(matrices)[i], '[', k, ']'), string)
+          }
+          parsed <- parse(text = string)
+          func <- function(x) eval(parsed)
+          
+          tmp <- list(list(func = func, string = string))
+          names(tmp) <- paste0(names(matrices)[i], j, k)
+          obj_list <- c(obj_list, tmp)
+        }
+      }
+    }
+    
+  }
+  
   if (!is.null(fixed)) {
     if (class(fixed) == 'function') {
       fixed <- manualobjective(fixed)
@@ -139,6 +180,6 @@ defaultobjective <- function(
   called <- called[names(called)!='x']
   
   out <- list(func = func, string = string, call = called)
-  class(out) <- 'stuartDefaultObjective'
+  class(out) <- 'stuartFixedObjective'
   return(out)
 }

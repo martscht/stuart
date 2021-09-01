@@ -226,7 +226,8 @@ function(
     tmp_results[filter[,1]] <- ant.results
     tmp <- log[stats::na.omit(duplicate)]
     tmp <- lapply(tmp, function(x) {
-      x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      if(all(is.na(x$solution.phe[-1]))) x$solution.phe$pheromone <- 0
+      else x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
       if(is.na(x$solution.phe$pheromone)) x$solution.phe$pheromone <- 0
       return(x)})
     tmp_results[sapply(tmp_results,is.null)] <- tmp

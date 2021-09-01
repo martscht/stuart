@@ -16,7 +16,7 @@ sel <- mmas(sups, fs, 4,
 summary(sel)
 
 # fixed objective (probit)
-obj <- stuart:::defaultobjective(criteria = c('rmsea', 'srmr', 'cfi', 'crel'),
+obj <- stuart:::fixedobjective(criteria = c('rmsea', 'srmr', 'cfi', 'crel'),
   add = c('chisq', 'df', 'pvalue'), scale = c(.33, .33, .33, 1))
 
 sel2 <- mmas(sups, fs, 4,
@@ -41,7 +41,7 @@ sel3b <- gene(sups, fs, 4,
 sel3c <- bruteforce(sups, fs, 4, objective = obj)
 
 # mixed objective
-fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr'), scale = 2/3)
+fix <- stuart:::fixedobjective(criteria = c('rmsea', 'cfi', 'srmr'), scale = 2/3)
 obj <- stuart:::empiricalobjective(criteria = c('crel'), add = c('chisq', 'df', 'pvalue'), 
   fixed = fix)
 
@@ -103,7 +103,7 @@ selg <- mmas(fairplayer, fs, 3,
 selg$parameters$objective # old comparison preset used
 
 # presetting objectives
-fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue.group', 'delta.pvalue.long'),
+fix <- stuart:::fixedobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue.group', 'delta.pvalue.long'),
   comparisons = c('group', 'long'),
   scale = c(1/3, 1/3, 1/3, 1, .25, .25))
 fix
@@ -127,7 +127,7 @@ fs <- list(em1 = paste0('sEM0', 1:8, 't1'),
   em2 = paste0('tEM0', 1:8, 't1'))
 mm <- list(em = c('em1', 'em2'))
 
-fix <- stuart:::defaultobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue'),
+fix <- stuart:::fixedobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue'),
   comparisons = c('group'),
   scale = c(1/3, 1/3, 1/3, 1, .25))
 fix
@@ -142,9 +142,10 @@ selg2 <- mmas(fairplayer, fs, 3,
 summary(selg2)
 
 #### Now empirical ----
-emp <- stuart:::empiricalobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue'),
+emp <- stuart:::empiricalobjective(criteria = c('rmsea', 'cfi', 'srmr', 'crel', 'delta.pvalue', 'con'),
+  side = c('bottom', 'top', 'bottom', 'top', 'top', 'top'),
   comparisons = c('group'),
-  scale = c(1/3, 1/3, 1/3, 1, .25))
+  scale = c(1/3, 1/3, 1/3, 1, .25, 1))
 
 selg3 <- mmas(fairplayer, fs, 3,
   mtmm = mm,
@@ -160,3 +161,32 @@ selg4 <- gene(fairplayer, fs, 3,
   objective = emp, burnin = 1,
   generations = 10, comparisons = c('group'),
   seed = 1)
+
+#### Returning all matrices (once) ----
+fs <- list(em = paste0('sEM0', 1:8, 't1'),
+  si = c(paste0('sSI0', 1:9, 't1'), 'sSI10t1'))
+
+add <- 'em ~ si'
+
+mats <- objectivematrices(fairplayer, fs, 4, matrices = c('beta'),
+  analysis.options = list(model = add),
+  grouping = 'IGL')
+
+obj <- fixedobjective(c('rmsea', 'cfi', 'srmr'), matrices = mats)
+
+sel1 <- gene(fairplayer, fs, 4, objective = obj,
+  grouping = 'IGL', analysis.options = list(model = add),
+  seed = 1)
+sel2 <- mmas(fairplayer, fs, 4, objective = obj,
+  grouping = 'IGL', analysis.options = list(model = add),
+  seed = 1)
+sel3 <- randomsamples(fairplayer, fs, 4, objective = obj,
+  grouping = 'IGL', analysis.options = list(model = add),
+  seed = 1)
+
+obj <- empiricalobjective(c('rmsea', 'delta.pvalue', 'cfi', 'srmr'), matrices = mats,
+  comparisons = 'group')
+sel1 <- gene(fairplayer, fs, 4, objective = obj,
+  analysis.options = list(model = add),
+  seed = 1, burnin = 2, grouping = 'IGL',
+  comparisons = 'group')

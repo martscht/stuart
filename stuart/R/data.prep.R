@@ -153,8 +153,8 @@ function(
   
   #set preset for objective functions
   if (is.null(objective)) {
-    if (is.null(comparisons)) objective <- defaultobjective()
-    else objective <- defaultobjective(comparisons = comparisons)
+    if (is.null(comparisons)) objective <- fixedobjective()
+    else objective <- fixedobjective(comparisons = comparisons)
   }
   if (class(objective) == 'function') {
     objective <- list(func = objective, string = toString(body(objective)[-1]))

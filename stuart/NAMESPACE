@@ -2,8 +2,8 @@
 
 S3method(plot,stuartOutput)
 S3method(print,stuartCrossvalidate)
-S3method(print,stuartDefaultObjective)
 S3method(print,stuartEmpiricalObjective)
+S3method(print,stuartFixedObjective)
 S3method(print,stuartKfold)
 S3method(print,stuartManualObjective)
 S3method(print,stuartOutput)

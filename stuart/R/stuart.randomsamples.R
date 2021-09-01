@@ -124,7 +124,8 @@ function(
     args <- c(objective$call, x = list(bf.results))
     objective <- do.call(empiricalobjective, args)
     bf.results <- lapply(bf.results, function(x) {
-      x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      if(all(is.na(x$solution.phe[-1]))) x$solution.phe$pheromone <- 0
+      else x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
       if(is.na(x$solution.phe$pheromone)) x$solution.phe$pheromone <- 0
       return(x)})
   }
