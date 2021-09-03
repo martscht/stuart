@@ -188,5 +188,22 @@ obj <- empiricalobjective(c('rmsea', 'delta.pvalue', 'cfi', 'srmr'), matrices = 
   comparisons = 'group')
 sel1 <- gene(fairplayer, fs, 4, objective = obj,
   analysis.options = list(model = add),
-  seed = 1, burnin = 2, grouping = 'IGL',
-  comparisons = 'group')
+  seed = 1, burnin = 2, generations = 2)
+sel2 <- mmas(fairplayer, fs, 4, objective = obj,
+  analysis.options = list(model = add),
+  seed = 1, burnin = 2, colonies = 1)
+
+
+mats <- objectivematrices(fairplayer, fs, 4, matrices = c('beta'),
+  analysis.options = list(model = add))
+obj <- empiricalobjective(c('rmsea', 'cfi', 'srmr'), matrices = mats)
+
+selk_gene <- kfold('gene', 2,
+  data = fairplayer, factor.structure = fs, capacity = 4,
+  objective = obj, analysis.options = list(model = add),
+  seed = 1)
+
+selk_mmas <- kfold('mmas', 2,
+  data = fairplayer, factor.structure = fs, capacity = 4,
+  objective = obj, analysis.options = list(model = add),
+  seed = 1)

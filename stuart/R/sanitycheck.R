@@ -42,6 +42,10 @@ sanitycheck <- function(data, factor.structure,capacity,
     if (any(sapply(data[, unlist(factor.structure)], is.factor)) & !any(grepl('.scaled|.robust', names(formals(objective$func)))) & software == 'lavaan') {
       warning('It is highly recommended to used either scaled or robust versions of model fit criteria in your objective function when modeling ordinal indicators with lavaan.', call. = FALSE)
     }
+    
+    if (any(grepl('delta.', names(formals(objective$func)))) & is.null(grouping) & is.null(mtmm) & is.null(repeated.measures)) {
+      stop('Your objective function contains a model comparison value, but you provided no groups, mwthods, or occasions to compare.', call. = FALSE)
+    }
   }
   
   if (!localization%in%c('arcs','nodes')) stop('Pheromones must be localized to arcs or nodes.',call.=FALSE)

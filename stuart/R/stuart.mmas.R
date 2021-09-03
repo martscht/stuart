@@ -235,16 +235,26 @@ function(
     
     #iteration.best memory
     ant.ib <- which.max(sapply(ant.results, function(x) return(x$solution.phe$pheromone)))
+    logged.ib <- ant.results[[ant.ib]]
     solution.ib <- constructed[[ant.ib]]$solution
     phe.ib <- ant.results[[ant.ib]]$solution.phe$pheromone
     selected.ib <- ant.results[[ant.ib]]$selected
 
+    #updated global best
+    if (class(objective) == 'stuartEmpiricalObjective') {
+      if (run > max(c(burnin, 1))) {
+        if(all(is.na(logged.gb$solution.phe[-1]))) phe.gb <- 0
+        else phe.gb <- do.call(objective$func, logged.gb$solution.phe[-1])
+      }
+    }
+    
     #feedback
     utils::setTxtProgressBar(progress,colony)
 
     #global.best memory
     if (phe.ib > phe.gb | run == 1) {
       count.gb <- count.gb + 1
+      logged.gb <- logged.ib
       solution.gb <- solution.ib
       phe.gb <- phe.ib
       selected.gb <- selected.ib
@@ -336,11 +346,25 @@ function(
     names(mats[[m]]) <- 1:length(log)
   }
   
+  # apply final pheromone function retroactively (empirical objectives)
+  if (class(objective) == 'stuartEmpiricalObjective') {
+    final_pheromone <- sapply(log, function(x) {
+      if (x$solution.phe$pheromone == 0) 0
+      else {do.call(objective$func, x$solution.phe[-1])}
+    })
+  }
+  
   tmp <- as.numeric(unlist(apply(counter, 1, function(x) seq(1,x[2]))))
   log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   log <- data.frame(log)
   names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe)[!names(ant.results[[1]]$solution.phe)%in%mat_fil])
+  if (class(objective) == 'stuartEmpiricalObjective') {
+    log$pheromone <- final_pheromone
+  }
   
+  # name solutions
+  for (i in seq_along(solution.gb)) names(solution.gb[[i]]) <- short.factor.structure[[i]]
+  names(solution.gb) <- names(short.factor.structure)
   
   #Generating Output
   results <- mget(grep('.gb',ls(),value=TRUE))

@@ -132,7 +132,7 @@ empiricalobjective <- function(
           } else {
             tmp$string <- gsub('x', paste0(names(matrices)[i], '[', k, ']'), tmp$string)
           }
-          obj_list[[i]] <- tmp
+          obj_list[[length(obj_list) + 1]] <- tmp
         }
       }
     }
