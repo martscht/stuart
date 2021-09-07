@@ -42,8 +42,8 @@ objectivematrices <-
       attempts <- attempts + 1
       if (single$log$pheromone != 0) {
         worked <- TRUE
+        message('\b done!')
       }
-      message('\b done!')
     }
     if (!worked) {
       stop('Was not able to extract matrices in 10 attempts. This may indicate a problem with the model, but may also be resolved by simply trying again.', call. = FALSE)
