@@ -370,6 +370,7 @@ function(
   results <- mget(grep('.gb',ls(),value=TRUE))
   results$selected.items <- translate.selection(selected.gb,factor.structure,short)
   results$log <- log
+  results$log_mat <- mats
   results$pheromones <- pheromones
   results$parameters <- list(ants=ants,colonies=colonies,evaporation=evaporation,
     deposit=deposit_save,pbest=pbest,localization=localization,
