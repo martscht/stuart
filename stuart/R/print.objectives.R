@@ -1,7 +1,7 @@
 #' @export
 
 print.stuartEmpiricalObjective <- function(x, ...) {
-  cat('Empirical STUART objectitve function with:\n\n')
+  cat('Empirical STUART objective function with:\n\n')
   cat(x$string)
   cat('\n\nUse ...$func() to apply function to data.')
 }
@@ -9,7 +9,7 @@ print.stuartEmpiricalObjective <- function(x, ...) {
 #' @export
 
 print.stuartFixedObjective <- function(x, ...) {
-  cat('Fixed STUART objectitve function with:\n\n')
+  cat('Fixed STUART objective function with:\n\n')
   cat(x$string)
   cat('\n\nUse ...$func() to apply function to data.')
 }
@@ -17,7 +17,7 @@ print.stuartFixedObjective <- function(x, ...) {
 #' @export
 
 print.stuartManualObjective <- function(x, ...) {
-  cat('Manual STUART objectitve function with:\n\n')
+  cat('Manual STUART objective function with:\n\n')
   cat(x$string)
   cat('\n\nUse ...$func() to apply function to data.')
 }
