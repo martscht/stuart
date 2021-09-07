@@ -101,11 +101,12 @@ function(
       fil <- names(eval(selection$parameters$objective$call$matrices))
       tmp.results[[invariance]][fil] <- lapply(tmp.results[[invariance]][fil], `[[`, 1)
       warning('When crossvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
-    } 
-    tmp <- fitness(selection$parameters$objective, tmp.results[[invariance]], 'lavaan')
+    } else {
+      fil <- NULL
+    }
     internal_matrices[[invariance]] <- tmp[names(tmp)%in%fil]
+    tmp <- fitness(selection$parameters$objective, tmp.results[[invariance]], 'lavaan')
     results[[invariance]] <- as.data.frame(t(unlist(tmp[!names(tmp)%in%fil])))
-    
   }
 
   results <- do.call(rbind, results)
