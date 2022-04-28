@@ -6,6 +6,7 @@ load_all('./stuart')
 
 load('./stuart/data/fairplayer.rda')
 load('./stuart/data/sups.rda')
+load('./stuart/data/sia.rda')
 
 # Generate documentation after changes in files
 devtools::document('./stuart')
