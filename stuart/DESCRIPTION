@@ -17,6 +17,6 @@ Suggests:
     lavaan (>= 0.5.18),
     MplusAutomation (>= 0.7-2),
     graphics
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
 LazyData: true
