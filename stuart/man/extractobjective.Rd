@@ -24,6 +24,15 @@ extractobjective(
 
 \item{scale}{A numeric scale to use in weighting the objective component. Defaults to 1.}
 }
+\value{
+Returns an object of class \code{stuartEmpiricalObjective}.
+}
 \description{
 This is a bare-bones initial version of this approach.
+}
+\seealso{
+\code{\link{empiricalobjective}}, \code{\link{fixedobjective}}, \code{\link{objectivematrices}}
+}
+\author{
+Martin Schultze
 }

@@ -1,4 +1,30 @@
-### Combine objectives ----
+### Roxygen-izable Documentation ----
+#' Generate an empirical objective function for item selection.
+#' 
+#' Generate an empirical objective function from default or empirical values for use in an item selection using STUART.
+#' 
+### Inputs ----
+#' @param criteria A vector of names of criteria included in the objective function. Defaults to \code{c('rmsea', 'srmr', 'crel')}.
+#' @param add A vector of names of criteria not used in the objective function, but added in order to be included in the log of solutions.
+#' @param x Either a vector of values or an object of class \code{stuartOutput} from which to determine values in the objective function. If \code{NULL} (the default) values are generated from criteria-specific presets.
+#' @param n Number of values to use in function determining. Defaults to 50, meaning if \code{side = 'top'} the 50 largest values are used to determine discrimination and difficulty parameters for each criterion.
+#' @param side Which side good values are located at. \code{'top'} means large values are good (e.g. Reliability), \code{'bottom'} means small values are good (e.g. RMSEA), and \code{'middle'} means average values are good (e.g. factor correlations).
+#' @param skew Whether to account for skew in the distribution using the \code{psn()} function from the \code{sn}-Package. Defaults to \code{FALSE}, meaning a normal distribution is used.
+#' @param scale A numeric scale to use in weighting the objective component. Defaults to 1.
+#' @param matrices An object of class \code{stuartObjectiveMatrices} to include matrices (e.g. latent correlations) into the objective function.
+#' @param fixed An object of class \code{stuartFixedObjective} to include already previously defined fixed objectives.
+#' @param comparisons A vector of names of criteria included in the objective function which are related to model comparisons (e.g. when determining measurement invariance).
+#' @param ... Additional arguments.
+#' 
+#' @return Returns an object of class \code{stuartFixedObjective}
+#' 
+#' @author Martin Schultze
+#' 
+#' @seealso \code{\link{fixedobjective}}, \code{\link{extractobjective}}, \code{\link{objectivematrices}}
+#' 
+#' @export
+
+
 empiricalobjective <- function(
   criteria = c('rmsea', 'srmr', 'crel'), 
   add = c('chisq', 'df', 'pvalue'),
@@ -26,10 +52,15 @@ empiricalobjective <- function(
     return(out)
   }
   
-  tmp <- sapply(x, `[[`, 'solution.phe')
-  tmp <- tmp[, !duplicated(t(tmp))]
-  emp_values <- lapply(criteria, function(x) unlist(tmp[x, ]))
-  names(emp_values) <- criteria
+  if (class(x) == 'stuartOutput') {
+    emp_values <- x$log[, criteria]
+    emp_values <- as.list(emp_values)
+  } else {
+    tmp <- sapply(x, `[[`, 'solution.phe')
+    tmp <- tmp[, !duplicated(t(tmp))]
+    emp_values <- lapply(criteria, function(x) unlist(tmp[x, ]))
+    names(emp_values) <- criteria
+  }
   if (!is.null(matrices)) {
     cur_mat <- tmp[rownames(tmp) %in% names(matrices), , drop = FALSE]
     for (i in 1:nrow(cur_mat)) {

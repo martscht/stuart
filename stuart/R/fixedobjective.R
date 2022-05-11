@@ -1,3 +1,25 @@
+### Roxygen-izable Documentation ----
+#' Generate a fixed objective function for item selection.
+#' 
+#' Generate an objective function from default values for use in an item selection using STUART.
+#' 
+### Inputs ----
+#' @param criteria A vector of names of criteria included in the objective function. Defaults to \code{c('rmsea', 'srmr', 'crel')}.
+#' @param add A vector of names of criteria not used in the objective function, but added in order to be included in the log of solutions.
+#' @param side Which side good values are located at. \code{'top'} means large values are good (e.g. Reliability), \code{'bottom'} means small values are good (e.g. RMSEA), and \code{'middle'} means average values are good (e.g. factor correlations).
+#' @param scale A numeric scale to use in weighting the objective component. Defaults to 1.
+#' @param matrices An object of class \code{stuartObjectiveMatrices} to include matrices (e.g. latent correlations) into the objective function.
+#' @param fixed An object of class \code{stuartFixedObjective} to include already previously defined fixed objectives.
+#' @param ... Additional arguments.
+#' 
+#' @return Returns an object of class \code{stuartFixedObjective}
+#' 
+#' @author Martin Schultze
+#' 
+#' @seealso \code{\link{empiricalobjective}}, \code{\link{extractobjective}}, \code{\link{objectivematrices}}
+#' 
+#' @export
+
 fixedobjective <- function(
   criteria = c('rmsea', 'srmr', 'crel'), 
   add = c('chisq', 'df', 'pvalue'),
@@ -191,4 +213,15 @@ fixedobjective <- function(
   out <- list(func = func, string = string, call = called)
   class(out) <- 'stuartFixedObjective'
   return(out)
+}
+
+
+#' @export
+as.stuartFixedObjective <- function(x) {
+  if (class(x) != 'stuartEmpiricalObjective') {
+    warning('Only objects of class stuartEmpiricalObjective can be converted to stuartEmpiricalObjective. Input returned as is.')
+  } else {
+    class(x) <- 'stuartFixedObjective'
+  }
+  return(x)
 }
