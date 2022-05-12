@@ -39,7 +39,7 @@ objectivematrices <-
     worked <- FALSE
     message('Attempting to extract matrices from a random subset...')
     while (!worked & attempts < 10) {
-      invisible(capture.output(suppressMessages(resi <- do.call(randomsamples, args))))
+      invisible(utils::capture.output(suppressMessages(resi <- do.call(randomsamples, args))))
       attempts <- attempts + 1
       if (any(resi$log$pheromone != 0)) {
         worked <- TRUE
@@ -76,7 +76,7 @@ objectivematrices <-
         } else {
           resi_means <- do.call(rbind, sapply(resi$log_mat[[i]], c)) |> colMeans(na.rm = TRUE)
         }
-        resi_sds <- do.call(rbind, sapply(resi$log_mat[[i]], c)) |> apply(2, sd, na.rm = TRUE)
+        resi_sds <- do.call(rbind, sapply(resi$log_mat[[i]], c)) |> apply(2, stats::sd, na.rm = TRUE)
         resi_sds <- sapply(resi_sds, \(x) max(c(.01, x)))
 
         out[[i]]$mean <- matrix(resi_means, nrow = dims[1], ncol = dims[2])

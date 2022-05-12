@@ -9,6 +9,7 @@
 #' @param side Which side good values are located at. \code{'top'} means large values are good (e.g. Reliability), \code{'bottom'} means small values are good (e.g. RMSEA), and \code{'middle'} means average values are good (e.g. factor correlations).
 #' @param skew Whether to account for skew in the distribution using the [sn::psn()] function. Defaults to \code{FALSE}, meaning a normal distribution is used.
 #' @param scale A numeric scale to use in weighting the objective component. Defaults to 1.
+#' @param ... Additional arguments.
 #' 
 #' @return Returns an object of class \code{stuartEmpiricalObjective}.
 #' 

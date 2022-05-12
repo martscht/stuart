@@ -10,6 +10,7 @@
 #' @param scale A numeric scale to use in weighting the objective component. Defaults to 1.
 #' @param matrices An object of class \code{stuartObjectiveMatrices} to include matrices (e.g. latent correlations) into the objective function.
 #' @param fixed An object of class \code{stuartFixedObjective} to include already previously defined fixed objectives.
+#' @param comparisons A vector of names of criteria included in the objective function which are related to model comparisons (e.g. when determining measurement invariance).
 #' @param ... Additional arguments.
 #' 
 #' @return Returns an object of class \code{stuartFixedObjective}

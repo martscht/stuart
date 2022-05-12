@@ -100,34 +100,6 @@
 #'   repeated.measures = repe, long.invariance = 'strong',
 #'   evaporation = cbind(c(0, 10, 20), c(.95, .8, .5)),
 #'   seed = 55635, cores = 1)
-#' 
-#' # adding a predictor variable to selection model (using lavaan)
-#' data(fairplayer)
-#' fs <- list(si = names(fairplayer)[83:92])
-#' 
-#' add <- 'si ~ IGS'
-#' 
-#' sel <- mmas(fairplayer, fs, 4,
-#'   auxiliary = 'IGS',
-#'   analysis.options = list(model = add),
-#'   seed = 55635, cores = 1)
-#'
-#' # inspect regression (in lavaan)
-#' lavaan::coef(sel$final)
-#' 
-#' # same example, maximizing regression weight
-#' obj <- function(chisq, df, pvalue, rmsea, srmr, beta) {
-#'   beta[1, 'IGS']
-#' }
-#' 
-#' sel <- mmas(fairplayer, fs, 4,
-#'   auxiliary = 'IGS',
-#'   analysis.options = list(model = add),
-#'   objective = obj,
-#'   seed = 55635, cores = 1)
-#'   
-#' # inspect regression (in lavaan)
-#' lavaan::coef(sel$final)
 #' }
 #' 
 #' @export

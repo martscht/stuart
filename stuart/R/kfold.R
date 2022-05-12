@@ -51,7 +51,8 @@
 #' sel_mmas <- kfold('mmas', k = 5,
 #'   data = fairplayer, factor.structure = fs,
 #'   repeated.measures = repe, long.invariance = 'strong',
-#'   capacity = 3, seed = 55635, pbest = .5)
+#'   capacity = 3, seed = 55635, pbest = .5,
+#'   cores = 1)
 #' summary(sel_mmas)
 #' }
 #' 

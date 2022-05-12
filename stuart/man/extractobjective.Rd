@@ -23,6 +23,8 @@ extractobjective(
 \item{skew}{Whether to account for skew in the distribution using the [sn::psn()] function. Defaults to \code{FALSE}, meaning a normal distribution is used.}
 
 \item{scale}{A numeric scale to use in weighting the objective component. Defaults to 1.}
+
+\item{...}{Additional arguments.}
 }
 \value{
 Returns an object of class \code{stuartEmpiricalObjective}.

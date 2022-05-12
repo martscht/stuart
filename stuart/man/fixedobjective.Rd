@@ -28,6 +28,8 @@ fixedobjective(
 
 \item{fixed}{An object of class \code{stuartFixedObjective} to include already previously defined fixed objectives.}
 
+\item{comparisons}{A vector of names of criteria included in the objective function which are related to model comparisons (e.g. when determining measurement invariance).}
+
 \item{...}{Additional arguments.}
 }
 \value{
