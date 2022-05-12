@@ -52,8 +52,8 @@ empiricalobjective <- function(
     return(out)
   }
   
-  if (class(x) == 'stuartOutput') {
-    emp_values <- x$log[, criteria]
+  if (inherits(x, 'stuartOutput')) {
+    emp_values <- x$log[, criteria, drop = FALSE]
     emp_values <- as.list(emp_values)
   } else {
     tmp <- sapply(x, `[[`, 'solution.phe')
@@ -171,7 +171,7 @@ empiricalobjective <- function(
   }
   
   if (!is.null(fixed)) {
-    if (class(fixed) == 'function') {
+    if (inherits(fixed, 'function')) {
       fixed <- manualobjective(fixed)
     }
     obj_list[[length(obj_list) + 1]] <- fixed
