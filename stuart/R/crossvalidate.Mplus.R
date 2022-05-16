@@ -28,7 +28,7 @@ function(
     
     results <- models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
     if (!(max.invariance %in% names(models))) {
-      break('The "max.invariance" must be one of "configural", "weak", "strong", or "strict".', call. = FALSE)
+      stop('The "max.invariance" must be one of "configural", "weak", "strong", or "strict".', call. = FALSE)
     }
     results <- models <- models[1:which(names(models) == max.invariance)]
     

@@ -33,7 +33,7 @@
 #' data(fairplayer)
 #' fs <- list(ra = names(fairplayer)[53:57])
 #' 
-#' sel <- kfold('bruteforce', k = 5,
+#' sel <- kfold('bruteforce', k = 3,
 #'   data = fairplayer, factor.structure = fs, 
 #'   capacity = 3, seed = 55635,
 #'   cores = 1)
@@ -51,7 +51,8 @@
 #' sel_mmas <- kfold('mmas', k = 5,
 #'   data = fairplayer, factor.structure = fs,
 #'   repeated.measures = repe, long.invariance = 'strong',
-#'   capacity = 3, seed = 55635, pbest = .5)
+#'   capacity = 3, seed = 55635, pbest = .5,
+#'   cores = 1)
 #' summary(sel_mmas)
 #' }
 #' 
@@ -114,9 +115,10 @@ kfold <- function(type, k = 5,
   for (i in 1:k) {
     selection <- searches[[i]]
     old.data <- folded[[i]]
-    invisible(capture.output(cv[[i]] <- suppressWarnings(try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE))))
+    # invisible(capture.output(cv[[i]] <- suppressWarnings(try(crossvalidate(selection, old.data, max.invariance = max.invariance), silent = TRUE))))
+    cv[[i]] <- suppressWarnings(try(crossvalidate(selection, old.data, max.invariance = max.invariance)))
     if ('try-error' %in% class(cv[[i]])) {
-      cv[[i]] <- list(comparison = NULL, models = NULL)
+      cv[[i]] <- list(comparison = NULL, models = NULL, matrices = NULL)
       warning(paste0('The crossvalidation produced an error in fold ', i), call. = FALSE)
     }
   }
@@ -143,7 +145,7 @@ kfold <- function(type, k = 5,
   }
   
   dats <- do.call(rbind, lapply(folded, `[[`, 'validate'))
-  dats$stuartKfold <- unlist(sapply(1:k, function(x) rep(x, nrow(folded[[x]][['validate']]))))
+  dats$stuartKfold <- unlist(lapply(1:k, function(x) rep(x, nrow(folded[[x]][['validate']]))))
   rownames(dats) <- NULL
   
   out <- list(call = match.call())

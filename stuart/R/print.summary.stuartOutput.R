@@ -11,7 +11,7 @@ function(x,...) {
   if ('end.reason' %in% names(x)) cat(x$end.reason, '\n')
   cat('Time Required:',x$Time,'seconds\n')
   cat('\nOptimization History:\n')
-  print(x$Results)
+  print(x$Results, row.names = FALSE)
   cat('\nConstructed Subtests:\n')
   paste(paste(names(x$Subtests),': ',paste(x$Subtests,collapse=' '),'\n',collapse=' ',sep=''))
   for (i in 1:length(x$Subtests)) {

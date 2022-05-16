@@ -23,6 +23,7 @@ gene(
   cores = NULL,
   objective = NULL,
   ignore.errors = FALSE,
+  burnin = 5,
   generations = 256,
   individuals = 64,
   selection = "tournament",
@@ -83,6 +84,8 @@ gene(
 \item{objective}{A function that converts the results of model estimation into a pheromone. See 'details' for... details.}
 
 \item{ignore.errors}{A logical indicating whether or not to ignore estimation problems (such as non positive-definite latent covariance matrices). Defaults to \code{FALSE}.}
+
+\item{burnin}{Number of generations for which to use fixed objective function before switching to empirical objective. Ignored if \code{objective} is not of class \code{stuartEmpiricalObjetive}. Defaults to 5.}
 
 \item{generations}{Maximum number of generations to run. Defaults to 256.}
 

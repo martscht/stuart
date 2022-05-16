@@ -12,10 +12,10 @@ load('./stuart/data/sia.rda')
 devtools::document('./stuart')
 
 # Check package
-check('./stuart', incoming = TRUE, cran = TRUE)
+check('./stuart', cran = TRUE, incoming = TRUE)
 
 # build packages
 build('./stuart')
 
 # check built package
-check_built('./stuart_0.9.1.tar.gz')
+check_built('./stuart_0.9.1-9002.tar.gz')

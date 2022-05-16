@@ -103,9 +103,18 @@ function(
     )
   }
   
-  #generate matrix output
-  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
-  mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+  # Evaluate using empirical objective
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
+    args <- c(objective$call, x = list(bf.results))
+    objective <- do.call(empiricalobjective, args)
+    bf.results <- lapply(bf.results, function(x) {
+      x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      return(x)})
+  }
+  
+    #generate matrix output
+  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta', 'nu')
+  mat_fil <- mat_fil[mat_fil %in% names(formals(objective$func))]
   mats <- as.list(vector('numeric', length(mat_fil)))
   names(mats) <- mat_fil
   
@@ -117,7 +126,7 @@ function(
   log <- cbind(1:nrow(filter),t(sapply(bf.results, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   log <- data.frame(log)
   names(log) <- c('run',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
-  
+
   #best solution
   run.gb <- which.max(sapply(bf.results, function(x) return(x$solution.phe$pheromone)))
   if (length(run.gb) > 1) {
@@ -131,7 +140,7 @@ function(
   message('\nSearch ended.')
 
   tried <- try(do.call(cbind, lapply(filter, function(y) do.call(rbind,lapply(y, function(x) combi[[1]][x, ])))), silent = TRUE)
-  if (class(tried)[1]=='try-error') warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
+  if (inherits(tried, 'try-error')) warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
 
   # construction solution in standard format
   solution.gb <- short.factor.structure

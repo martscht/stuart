@@ -46,9 +46,10 @@ function(
 
   results <- models <- list(configural = NA, weak = NA, strong = NA, strict = NA)
   if (!(max.invariance %in% names(models))) {
-    break('The "max.invariance" must be one of "configural", "weak", "strong", or "strict".', call. = FALSE)
+    stop('The "max.invariance" must be one of "configural", "weak", "strong", or "strict".', call. = FALSE)
   }
   results <- models <- models[1:which(names(models) == max.invariance)]
+  internal_matrices <- models
 
   if (all(sapply(all.data[, unlist(selection$subtests)], is.ordered))) {
     results$strict <- models$strict <- NULL
@@ -95,18 +96,17 @@ function(
     if (is.null(models[[invariance]])) models[[invariance]] <- NA
     
     # if objective contians model parameters, take only validation sample
-    fil <- sapply(results[[invariance]], is.list)
-    fil.ind <- names(fil)[fil] %in% names(as.list(selection$parameters$objective)) 
     tmp.results <- results
-    if (any(fil.ind)) {
+    if (!is.null(selection$parameters$objective$call$matrices)) {
+      fil <- names(eval(selection$parameters$objective$call$matrices))
       tmp.results[[invariance]][fil] <- lapply(tmp.results[[invariance]][fil], `[[`, 1)
-    } 
-    results[[invariance]] <- as.data.frame(t(unlist(fitness(selection$parameters$objective, tmp.results[[invariance]], 'lavaan'))))
-    
-  }
-  
-  if (any(fil.ind)) {
-    warning('When crossvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
+      warning('When crossvalidating, only model parameters of the validation sample are used to compute pheromones.', call. = FALSE)
+    } else {
+      fil <- NULL
+    }
+    internal_matrices[[invariance]] <- tmp[names(tmp)%in%fil]
+    tmp <- fitness(selection$parameters$objective, tmp.results[[invariance]], 'lavaan')
+    results[[invariance]] <- as.data.frame(t(unlist(tmp[!names(tmp)%in%fil])))
   }
 
   results <- do.call(rbind, results)
@@ -120,7 +120,7 @@ function(
     rownames(comps) <- names(models)
     results <- cbind(results, comps[, 5:7])
   }
-  output <- list(comparison = results, models = models)
+  output <- list(comparison = results, models = models, matrices = internal_matrices)
   
   return(output)
   

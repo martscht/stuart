@@ -119,9 +119,21 @@ function(
   tmp[filter[,1]] <- bf.results
   bf.results <- tmp[duplicate]
   
+  # Evaluate using empirical objective
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
+    args <- c(objective$call, x = list(bf.results))
+    objective <- do.call(empiricalobjective, args)
+    bf.results <- lapply(bf.results, function(x) {
+      if(all(is.na(x$solution.phe[-1]))) x$solution.phe$pheromone <- 0
+      else x$solution.phe$pheromone <- do.call(objective$func, x$solution.phe[-1])
+      if(is.na(x$solution.phe$pheromone)) x$solution.phe$pheromone <- 0
+      return(x)})
+  }
+  
+  
   #generate matrix output
-  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta')
-  mat_fil <- mat_fil[mat_fil %in% names(formals(objective))]
+  mat_fil <- c('lvcor', 'lambda', 'theta', 'psi', 'alpha', 'beta', 'nu')
+  mat_fil <- mat_fil[mat_fil %in% names(formals(objective$func))]
   mats <- as.list(vector('numeric', length(mat_fil)))
   names(mats) <- mat_fil
   
@@ -142,6 +154,7 @@ function(
     warning('The chosen percentile of the pheromone was achieved by multiple solutions. Only the first is reported.',call.=FALSE)
     run.sel <- run.sel[1]
   }
+  if (length(run.sel) == 0) run.sel <- 1
   phe.sel <- bf.results[[run.sel]]$solution.phe$pheromone
   selected.sel <- bf.results[[run.sel]]$selected
   
