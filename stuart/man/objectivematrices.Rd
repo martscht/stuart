@@ -80,6 +80,25 @@ Returns an object of class \code{stuartFixedObjective}
 \description{
 Generate objects of the correct structure for use in custom objective functions.
 }
+\examples{
+
+# Extract latent correlation matric
+# requires lavaan
+# number of cores set to 1 in all examples
+data(sups)
+fs <- list(pro = names(sups)[2:13],
+ fee = names(sups)[14:20])
+
+mats <- objectivematrices(sups, fs, 3,
+  cores = 1)
+mats
+
+mats$lvcor$use[,] <- FALSE
+mats$lvcor$use[2, 1] <- TRUE
+
+mats$lvcor$use
+
+}
 \seealso{
 \code{\link{empiricalobjective}}, \code{\link{extractobjective}}, \code{\link{objectivematrices}}
 }

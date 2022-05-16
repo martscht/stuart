@@ -44,7 +44,8 @@
 #' fs <- list(pro = names(sups)[2:13],
 #'  fee = names(sups)[14:20])
 #' 
-#' mats <- objectivematrices(sups, fs, 3)
+#' mats <- objectivematrices(sups, fs, 3,
+#'   cores = 1)
 #' mats
 #' 
 #' mats$lvcor$use[,] <- FALSE
