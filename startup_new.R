@@ -12,7 +12,7 @@ load('./stuart/data/sia.rda')
 devtools::document('./stuart')
 
 # Check package
-check('./stuart', incoming = TRUE, cran = TRUE)
+check('./stuart', cran = TRUE, incoming = TRUE)
 
 # build packages
 build('./stuart')

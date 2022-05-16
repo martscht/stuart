@@ -16,8 +16,8 @@
 #' @author Martin Schultze
 #' 
 #' @seealso \code{\link{empiricalobjective}}, \code{\link{fixedobjective}}, \code{\link{objectivematrices}}
-#' 
-#' @export
+#' @keywords internal
+
 
 ### Empirical Objective Functions ----
 extractobjective <- function(x,         # Input parameter
@@ -27,6 +27,9 @@ extractobjective <- function(x,         # Input parameter
     scale = 1,                          # Scale output
     ...                                 # Additional arguments passed
   ) {
+  
+  # mark as deprecated
+  .Deprecated('empiricalobjective', 'stuart', 'Objectives can now be extracted from stuartOutput-objects directly by using empiricalobjective().')
   
   # which side to use
   side <- side[1]

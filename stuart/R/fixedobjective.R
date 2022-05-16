@@ -132,9 +132,9 @@ fixedobjective <- function(
    
     string <- gsub('x', i, string)
     parsed <- parse(text = string)
-    func <- function(x) eval(parsed)
+    tmp_func <- function(x) eval(parsed)
     
-    obj_list[[i]] <- list(func = func, string = string) 
+    obj_list[[i]] <- list(func = tmp_func, string = string) 
   }
   
   if (!is.null(matrices)) {
@@ -176,9 +176,9 @@ fixedobjective <- function(
             string <- gsub('x', paste0(names(matrices)[i], '[', k, ']'), string)
           }
           parsed <- parse(text = string)
-          func <- function(x) eval(parsed)
+          tmp_func2 <- function(x) eval(parsed)
           
-          tmp <- list(list(func = func, string = string))
+          tmp <- list(list(func = tmp_func2, string = string))
           names(tmp) <- paste0(names(matrices)[i], j, k)
           obj_list <- c(obj_list, tmp)
         }
@@ -217,6 +217,20 @@ fixedobjective <- function(
 }
 
 
+### Roxygen-izable Documentation ----
+#' Convert empirical to fixed objective.
+#' 
+#' Convert an empirical objective to a fixed version to be used in item-selection. Sensible for extracting values from random selections and then using them in empirical but static objective functions.
+#' 
+### Inputs ----
+#' @param x An object of class \code{stuartEmpiricalObjective}.
+#' 
+#' @return Returns an object of class \code{stuartFixedObjective}
+#' 
+#' @author Martin Schultze
+#' 
+#' @seealso \code{\link{empiricalobjective}}, \code{\link{fixedobjective}}
+#' 
 #' @export
 as.stuartFixedObjective <- function(x) {
   if (class(x) != 'stuartEmpiricalObjective') {
