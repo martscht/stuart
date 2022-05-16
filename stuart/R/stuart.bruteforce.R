@@ -104,7 +104,7 @@ function(
   }
   
   # Evaluate using empirical objective
-  if (class(objective) == 'stuartEmpiricalObjective') {
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
     args <- c(objective$call, x = list(bf.results))
     objective <- do.call(empiricalobjective, args)
     bf.results <- lapply(bf.results, function(x) {
@@ -140,7 +140,7 @@ function(
   message('\nSearch ended.')
 
   tried <- try(do.call(cbind, lapply(filter, function(y) do.call(rbind,lapply(y, function(x) combi[[1]][x, ])))), silent = TRUE)
-  if (class(tried)[1]=='try-error') warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
+  if (inherits(tried, 'try-error')) warning('The full list of evaluated solutions could not be retrieved.',call.=FALSE)
 
   # construction solution in standard format
   solution.gb <- short.factor.structure

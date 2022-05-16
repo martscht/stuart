@@ -120,7 +120,7 @@ function(
   bf.results <- tmp[duplicate]
   
   # Evaluate using empirical objective
-  if (class(objective) == 'stuartEmpiricalObjective') {
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
     args <- c(objective$call, x = list(bf.results))
     objective <- do.call(empiricalobjective, args)
     bf.results <- lapply(bf.results, function(x) {

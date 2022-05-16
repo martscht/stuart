@@ -156,7 +156,7 @@ function(
     if (is.null(comparisons)) objective <- fixedobjective()
     else objective <- fixedobjective(comparisons = comparisons)
   }
-  if (class(objective) == 'function') {
+  if (inherits(objective, 'function')) {
     objective <- list(func = objective, string = toString(body(objective)[-1]))
     class(objective) <- 'stuartManualObjective'
   }

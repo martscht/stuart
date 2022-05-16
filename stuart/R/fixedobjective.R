@@ -188,7 +188,7 @@ fixedobjective <- function(
   }
   
   if (!is.null(fixed)) {
-    if (class(fixed) == 'function') {
+    if (inherits(fixed, 'function')) {
       fixed <- manualobjective(fixed)
     }
     obj_list[[length(obj_list) + 1]] <- fixed

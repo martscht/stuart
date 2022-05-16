@@ -71,7 +71,7 @@ function(
   args <- args[names(args)%in%names(formals(paste('crossvalidate',software,sep='.')))]
   
   #select calibration sample (change to methods later)
-  if (class(old.data) == 'stuartHoldout') {
+  if (inherits(old.data, 'stuartHoldout')) {
     args$new.data <- old.data$validate
     args$old.data <- old.data$calibrate
   }

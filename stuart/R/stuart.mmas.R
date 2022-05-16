@@ -241,7 +241,7 @@ function(
     selected.ib <- ant.results[[ant.ib]]$selected
 
     #updated global best
-    if (class(objective) == 'stuartEmpiricalObjective') {
+    if (inherits(objective, 'stuartEmpiricalObjective')) {
       if (run > max(c(burnin, 1))) {
         if(all(is.na(logged.gb$solution.phe[-1]))) phe.gb <- 0
         else phe.gb <- do.call(objective$func, logged.gb$solution.phe[-1])
@@ -292,7 +292,7 @@ function(
     # log <- rbind(log,cbind(rep(run,ants_cur),1:ants_cur,t(sapply(ant.results, function(x) array(data=unlist(x$solution.phe))))))
     
     # update empirical objective
-    if (class(objective) == 'stuartEmpiricalObjective' & run > burnin) {
+    if (inherits(objective, 'stuartEmpiricalObjective') & run > burnin) {
       args <- c(objective$call, x = list(log))
       objective <- do.call(empiricalobjective, args)
     }
@@ -347,7 +347,7 @@ function(
   }
   
   # apply final pheromone function retroactively (empirical objectives)
-  if (class(objective) == 'stuartEmpiricalObjective') {
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
     final_pheromone <- sapply(log, function(x) {
       if (x$solution.phe$pheromone == 0) 0
       else {do.call(objective$func, x$solution.phe[-1])}
@@ -358,7 +358,7 @@ function(
   log <- cbind(cumsum(tmp==1),tmp,t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
   log <- data.frame(log)
   names(log) <- c('run','ant',names(ant.results[[1]]$solution.phe)[!names(ant.results[[1]]$solution.phe)%in%mat_fil])
-  if (class(objective) == 'stuartEmpiricalObjective') {
+  if (inherits(objective, 'stuartEmpiricalObjective')) {
     log$pheromone <- final_pheromone
   }
   

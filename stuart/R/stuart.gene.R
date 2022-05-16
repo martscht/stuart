@@ -385,7 +385,7 @@ stuart.gene <-
       selected.ib <- bf.results[[individual.ib]]$selected
       
       #updated global best
-      if (class(objective) == 'stuartEmpiricalObjective') {
+      if (inherits(objective, 'stuartEmpiricalObjective')) {
         if (run > max(c(burnin, 1))) {
           if(all(is.na(logged.gb$solution.phe[-1]))) phe.gb <- 0
           else phe.gb <- do.call(objective$func, logged.gb$solution.phe[-1])
@@ -491,7 +491,7 @@ stuart.gene <-
       }
       
       # update empirical objective
-      if (class(objective) == 'stuartEmpiricalObjective' & run > burnin) {
+      if (inherits(objective, 'stuartEmpiricalObjective') & run > burnin) {
         args <- c(objective$call, x = list(log))
         objective <- do.call(empiricalobjective, args)
       }
@@ -547,7 +547,7 @@ stuart.gene <-
     }
     
     # apply final pheromone function retroactively (empirical objectives)
-    if (class(objective) == 'stuartEmpiricalObjective') {
+    if (inherits(objective, 'stuartEmpiricalObjective')) {
       final_pheromone <- sapply(log, function(x) {
         if (x$solution.phe$pheromone == 0) 0
         else {do.call(objective$func, x$solution.phe[-1])}
@@ -559,7 +559,7 @@ stuart.gene <-
     log <- cbind(cumsum(tmp == 1), tmp, t(sapply(log, function(x) array(data=unlist(x$solution.phe[!names(x$solution.phe)%in%mat_fil])))))
     log <- data.frame(log)
     names(log) <- c('run', 'ind',names(bf.results[[1]]$solution.phe)[!names(bf.results[[1]]$solution.phe)%in%mat_fil])
-    if (class(objective) == 'stuartEmpiricalObjective') {
+    if (inherits(objective, 'stuartEmpiricalObjective')) {
       log$pheromone <- final_pheromone
     }
     

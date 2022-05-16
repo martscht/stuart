@@ -196,12 +196,12 @@ function(
   # tmp.cfa <- get('cfa',asNamespace('lavaan'))  
   output <- try(suppressWarnings(do.call(lavaan::lavaan,analysis.options)),silent=TRUE)
 
-  if (class(output)=='try-error') {
+  if (inherits(output, 'try-error')) {
     warning('The lavaan input generated an error.',call.=FALSE)
     return(output=list(NA))
   }
 
-  if (class(output)=='lavaan') {
+  if (inherits(output, 'lavaan')) {
 
     if (!ignore.errors) {
       if (!suppressWarnings(lavaan::inspect(output, 'post.check'))) return(output = list(NA))
@@ -213,7 +213,7 @@ function(
     fits <- unique(fits)
     fit <- try(suppressWarnings(lavaan::fitMeasures(output, fits)),silent=TRUE)
     
-    if (class(fit)[1]=='try-error') {
+    if (inherits(fit, 'try-error')) {
       return(output=list(NA))
       warning('The lavaan estimation generated an error, most likely non-convergence.')
     } else {
@@ -231,7 +231,7 @@ function(
           rel[i] <- sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))/(sum(lambda[,i,drop=FALSE]%*%psi[i,i,drop=FALSE]%*%t(lambda[,i,drop=FALSE]))+sum(theta[filter,filter,drop=FALSE]))
         }
         # workaround for absence of short.factor.structure when crossvalidating
-        if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+        if (inherits(try(short.factor.structure,silent=TRUE), 'try-error')) {
           short.factor.structure <- as.list(rep(NA,ncol(lambda)))
           names(short.factor.structure) <- colnames(lambda)
         }
@@ -269,7 +269,7 @@ function(
             rel[[i]][j] <- sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))/(sum(lambda[[i]][,j,drop=FALSE]%*%psi[[i]][j,j,drop=FALSE]%*%t(lambda[[i]][,j,drop=FALSE]))+sum(theta[[i]][filter,filter,drop=FALSE]))
           }
           # workaround for absence of short.factor.structure when crossvalidating
-          if (class(try(short.factor.structure,silent=TRUE))=='try-error') {
+          if (inherits(try(short.factor.structure,silent=TRUE), 'try-error')) {
             short.factor.structure <- as.list(rep(NA,ncol(lambda[[i]])))
             names(short.factor.structure) <- colnames(lambda[[i]])
           }
