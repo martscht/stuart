@@ -233,7 +233,7 @@ fixedobjective <- function(
 #' 
 #' @export
 as.stuartFixedObjective <- function(x) {
-  if (class(x) != 'stuartEmpiricalObjective') {
+  if (!inherits(x, 'stuartEmpiricalObjective')) {
     warning('Only objects of class stuartEmpiricalObjective can be converted to stuartEmpiricalObjective. Input returned as is.')
   } else {
     class(x) <- 'stuartFixedObjective'
