@@ -107,7 +107,7 @@ kfold <- function(type, k = 5,
   }
   
   check <- sapply(searches, function(x) 'try-error' %in% class(x))
-  if (all(check)) stop('None of the folds resulted in viable solutions. This may be the result of the sample being to small for the number of folds.', call. = FALSE)
+  if (all(check)) stop('None of the folds resulted in viable solutions. This may be the result of the sample being too small for the number of folds.', call. = FALSE)
 
   # Run crossvalidation
   message('\nRunning cross-validation.\n')
