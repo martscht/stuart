@@ -207,3 +207,15 @@ selk_mmas <- kfold('mmas', 2,
   data = fairplayer, factor.structure = fs, capacity = 4,
   objective = obj, analysis.options = list(model = add),
   seed = 1)
+
+
+#### ABC ----
+data(sia)
+
+# factor structure (3 facets)
+fs3 <- list(self = paste0('self', 1:17),
+  belong = paste0('belong', 1:9),
+  just = paste0('just', 1:8))
+
+# run abc (simple)
+sel_abc <- abc(sia, fs3, 4, generations = 10, scout.selection = 'random')
