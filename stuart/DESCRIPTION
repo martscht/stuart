@@ -8,7 +8,7 @@ Authors@R: c(person("Martin", "Schultze", email="schultze@psych.uni-frankfurt.de
 Description: Construct subtests from a pool of items by using ant-colony-optimization, genetic algorithms, brute force, or random sampling.
   Schultze (2017) <doi:10.17169/refubium-622>.
 License: GPL-3
-Depends: R (>= 3.5.0)
+Depends: R (>= 4.1.0)
 Imports:
     stats,
     utils

@@ -1,5 +1,5 @@
 manualobjective <- function(x, ...) {
-  if (class(x) != 'function') {
+  if (!inherits(x, 'function')) {
     stop('The manual objective you provided is not a function.', call. = FALSE)
   }
   arguments <- names(formals(x))
