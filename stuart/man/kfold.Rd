@@ -67,7 +67,7 @@ fs <- list(si1 = names(fairplayer)[83:92],
 
 repe <- list(si = c('si1', 'si2', 'si3'))
 
-sel_mmas <- kfold('mmas', k = 5,
+sel_mmas <- kfold('mmas', k = 3,
   data = fairplayer, factor.structure = fs,
   repeated.measures = repe, long.invariance = 'strong',
   capacity = 3, seed = 55635, pbest = .5,
