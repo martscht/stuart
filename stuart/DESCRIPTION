@@ -1,7 +1,7 @@
 Package: stuart
 Type: Package
 Title: Subtests Using Algorithmic Rummaging Techniques
-Version: 0.10.1
+Version: 0.10.2
 Date: 2022-08-16
 Authors@R: c(person("Martin", "Schultze", email="schultze@psych.uni-frankfurt.de", role=c('aut','cre')),
   person("Johanna", "Schüller", role='ctb'))
@@ -18,6 +18,6 @@ Suggests:
     MplusAutomation (>= 0.7-2),
     graphics,
     sn
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8
 LazyData: true

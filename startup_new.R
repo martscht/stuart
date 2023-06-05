@@ -1,7 +1,7 @@
 library(devtools)
 library(roxygen2)
 
-setwd('~/stuart')
+setwd('~/projects/stuart')
 load_all('./stuart')
 
 load('./stuart/data/fairplayer.rda')
