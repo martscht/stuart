@@ -12,16 +12,16 @@ This repository contains the current alpha-build of the STUART package for R. Th
 
 ## Installation
 
-The current stable version (0.9.1) is [available CRAN](https://cran.r-project.org/package=stuart) and can be installed using the usual approach:
+The current stable version (0.10.2) is [available CRAN](https://cran.r-project.org/package=stuart) and can be installed using the usual approach:
 
 ```{r, eval = FALSE}
 install.packages('stuart')
 ```
 
-The current development version can be installed via the `install_bitbucket()`-function included in the `devtools` package
+The current development version can be installed via the `install_github()`-function included in the `devtools` package
 
 ```{r, eval=FALSE}
-devtools::install_bitbucket('martscht/stuart/stuart', ref = 'develop')
+devtools::install_github('martscht/stuart/stuart', ref = 'develop')
 ```
 
 If you omit `ref = 'develop'`, the function will install the main branch, which is the one that can also be found on CRAN.
@@ -40,7 +40,7 @@ The core idea behind STUART is to perform item-selection not based on univariate
 
 ## Features
 
-The current STUART version (0.9.1) provides four approaches to item selection, each in its own function:
+The current STUART version (0.10.2) provides four approaches to item selection, each in its own function:
 
 -   `mmas()`, an adaptation of Stützle's (1998) $\mathcal{MAX}-\mathcal{MIN}$-Ant-System,
 -   `gene()`, a basic genetic algorithm based on the ideas of Galán, Mengshoel, & Pinter (2013),
