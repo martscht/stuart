@@ -3,6 +3,11 @@ sanitycheck <- function(data, factor.structure,capacity,
   objective=NULL,localization,software='lavaan',
   comparisons) {
   
+  #check for tbl
+  if (inherits(data, 'tbl')) {
+    stop('Currently the data format tbl (tidyverse) is not supported. Please convert your data to a traditional data.frame before using stuart.', call. = FALSE)
+  }
+  
   #sanity check
   if (any(sapply(data[, unlist(factor.structure)], function(x) all(class(x)=='factor')))) {
     if (!all(sapply(data[, unlist(factor.structure)], nlevels) %in% c(0, 2))) {
