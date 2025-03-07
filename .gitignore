@@ -3,3 +3,5 @@
 .dia
 *.tar.gz
 /more_tinkering.R
+.Rproj.user
+*.Rproj
