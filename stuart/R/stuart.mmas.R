@@ -156,7 +156,7 @@ function(
           }
           assign(scheduled[i],tmp)
           if (any(tmp[,1]==colony)&mix_new) {
-            message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which.max(tmp[as.logical(tmp[,3]),1]),2],'.'))
+            message(paste0('\nScheduled value of ',scheduled[i],' updated to ',tmp[which.max(tmp[as.logical(tmp[,3]),1]),2],'.'))
           }
           tmp <- tmp[which.max(tmp[as.logical(tmp[,3]),1]),2]
         }
@@ -168,7 +168,7 @@ function(
     svalues <- FALSE
     cons.args <- mget(names(formals(paste('construction',localization,sep='.'))))
     if (length(scheduled[scheduled%in%names(cons.args)])>0) {
-      ant.args[scheduled[scheduled%in%names(cons.args)]] <- mget(paste(scheduled[scheduled%in%names(cons.args)],'cur',sep='_'))
+      cons.args[scheduled[scheduled%in%names(cons.args)]] <- mget(paste(scheduled[scheduled%in%names(cons.args)],'cur',sep='_'))
     }
     constructed <- lapply(1:ants_cur, function(x) do.call(paste('construction',localization,sep='.'),cons.args))
     

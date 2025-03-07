@@ -251,13 +251,13 @@ stuart.gene <-
           tmp <- mget(scheduled[i])[[1]]
           if (schedule=='run') {
             if (any(tmp[,1]==run)) {
-              message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
+              message(paste0('\nScheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==run),2],'.'))
             }
             tmp <- tmp[max(which(tmp[,1]<=run)),2]
           } 
           if (schedule=='generation') {
             if (any(tmp[,1]==generation)) {
-              message(paste0('Scheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==generation),2],'.'))
+              message(paste0('\nScheduled value of ',scheduled[i],' updated to ',tmp[which(tmp[,1]==generation),2],'.'))
             }
             tmp <- tmp[max(which(tmp[,1]<=generation)),2]
           }
