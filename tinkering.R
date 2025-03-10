@@ -86,6 +86,7 @@ fs <- list(
   feed = paste0('SupS', 13:19))
 
 simi <- lexicalSimilarity(sups, fs, 3, sups_items)
+simi_std <- lexicalSimilarity(sups, fs, 3, sups_items, standardized = TRUE)
 
 # Run traditional selection with arc-localization
 sel <- mmas(sups, fs, 3, 
@@ -98,8 +99,8 @@ summary(best)
 # integrate lexical similarities as heuristics
 heu <- heuristics(sups, fs, 3, localization = 'arcs')
 heu$pro
-heu$pro <- simi$similarity.matrix[rownames(simi$similarity.matrix) %in% rownames(heu$pro), colnames(simi$similarity.matrix) %in% colnames(heu$pro)]
-heu$feed <- simi$similarity.matrix[rownames(simi$similarity.matrix) %in% rownames(heu$feed), colnames(simi$similarity.matrix) %in% colnames(heu$feed)]
+heu$pro <- simi_std$similarity.matrix[rownames(simi_std$similarity.matrix) %in% rownames(heu$pro), colnames(simi_std$similarity.matrix) %in% colnames(heu$pro)]
+heu$feed <- simi_std$similarity.matrix[rownames(simi_std$similarity.matrix) %in% rownames(heu$feed), colnames(simi_std$similarity.matrix) %in% colnames(heu$feed)]
 
 sel_simi <- mmas(sups, fs, 3, 
   seed = 35355, localization = 'arcs', heuristics = heu, beta = 1.5)

@@ -1,7 +1,11 @@
+#' @export
+#' 
+
 lexicalSimilarity <- function(
   data = NULL, factor.structure, capacity = NULL,
   item.phrasing,
   model = 'bert-base-multilingual-cased', method = 'cosine',
+  standardized = FALSE,
   ...) {
   
   if (is.null(names(item.phrasing))) {
@@ -44,6 +48,10 @@ lexicalSimilarity <- function(
   }
   
   colnames(simi) <- rownames(simi) <- names(item.phrasing)
+  
+  if (standardized) {
+    simi <- (simi - min(simi)) / (max(simi) - min(simi))
+  }
   
   out <- list(
     factor.structure = factor.structure,
