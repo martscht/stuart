@@ -224,7 +224,12 @@ function(
         theta <- tmp$theta[rownames(tmp$theta)%in%unlist(selected.items),colnames(tmp$theta)%in%unlist(selected.items), drop = FALSE]
         psi <- tmp$psi[rownames(tmp$psi)%in%names(factor.structure),colnames(tmp$psi)%in%names(factor.structure), drop  = FALSE]
         lambda <- tmp$lambda[rownames(tmp$lambda)%in%unlist(selected.items),colnames(tmp$lambda)%in%names(factor.structure), drop = FALSE]
-        
+
+        if (!is.null(tmp$beta)) {
+          psi <- lavaan::inspect(output,'cov.lv')
+          psi <- psi[rownames(tmp$psi)%in%names(factor.structure),colnames(tmp$psi)%in%names(factor.structure), drop  = FALSE]
+        }
+          
         rel <- rep(NA,ncol(lambda))        
         for (i in 1:ncol(lambda)) {
           filter <- which(lambda[,i]!=0)
@@ -260,6 +265,13 @@ function(
         theta <- lapply(tmp,function(x) x$theta[rownames(x$theta)%in%unlist(selected.items),colnames(x$theta)%in%unlist(selected.items), drop = FALSE])
         psi <- lapply(tmp,function(x) x$psi[rownames(x$psi)%in%names(factor.structure),colnames(x$psi)%in%names(factor.structure), drop  = FALSE])
         lambda <- lapply(tmp,function(x) x$lambda[rownames(x$lambda)%in%unlist(selected.items),colnames(x$lambda)%in%names(factor.structure), drop = FALSE])
+        
+        for (i in 1:length(psi)) {
+          if (!is.null(tmp[[i]]$beta)) {
+            psi[[i]] <- lavaan::inspect(output,'cov.lv')[[i]]
+            psi[[i]] <- psi[[i]][rownames(tmp[[i]]$psi)%in%names(factor.structure),colnames(tmp[[i]]$psi)%in%names(factor.structure), drop  = FALSE]
+          }
+        }
         
         rel <- lapply(lambda,function(x) rep(NA,ncol(x)))
         crel <- rep(NA,length(lambda))

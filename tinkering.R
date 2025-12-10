@@ -4,7 +4,7 @@
 # # load packages and data
 # library(stuart)
 # data(fairplayer)
-devtools::load_all('~/stuart/stuart')
+devtools::load_all('~/projects/stuart/stuart')
 
 library(lavaan)
 
